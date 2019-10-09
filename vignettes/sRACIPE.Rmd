@@ -1,0 +1,258 @@
+---
+title: "A systems biology tool for gene regulatory circuit simulation"
+author:
+- name: Vivek Kohar
+  affiliation: The Jackson Laboratory, Bar Harbor, Maine, USA
+output:
+  BiocStyle::html_document:
+    toc_float: true
+  BiocStyle::pdf_document: default
+package: sRACIPE
+vignette: |
+  %\VignetteIndexEntry{A systems biology tool for gene regulatory circuit simulation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 7, fig.height = 5)
+```
+
+# Introduction
+
+This document illustrates the use of sRACIPE to simulate any 
+circuit or network or topology (used interchangeably) 
+and analyze the generated data. sRACIPE implements a 
+randomization-based method for gene circuit modeling. 
+It allows us to study the effect of both the gene expression noise 
+and the parametric variation on any gene regulatory circuit (GRC) 
+using only its topology, and simulates an ensemble of models 
+with random kinetic parameters at multiple noise levels. 
+Statistical analysis of the generated gene expressions 
+reveals the basin of attraction and stability of various 
+phenotypic states and their changes associated with 
+intrinsic and extrinsic noises. sRACIPE provides a 
+holistic picture to evaluate the effects of both the 
+stochastic nature of cellular processes and the parametric variation. 
+
+## Installation
+1. Download the package from Bioconductor.
+```{r getPackage, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("sRACIPE")
+```
+
+Or install the development version of the package.
+```{r, eval = FALSE}
+BiocManager::install(“vivekkohar/sRACIPE”)
+```
+
+2. Load the package into R session.
+
+```{r Load, message=FALSE}
+library(sRACIPE)
+```
+
+For simplicity, we will start with the toggle switch 
+with mutual inhibition and 
+self activation of both genes as a test case. Additionally,
+to keep the simulations fast, we will use fewer models, 
+small integration time and longer integration step size.
+We recommend using the default settings for most 
+parameters for actual simulations.
+
+# Load the Circuit
+One can use the topology stored in a text file or loaded 
+as a dataframe. The typical format of the topology 
+file is a 3 column file where the first column is name of the source gene, 
+second column is name of the target gene and last column is 
+the interaction type (1 - activation, 2-inhibition). 
+The first line should contain the header (Source Target Interaction). 
+We will work with a demo circuit from the package.
+
+```{r eval=TRUE}
+library(sRACIPE)
+
+# Load a demo circuit
+data("demoCircuit")
+demoCircuit
+
+```
+
+# Simulate the circuit
+We will use a reduced number of 
+models (using numModels) for demonstration. The simulations will return a 
+RacipeSE object. 
+
+
+```{r}
+
+rSet <- sRACIPE::sracipeSimulate(circuit = demoCircuit, numModels = 20,
+                             plots = FALSE, integrateStepSize = 0.1, 
+                             simulationTime = 30)
+
+```
+
+# Plotting the simulated data
+
+We can plot the simulated data using the sracipePlotData 
+function or using plots=TRUE
+in sracipeSimulate. The data can be normalized before plotting. 
+Otherwise it will be normalized by the plotting function. By default, two 
+clusters are identified and models colored according to hierarchical clustering.
+
+```{r eval=TRUE}
+rSet <- sRACIPE::sracipeNormalize(rSet)
+rSet <- sRACIPE::sracipePlotData(rSet, plotToFile = FALSE)
+
+```
+
+# Knockdown Analysis
+The simulations can be used to perform in-silico perturbation analysis. 
+For example, here we will limit a gene's production rate to mimic its knockdown
+and show how that changes the relative proportion of models in different 
+clusters.
+
+```{r eval=TRUE}
+data("demoCircuit")
+rSet <- sRACIPE::sracipeSimulate(circuit = demoCircuit, 
+                             numModels = 50, plots = FALSE, 
+                             integrateStepSize = 0.1, 
+                             simulationTime = 30)
+kd <- sRACIPE::sracipeKnockDown(rSet, plotToFile = FALSE,
+                                reduceProduction=50)
+```
+
+# Plot the network 
+
+The network can be plotted in an interactive viewer 
+or html file in the results  folder.
+
+```{r eval=FALSE}
+ sRACIPE::sracipePlotCircuit(rSet, plotToFile = FALSE)
+```
+
+
+#  Stochastic simulations 
+
+One can perform stochastic simulations similarly by specifying additional 
+parameters to the sracipeSimulate function, namely, nNoise (the number of noise
+levels at which the stochastic simulations should be carried out), initialNoise 
+(the starting noise level) and noiseScalingFactor (the multiplicative factor by
+which noise should be reduced for multiple noise levels). 
+For annealing, use anneal=TRUE alongwith the above mentioned parameters.
+For simulations at one
+noise level only, use nNoise = 1 and set initialNoise parameter to the specific 
+noise. 
+
+Now the returned object will contain additional elements in the 
+assays which correspond to the 
+simulations at different noise levels 
+(noise specified by the name of the element).
+
+```{r eval=TRUE}
+rSet <- sRACIPE::sracipeSimulate(circuit = demoCircuit, numModels = 20, 
+                             initialNoise = 15, noiseScalingFactor = 0.1,
+                             nNoise = 2,
+                             plots = TRUE, plotToFile = FALSE, 
+                             integrateStepSize = 0.1, 
+                             simulationTime = 30)
+
+```
+
+Here, calling the sracipeSimulate function simulated the circuit at zero noise level
+as well as the two (nNoise) other noise levels 15 (initialNoise), 1.5 
+(initialNoise*noiseScalingFactor). The first three plots (hierarchical 
+clustering heatmap, Umap, PCA) correspond to deterministic data and the last
+two plots contain the data from stochastic simulations projected on the 
+principal components of the deterministic simulations.
+
+Note that the rSet now contains stochastic simulations as well as 
+additional elements like umap, pca, assignedClusters. These are 
+added when the data is plotted. As mentioned previously, 
+the additional elements of the assays 
+are named "15" and "1.5" which correspond to noise levels. 
+
+For annealing simulations, one can set anneal=TRUE in the sracipeSimulate function.
+With anneal=FALSE (constant noise), simulations at different noise levels are 
+independent of each other. These are useful if one is primarily interested in 
+the gene expressions at different noise levels and at zero noise 
+(used for normalizing the data). With annealing, the steady state solutions
+at higher noise levels are used as the intial conditions for lower noise levels 
+such that each model converges to its most stable state when the noise is zero.
+
+
+Using annealing, ideally the number of noise levels should be very large 
+and noiseScalingFactor close to 1 as we want to reduce the noise very slowly. 
+In practice, we found nNoise ~ 30 and 
+initialNoise ~50 divided by sqrt(number_gene) 
+as good starting values. Constant noise and annealing noise simulations pca 
+plots can be used for better approximations of these parameters. 
+The initialNoise should be such that there is a single cluster at this 
+high noise level (essentially the gene expression values are random and circuit 
+topology has little effect). Next, noiseScalingFactor  should be adjusted such 
+that there are sufficient noise levels when this single cluster splits into 
+multiple clusters observed in deterministic simulations. 
+
+With annealing,
+the models converge to their most stable steady state 
+at zero noise. Thus, the number of models is more stable clusters
+will increase and number in less 
+stable clusters will decrease. Note that for non zero noise, the stable states
+can be different from the stable states at zero noise. In our illustrative 
+example shown abpve, the previous two stable states of a toggle circuit are no 
+longer stable at high noise ("15") and instead the previously unstable high high
+state is stable now. Briefly, noise can change the stable states and zero noise
+simulations using annealing can  
+gives us an idea about the relative stability of states 
+when there are multiple stable states. 
+
+Further, one can modify the parameters and/or initial conditions
+and simulate the circuit with
+modified parameters and/or initial conditions using the parameters 
+genParams = FALSE and/or genIC = FALSE. 
+
+
+```{r eval=TRUE}
+rSet <- sRACIPE::sracipeSimulate(circuit = demoCircuit, numModels = 20, 
+                             plots = FALSE, integrate = FALSE)
+params <- sRACIPE::sracipeParams(rSet)
+modifiedParams <- as.matrix(params) 
+modifiedParams[,1] <- 0.1*modifiedParams[,1]
+sRACIPE::sracipeParams(rSet) <- DataFrame(modifiedParams)
+rSet <- sRACIPE::sracipeSimulate(rSet, plots = FALSE, genParams = FALSE)
+
+```
+
+
+# KnockOut Simulations
+
+Knockout of a gene is implemented by changing the production rate and initial 
+condition of the gene to zero. The knockOut parameter in the function 
+sracipeSimulate can be used to perform these knockout simulations. If simulations 
+are to be carried out for knockouts of different genes, the genes should be 
+specified as a list where each list element will contain the names of the gene 
+to be knocked out. For example, knockout = list("gene1", "gene2", 
+c("gene3", "gene4"), "gene5") will knockout gene1, gene2, gene5 one by one
+and knockout gene3 and gene4 simultaneously.
+knockOut = "all", each gene is knocked out one by one and the results are 
+returned as an element knockOutSimulations which, similar to 
+stochasticSimulations, is a list of dataframes containing the gene expressions
+obtained by knockout one or more genes. Enabling plots=TRUE will plot the 
+results. As the expression of knockout gene is zero, we compute PCA with 
+unperturbed genes for both the unperturbed simulations as well as the
+perturbed simulations. So for each knockout, we have two plots containing the
+scatter plot of unperturbed simulations and perturbed simulations on the PCs of
+unperturbed simulations (excluding the gene to be perturbed).
+
+# References
+Kohar V, Lu M (2018). “Role of noise and parametric variation in the dynamics of gene regulatory circuits.” npj Systems Biology and Applications, 4, 40. https://www.nature.com/articles/s41540-018-0076-x.
+
+
+# Session Information
+
+```{r}
+sessionInfo()
+```
+
