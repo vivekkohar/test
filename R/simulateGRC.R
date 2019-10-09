@@ -151,7 +151,7 @@ sracipeSimulate <- function( circuit="inputs/test.tpo", config = config,
  metadataTmp <- metadata(rSet)
  configData <- NULL
  data("configData",envir = environment())
- configuration <- configData
+ configuration <<- configData
  
   if(methods::is(circuit,"RacipeSE"))
   {
@@ -176,7 +176,7 @@ sracipeSimulate <- function( circuit="inputs/test.tpo", config = config,
   }
 if(!missing(config)){
  if(methods::is(config,"list")){
-   configuration <- config
+   configuration <<- config
  }
   else{
     message("Incorrect config provided!")
