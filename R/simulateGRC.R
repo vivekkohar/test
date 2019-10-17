@@ -150,15 +150,15 @@ sracipeSimulate <- function( circuit="inputs/test.tpo", config = config,
  rSet <- RacipeSE()
  metadataTmp <- metadata(rSet)
  configData <- NULL
- data("configData",envir = environment())
- configuration <<- configData
+ data("configData",envir = environment(), package = "sRACIPE")
+ configuration <- configData
  
   if(methods::is(circuit,"RacipeSE"))
   {
 
       rSet <- circuit
-      metadataTmp <- metadata(circuit)
-      configuration <- metadata(circuit)$config
+      metadataTmp <- metadata(rSet)
+      configuration <- metadata(rSet)$config
   }
    if((methods::is(circuit,"character")) | (methods::is(circuit, "data.frame")))
   {
@@ -176,7 +176,7 @@ sracipeSimulate <- function( circuit="inputs/test.tpo", config = config,
   }
 if(!missing(config)){
  if(methods::is(config,"list")){
-   configuration <<- config
+   configuration <- config
  }
   else{
     message("Incorrect config provided!")
@@ -390,6 +390,7 @@ if(missing(nNoise)){
   if(timeSeries){
     configuration$simParams["numModels"] <- 1
     # configuration$stochParams["nNoise"] <- 0
+    
     if(missing(printInterval)) 
     configuration$simParams["printInterval"] <- max(
       0.05, configuration$simParams["integrateStepSize"])
@@ -400,37 +401,63 @@ if(missing(nNoise)){
     
     }
   }
+  stepperInt <- 1L
+  if(configuration$stepper == "RK4"){ stepperInt <- 4L}
+  if(configuration$stepper == "DP") {stepperInt <- 5L}
   
   if(configuration$stochParams["nNoise"] > 0) {
     if(stepper != "EM"){
       warnings("Defaulting to EM stepper for stochastic simulations")
-      stepper <- "EM"
+      configuration$stepper <- "EM"
+      stepperInt <- 1L
     }
     if(missing(initialNoise)) { configuration$stochParams["initialNoise"] <-
       as.numeric(50/sqrt(nGenes))}
   }
 
-  stepperInt <- 1L
-  if(configuration$stepper == "RK4"){ stepperInt <- 4L}
-  if(configuration$stepper == "DP") {stepperInt <- 5L}
+
 
 
 
   annotationTmp <- outFileGE
   message("Running the simulations")
+  # print(configuration$stochParams["nNoise"])
   Time_evolution_test<- simulateGRCCpp(geneInteraction, configuration,outFileGE,
                                        outFileParams,outFileIC, stepperInt)
 
     if(configuration$options["integrate"]){
       if(timeSeries){
-        geneExpression <- utils::read.table(outFileGE, header = FALSE)
-        geneExpression <- matrix(geneExpression, ncol = nGenes, byrow = TRUE)
+        timeStamps <- c(seq(
+          configuration$simParams["printStart"] +
+            configuration$simParams["printInterval"], 
+          configuration$simParams["simulationTime"],
+          configuration$simParams["printInterval"]),
+          configuration$simParams["simulationTime"])
         
+        geneExpression <- utils::read.table(outFileGE, header = FALSE)
+        # print(dim(geneExpression))
+        geneExpression <- matrix(geneExpression, ncol = nGenes, byrow = TRUE)
+        # print(dim(geneExpression))
         parameters <- utils::read.table(outFileParams, header = FALSE)
         paramName <- sracipeGenParamNames(rSet)
         colnames(parameters) <- paramName
         ic <- utils::read.table(outFileIC, header = FALSE)
+        if(configuration$stochParams["nNoise"] ==1){
+          # print(dim(geneExpression))
+          detGeneExp <- geneExpression[(1+dim(geneExpression)[1]/2):dim(geneExpression)[1],]
+          geneExpression <- geneExpression[(1:(dim(geneExpression)[1]/2)),]
+          #print(dim(geneExpression))
+          detGeneExp <- t(detGeneExp)
+          rownames(detGeneExp) <- geneNames
+          colnames(detGeneExp) <- timeStamps[1:dim(detGeneExp)[2]]
+          metadataTmp$timeSeriesDet <- NULL
+          metadataTmp$timeSeriesDet <- detGeneExp
+          #print(dim(detGeneExp))
+          
+        }
+        
         geneExpression <- t(geneExpression)
+        #print(dim(geneExpression))
         colnames(ic) <- geneNames
         metadataTmp$normalized <- FALSE
 
@@ -441,16 +468,10 @@ if(missing(nNoise)){
       #  configuration$simParams["simulationTime"],
       # configuration$simParams["integrateStepSize"])
         rownames(geneExpression) <- geneNames
-        timeStamps <- c(seq(
-          configuration$simParams["printStart"] +
-            configuration$simParams["printInterval"], 
-          configuration$simParams["simulationTime"],
-          configuration$simParams["printInterval"]),
-          configuration$simParams["simulationTime"])
+
         # print(dim(geneExpression))
         # print(length(timeStamps))
-        
-        colnames(geneExpression) <- timeStamps
+        colnames(geneExpression) <- timeStamps[1:dim(geneExpression)[2]]
         metadataTmp$timeSeries <- NULL
       metadataTmp$timeSeries <- geneExpression
 
@@ -519,22 +540,24 @@ if(missing(nNoise)){
             message("knockOut gene not found in the circuit")
             return(rSet)
           }
-          print(length(names(rSet)))
-          print(metadata(rSet)$nInteractions)
-          print(dim(colData(rSet)))
-          params <- as.data.frame(sracipeParams(rSet))
-          ic <- sracipeIC(rSet)
-          ic[,knockOut_number] <- 0
-          params[,knockOut_number] <- 0
+          params <- parameters
+          params[,knockOut_number] <- 0.0
+          
+          icTmp <- ic
+          icTmp[,knockOut_number] <- 0.0
+          
+          configTmp <- configuration
+          configTmp$options["genIC"] <- FALSE
+          configTmp$options["genParams"] <- FALSE
 
           utils::write.table(params, file = outFileParams,
                       sep = "\t", quote = FALSE, row.names = FALSE,
                       col.names = FALSE)
-          utils::write.table(ic, file = outFileIC,
+          utils::write.table(icTmp, file = outFileIC,
                       sep = "\t", quote = FALSE, row.names = FALSE,
                       col.names = FALSE)
 
-          Time_evolution_test<- simulateGRCCpp(geneInteraction, configuration,
+          Time_evolution_test<- simulateGRCCpp(geneInteraction, configTmp,
             outFileGE,outFileParams,outFileIC, stepperInt)
 
 

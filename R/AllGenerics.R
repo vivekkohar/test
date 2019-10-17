@@ -128,6 +128,28 @@ setGeneric("sracipeParams",
            }
 )
 
+#' @export
+#' @import SummarizedExperiment
+#' @title  A method to extract the time series
+#' @description If timeSeries option is used in sracipeSimulate function, this
+#' method will return the simulated time series.
+#' @param .object RacipeSE object
+#' @examples
+#' 
+#' data("demoCircuit")
+#' sracipeCircuit(RacipeSet) <- demoCircuit
+#' RacipeSet <- sracipeSimulate(demoCircuit, timeSeries = T, simulationTime = 5)
+#' trajectories <- sracipeGetTS(RacipeSet)
+#' rm(RacipeSet)
+#' @return list
+#'
+
+setGeneric(name="sracipeGetTS",
+           def=function(.object)
+           {
+             standardGeneric("sracipeGetTS")
+           }
+)
 
 #' @export
 #' @title  A method to set the simulation parameters

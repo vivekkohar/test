@@ -1,123 +1,97 @@
 source("modules.R")
 modelExplorer <-  tabPanel("Model Explorer",
-############## Network Input ##################################################
+                           tags$em("
+'GeneVyuha' tab simulates a circuit with a specific parameter set. 
+        Once the circuit is loaded from the 'Circuit' or 'Database' tab, a 
+        random set of parameters is generated. If the circuit from the 
+database has its own parameter set, that set is used. The parameter set contains
+two paramters for each gene and three parameters for each interactions. 
+The gene parameters are production (G_'gene') and degradation (k_'gene') rate 
+whereas the parameters for each interaction ('source'_'target') are 'threshold'
+(TH_), 'hill coefficient of cooperativity' and 'fold change'. 
+These parameters can be modified using the dropdown box given below. 
+        The default value of the parameter is dispalyed when a parameter is 
+        selected. Edit the 'value' and click 'Update' to modify this value. 
+        Repeat  these steps if other parameters are to be modified. Other 
+        simulation paramters can also be modified."),
+                           hr(),
+                           useShinyjs(),
+                           
                            fluidRow(
-                             column(3, offset = 0,
-                             tags$h4("Circuit Information"),
-                             textInput(("filenameTopo"), "Circuit Name", "Circuit1"),
-                             tags$h5("Circuit Interactions"),
-                                    tabsetPanel(
-                                      tabPanel("Upload File",
-                                               fluidRow(
-                                                 # column(3, offset = 0,
-                                                 downloadButton(('downloadSampleNet'), 'Download sample')),
-                                               br(),
-                                               fluidRow(
-                                                 column(6, offset = 0,
-
-                                                        #         checkboxInput(ns("headerTopology"), "Header", TRUE),
-                                                        fileInput(("file"),label = NULL)),
-                                                 column(3, offset = 0,
-                                               actionButton(("updateTopologyfromFile"), "Load Circuit")))),
-
-
-                                      tabPanel("Enter Text",
-                                               fluidRow(
-
-                                                 textAreaInput( inputId =  ("uiTopology"),label = NULL,
-                                                                value =  "", placeholder = "srcA,tgtA,1,srcB,tgtB,2,srcA,tgtB,2"),
-
-                                                 actionButton(("updateTopologyfromText"), "Load Circuit"),
-                                                 htmlOutput(("networkTextFormat"))
-                                               ))
-
-                                      ),
-                             br(),
-
-                                    downloadButton(('downloadCircuit'), 'Download circuit')
-                                    ),
-                             column(3, offset = 0,
-                                    DTOutput(("tb"))
-
-                             ),
                              column(6, offset = 0,
-                                    (visNetworkOutput(("network")))
-                             )),
-
-useShinyjs(),
-
- # shinyLoadNetworkUI("shinyModelExplorerNetwork"),
-############## Simulation Options ##############################################
-hr(),
-fluidRow(
-
-  column(4, offset=2,
-         actionButton("deterministicSimulations", "Simulation Options", style='padding:10px; font-size:100%')),
-  column(3, offset=0,
-         #      br(),
-         hidden(actionButton("simulateME", "Generate Random Parameter Set", style='padding:10px; font-size:100%')))
-),
-
-############## Deterministic Options ###########################################
-
-fluidRow(
-  hidden( plotOutput("MEts"))
-),
-# fluidRow(
-#   column(3, offset=0,
-# hidden(downloadButton('downloadMEData', 'Download Data'))),
-# column(3, offset=0,
-# hidden(actionButton("saveMEData", "Upload to Database"))),
-# column(3, offset=0,
-# hidden(htmlOutput("fileSaveDatabase1")))
-# ),
-hr(),
-############## Perturbations  ##############################################
-fluidRow(
-
-  column(4, offset=4,
-         hidden(actionButton("perturbationExplorer", "Parametric and Stochastic Perturbations", style='padding:10px; font-size:100%')))
-),
-fluidRow(
-
-  column(3, offset=0,
-         hidden( numericInput(inputId = "simTimeExplorer", "Simulation Time",  min = 1, max = 5000, value = 50.0))),
-  column(3, offset=0,
-         hidden( numericInput(inputId = "stepSizeExplorer", "Integration Time Step",  min = 0.001, max = 0.9, value = 0.1)))
-),
-fluidRow(
-  column(3, offset=0,
-         hidden(uiOutput("modelParams"))),
-column(1, offset=0,
-       hidden(uiOutput("newModelParamValue"))),
-column(1, offset=0,
-       hidden(      numericInput("noiseLevel", "Noise Level",step = 0.1,  min = 0, max = 100, value = 0))),
-  column(5, offset=0,
-         br(),
-         hidden(  actionButton("simulateModifiedME", "Simulate circuit with modified parameters", style='padding:10px; font-size:100%')))
-),
-
-fluidRow(
-  hidden( plotOutput("modifiedMEts"))
-),
-# fluidRow(
-#   column(3, offset=0,
-#          hidden(downloadButton('downloadModifiedMEData', 'Download Modified Parameter Data'))),
-#          column(3, offset=0,
-#          hidden(actionButton("saveModifiedMEData", "Upload to Database"))),
-#   column(3, offset=0,
-#          hidden(htmlOutput("fileSaveModifiedMEDatabase")))
-# ),
+                                    style = "margin-bottom: -1em;",
+                                    uiOutput("modelParams"),
+                                    fluidRow(
+                                    column(4, offset = 0,
+                                           style = "margin-top:-1em",
+                                    uiOutput("newModelParamValue")),
+                                    
+                                    
+                                    column(3, offset = 0,
+                                           style = "margin-top: 10px",
+                                           actionButton("updateGvParam", 
+                                                        "Update",
+                                                        width = "100%",
+  style="color: #fff;background-color: #337ab7; border-color: #2e6da4"),
+                                           shinyBS::bsTooltip("updateGvParam", "You can modify the parameters using this button. 
+The parameter set (drop down menu) contains
+two paramters for each gene, production (G_'gene') and degradation (k_'gene') 
+rate, and three parameters for each interactions ('source'_'target'),
+'threshold' (TH_), 'hill coefficient of cooperativity' and 'fold change'. 
+Enter the new value in the 'value' input and 'update'. ", 
+placement = "bottom", trigger = "hover", options = NULL)
+                                          
+                                    )
+                                    ),
+                                    br(),
+                                      numericInput(inputId = "simTimeExplorer", 
+                                                   "Simulation Time",  min = 1, 
+                                                   max = 5000, value = 50.0),
+                                    shinyBS::bsTooltip("simTimeExplorer", 
+"Time after which the variables will be recorded. Use a larger value if you 
+expect longer transient dynamics.", 
+placement = "bottom", trigger = "hover", options = NULL),
+                                    
+                                      numericInput(inputId = "stepSizeExplorer",
+                                                   "Integration Time Step",  
+                                                   min = 0.001, max = 0.9, 
+                                                   value = 0.1),
+                                      shinyBS::bsTooltip("stepSizeExplorer", 
+    "Time step to be used in numerical integration methods.", 
+    placement = "bottom", trigger = "hover", options = NULL),
+                                      
+                                     numericInput("noiseLevel", 
+   "Noise",step = 0.1,  min = 0, max = 100, value = 0),
+                                    shinyBS::bsTooltip("noiseLevel", 
+ "Noise (0~5) to be used in the simulation. ", 
+ placement = "bottom", trigger = "hover", options = NULL),
+                                      
+                                      br(),
+                                    actionButton("simulateGv", "Simulate",
+   style="color: #fff; background-color: #32CD32; border-color: #2e6da4")),
+                             shinyBS::bsTooltip("simulateGv",
+    "Simulate the circuit using the above parameter values. 
+    Change the circuit using the Circuit tab.", 
+    placement = "bottom", trigger = "hover", options = NULL),
+                             
+                             column(6, offset = 0,
+                                  #  bsAlert("gvAlert"),
+                                    visNetworkOutput("circuitGv")
+                             )
+                             ),
+                           fluidRow(
+                             hidden( plotOutput("GvTS"))
+                             ),
 
 hr(),
-
 fluidRow(
   column(3, offset=1,
          fluidRow(
            hidden(downloadButton('downloadMEData', 'Download Data'))),
          fluidRow(
            hidden(radioButtons("downloadMEDataType", "Format",
-                               c("RDS" = "RDS","Text" = "txt") , selected = "RDS",
+                               c("RDS" = "RDS","Text" = "txt") , 
+                               selected = "RDS",
                                inline = TRUE)))),
 
   column(3, offset=0,
@@ -126,23 +100,23 @@ fluidRow(
 ),
 fluidRow(
   column(3, offset = 1,
-         hidden(textInput("uploadToDatabaseUI_name_Explorer", "Name", ""))),
+hidden(textInput("uploadToDatabaseUI_name_Explorer", "Name", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_lab_Explorer", "Lab", ""))),
+ hidden(  textInput("uploadToDatabaseUI_lab_Explorer", "Lab", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_contact_Explorer", "Contact", "")))
+hidden(  textInput("uploadToDatabaseUI_contact_Explorer", "Contact", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_title_Explorer", "Title", "")))
+hidden(   textInput("uploadToDatabaseUI_title_Explorer", "Title", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_abstract_Explorer", "Abstract", "")))
+hidden(   textInput("uploadToDatabaseUI_abstract_Explorer", "Abstract", "")))
 ),
 fluidRow(
   column(3, offset = 1,
-         hidden( textInput("uploadToDatabaseUI_url_Explorer", "URL", ""))),
+ hidden( textInput("uploadToDatabaseUI_url_Explorer", "URL", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_pubMedIds_Explorer", "PubMed ID", "")))
+ hidden(  textInput("uploadToDatabaseUI_pubMedIds_Explorer", "PubMed ID", "")))
 ),
 
 fluidRow(
@@ -152,41 +126,36 @@ fluidRow(
          hidden(htmlOutput("fileSaveDatabase1")))
 ),
 hr(),
-############## Bifurcations ##############################################
+# ############## Bifurcations ##############################################
 
 fluidRow(
 
   column(4, offset=4,
-         hidden(actionButton("bifurcationExplorer", "Bifurcation Analysis", style='padding:10px; font-size:100%')))
+         hidden(actionButton("bifurcationExplorer", "Bifurcation Analysis", 
+style="color: #fff; background-color: #337ab7; border-color: #2e6da4")))
 ),
 
 br(),
 fluidRow(
   column(3, offset=0,
-         hidden(uiOutput("modelParamsBif"))),
-  column(1, offset=0,
-         hidden(uiOutput("modelParamBifMin"))),
-  column(1, offset=0,
-         hidden( uiOutput("modelParamBifMax"))),
-  column(2, offset=0,
+         hidden(uiOutput("modelParamsBif")),
+         hidden(uiOutput("modelParamBifMin")),
+         hidden( uiOutput("modelParamBifMax")),
          hidden( numericInput("modelNumBifurs", "Simulation Points", 300,
-                              min = 50, max = 5000, step = 50))),
-  column(5, offset=0,
-         hidden(  actionButton("bifurcationME", "Plot Bifurcation Diagrams (stable solutions only)", style='padding:10px; font-size:100%'))
+                              min = 50, max = 5000, step = 50)),
+         hidden(  actionButton("bifurcationME", "Simulate", 
+style="color: #fff; background-color: #32CD32; border-color: #2e6da4"))
+         ),
+  shinyBS::bsTooltip("bifurcationME", 
+"Simulate circuit to generate the bifurcation diagram", 
+placement = "bottom", trigger = "hover", options = NULL),
+  
+  column(9, offset=0,
+         
+         hidden(  plotOutput("modifiedBifME")),
+         hidden(downloadButton('downloadBifData', 'Download Bifurcation Data'))
 )),
 
-fluidRow(
-  hidden(  plotOutput("modifiedBifME"))
-)
-# fluidRow(
-#   column(3, offset=0,
-#          hidden(downloadButton('downloadBifData', 'Download Bifurcation Data'))),
-#          column(3, offset=0,
-#          hidden(actionButton("saveBifData", "Upload to Database"))),
-#   column(3, offset=0,
-#          hidden(htmlOutput("fileSaveBifDatabase")))
-# )
-
-
-
+hr(),
+hr()
 )

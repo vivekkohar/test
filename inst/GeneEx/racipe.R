@@ -3,47 +3,31 @@ racipe <-
   tabPanel("RACIPE",
            useShinyjs(),
 
-######## IMPORT NETWORK ########################
-           fluidRow(
-             column(3, offset=0,
-                    br(),
-                    actionButton("importCircuit", "Import Circuit from GeneVyuha", style='padding:10px; font-size:100%')),
-   #          column(3, offset=0, uiOutput("storedTpoFiles")),
-    #         column(3, offset=0,
-                    br()
-     #               actionButton("importCircuitFrmDatabase", "Import Circuit from Database", style='padding:10px; font-size:100%'))
-
-           ),
-
-       #    shinyLoadNetworkUI("shinyRacipeNetwork"),
-       fluidRow(
-         htmlOutput("circuitMsg"),
-       visNetworkOutput("racipeNetwork")),
-  #     column(1, offset = 0,    img(src='JAX.gif', align = "right"))),
-
-  hr(),
-
 ############## RACIPE SIMULATIONS ##########################
   fluidRow(
-
-    column(2, offset=0,
-           hidden( numericInput(inputId = "numModels", "Number of Models",  min = 1, max = 5000, value = 500.0))),
-    column(2, offset=0,
-           hidden( numericInput(inputId = "parameterRange", "Parameter Range",  min = 1, max = 100, value = 100))),
-    column(2, offset=0,
-           hidden( numericInput(inputId = "simTimeRacipe", "Simulation Time",  min = 1, max = 5000, value = 50.0))),
-    column(2, offset=0,
-           hidden( numericInput(inputId = "stepSizeRacipe", "Integration Time Step",  min = 0.001, max = 0.9, value = 0.05)))
-  ),
-  hr(),
-
-
-  fluidRow(
-             column(5, offset=4,
-                    hidden(actionButton("simulateRacipe", "Deterministic RACIPE", style='padding:10px; font-size:100%')))
-           ),
-
-
+    column(5, offset=0,
+         fluidRow(
+           column(9, offset=1,
+           ( numericInput(inputId = "numModels", "Number of Models",  min = 1, 
+                          max = 5000, value = 500.0)))),
+          fluidRow(
+            column(9, offset=1,
+             ( numericInput(inputId = "parameterRange", "Parameter Range",  
+                            min = 1, max = 100, value = 100)))),
+           fluidRow(
+             column(9, offset=1,
+           ( numericInput(inputId = "simTimeRacipe", "Simulation Time", 
+                          min = 1, max = 5000, value = 50.0)))),
+           fluidRow(
+             column(9, offset=1,
+           ( numericInput(inputId = "stepSizeRacipe", "Integration Time Step",
+                          min = 0.001, max = 0.9, value = 0.05)),
+           (actionButton("simulateRacipe", "Simulate", 
+    style="color: #fff; background-color: #32CD32; border-color: #2e6da4"))))),
+  column(6, offset=0,
+  visNetworkOutput("racipeCircuit"))
+),
+bsAlert("racipeAlert"),
        fluidRow(
        htmlOutput("racipeDeterministicText")),
 
@@ -55,20 +39,28 @@ racipe <-
            column(4,
            hidden(plotOutput("racipePca"))
            )),
-hr(),
+fluidRow(
+column(3, offset=8,
+       hidden(actionButton("validateRacipe", "Validate", 
+                           style="color: #fff; background-color: #32CD32; 
+                           border-color: #2e6da4")))
+),
 ################### RACIPE DATA DOWNLOAD #########################
 
 fluidRow(
   column(3, offset=1,
          fluidRow(
-           hidden(downloadButton('downloadDataRacipe', 'Download Data'))),
+           hidden(downloadButton('downloadRacipeData', 'Download Data'))),
          fluidRow(
-           hidden(radioButtons("downloadDataRacipeType", "Format",
-                               c("RDS" = "RDS","Text" = "txt") , selected = "RDS",
+           hidden(radioButtons("downloadRacipeDataType", "Format",
+                               c("RDS" = "RDS","Text" = "txt") , 
+                               selected = "RDS",
                                inline = TRUE)))),
 
   column(3, offset=0,
-         hidden(actionButton("saveDataRacipe", "Upload Options")))
+         hidden(actionButton("saveRacipeData", "Upload Options", 
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))
+
 
 ),
 
@@ -78,33 +70,42 @@ fluidRow(
   column(3, offset = 0,
          hidden(  textInput("uploadToDatabaseUI_lab_Racipe", "Lab", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_contact_Racipe", "Contact", "")))
+         hidden(  textInput("uploadToDatabaseUI_contact_Racipe", 
+                            "Contact", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_title_Racipe", "Title", "")))
+                 hidden(   textInput("uploadToDatabaseUI_title_Racipe", 
+                                     "Title", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_abstract_Racipe", "Abstract", "")))
+                 hidden(   textInput("uploadToDatabaseUI_abstract_Racipe",
+                                     "Abstract", "")))
 ),
 fluidRow(
   column(3, offset = 1,
          hidden( textInput("uploadToDatabaseUI_url_Racipe", "URL", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_pubMedIds_Racipe", "PubMed ID", "")))
+         hidden(  textInput("uploadToDatabaseUI_pubMedIds_Racipe", 
+                            "PubMed ID", "")))
 ),
 
 fluidRow(
   column(1, offset=1,
-         hidden(actionButton("uploadDataRacipe", "Upload"))),
+         hidden(actionButton("uploadRacipeData", "Upload",
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
   column(3, offset=0,
-         hidden(htmlOutput("fileDataRacipe")))
+         hidden(htmlOutput("fileRacipeData")))
 ),
            hr(),
 ################# PARAMETERIC ANALYSIS ###########################
        fluidRow(
-         column(5, offset=5,
-                hidden(  actionButton("parametricAnalysisRacipe", "Parametric Analysis", style='padding:10px; font-size:100%'))),
-         hidden(tags$h5("Use the sliders to control the range of one or more parameters and observe the resulting change in distribution of models in different clusters"))
+         column(5, offset=4,
+                hidden(  actionButton("parametricAnalysisRacipe", 
+                                      "Parametric Analysis", 
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
+         hidden(tags$h5("Use the sliders to control the range of one or more 
+                        parameters and observe the resulting change in 
+                        distribution of models in different clusters"))
        ),
        fluidRow(
          column(3,
@@ -129,12 +130,14 @@ column(3,
                     hidden(    plotOutput("racipePcaFiltered"))
              )
            ),
-hr(),
 
+hr(),
 ################# STOCHASTIC RACIPE ##############################
 fluidRow(
   column(5, offset=4,
-         hidden(actionButton("stochasticRacipe", "Stochastic RACIPE", style='padding:10px; font-size:100%')))
+         (actionButton("stochasticRacipe", "Stochastic RACIPE", 
+                       style="color: #fff; background-color: #337ab7; 
+                       border-color: #2e6da4")))
 ),
 fluidRow(
   column(3,
@@ -143,33 +146,45 @@ fluidRow(
                         "Annealing" = "annealing")))
   ),
   column(3, offset=0,
-         hidden(  sliderInput("sRacipeNoise", "Noise Level",step = 1,  min = 1, max = 20, value = 0))),
+         hidden(  sliderInput("sRacipeNoise", "Noise Level",step = 1,  min = 1, 
+                              max = 20, value = 0))),
 
   column(5, offset=0,
          br(),
-         hidden(  actionButton("simulateSRacipe", "Perform Stochastic Simulations", style='padding:10px; font-size:100%')))
+         hidden(  actionButton("simulateSRacipe", 
+                               "Perform Stochastic Simulations", 
+                               style="color: #fff; background-color: #32CD32; 
+                           border-color: #2e6da4")))
 ),
 fluidRow(
-  column(8,
-hidden(plotOutput("sRacipeHeatmap"))),
-column(4,
+  column(6,
+         hidden(plotOutput("sRacipePcaDet"))
+  ),
+column(6,
        hidden(plotOutput("sRacipePca"))
 )),
-hr(),
+fluidRow(
+  column(6,
+hidden(plotOutput("sRacipeHeatmapDet"))),
+column(6,
+       hidden(plotOutput("sRacipeHeatmap")))),
+
 
 ################### SRACIPE DATA DOWNLOAD #########################
 
 fluidRow(
   column(3, offset=1,
          fluidRow(
-           hidden(downloadButton('downloadDataSRacipe', 'Download Data'))),
+           hidden(downloadButton('downloadSRacipeData', 'Download Data'))),
          fluidRow(
-           hidden(radioButtons("downloadDataSRacipeType", "Format",
-                               c("RDS" = "RDS","Text" = "txt") , selected = "RDS",
+           hidden(radioButtons("downloadSRacipeDataType", "Format",
+                               c("RDS" = "RDS","Text" = "txt") , 
+                               selected = "RDS",
                                inline = TRUE)))),
 
   column(3, offset=0,
-         hidden(actionButton("saveDataSRacipe", "Upload Options")))
+         hidden(actionButton("saveSRacipeData", "Upload Options",
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))
 
 ),
 
@@ -179,27 +194,32 @@ fluidRow(
   column(3, offset = 0,
          hidden(  textInput("uploadToDatabaseUI_lab_sRacipe", "Lab", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_contact_sRacipe", "Contact", "")))
+         hidden(  textInput("uploadToDatabaseUI_contact_sRacipe", 
+                            "Contact", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_title_sRacipe", "Title", "")))
+                 hidden(   textInput("uploadToDatabaseUI_title_sRacipe",
+                                     "Title", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_abstract_sRacipe", "Abstract", "")))
+                 hidden(   textInput("uploadToDatabaseUI_abstract_sRacipe",
+                                     "Abstract", "")))
 ),
 fluidRow(
   column(3, offset = 1,
          hidden( textInput("uploadToDatabaseUI_url_sRacipe", "URL", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_pubMedIds_sRacipe", "PubMed ID", "")))
+         hidden(  textInput("uploadToDatabaseUI_pubMedIds_sRacipe", 
+                            "PubMed ID", "")))
 ),
 
 fluidRow(
   column(1, offset=1,
-         hidden(actionButton("uploadDataSRacipe", "Upload"))),
+         hidden(actionButton("uploadSRacipeData", "Upload",
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
   column(3, offset=0,
-         hidden(htmlOutput("fileDataSRacipe")))
-)
+         hidden(htmlOutput("fileSRacipeData")))
+),
 #downloadButton('downloadCNData', 'Download Constant Noise Simulation Data'),
 
 
@@ -210,8 +230,9 @@ fluidRow(
 # numericInput("KdReduction", "Decrease in production upon knockdown (%)"),
 #            fluidRow(
 #              column(5, offset=4,
-#                     actionButton("simulateRacipe", "Plot Knockdown Statistics", style='padding:10px; font-size:100%'))
+#                     actionButton("simulateRacipe", "Plot Knockdown Statistics"
+# , style='padding:10px; font-size:100%'))
 #            )
-
+hr()
   )
 

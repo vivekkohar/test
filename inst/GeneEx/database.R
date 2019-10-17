@@ -2,18 +2,18 @@ database <-
   tabPanel("Database",
            useShinyjs(),
            tags$head(includeHTML("google.html")),
-           fluidRow(
-             column(3, offset = 0,
-                textInput("shinySelectNetworkDb",
-                            "Enter Network Name", placeholder =  "EMT_npjSystemsBiology")),
-             column(1, offset = 0,
-                    br(),
-             actionButton("submitNetwork", "Explore Network", icon = NULL, width = NULL)
-             )
-          #      column(1, offset = 0,    img(src='JAX.gif', align = "right"))
-          ),
-
-textOutput("msg"),
+#            fluidRow(
+#              column(3, offset = 0,
+#                 textInput("shinySelectNetworkDb",
+#                             "Enter Network Name", placeholder =  "EMT_npjSystemsBiology")),
+#              column(1, offset = 0,
+#                     br(),
+#              actionButton("submitNetwork", "Explore Network", icon = NULL, width = NULL)
+#              )
+#           #      column(1, offset = 0,    img(src='JAX.gif', align = "right"))
+#           ),
+# 
+# textOutput("msg"),
 
         br(),
 
@@ -21,21 +21,34 @@ textOutput("msg"),
              DTOutput("databaseTable")
            ),
         hr(),
-
+bsAlert("dbAlert"),
+hr(),
 
 br(),
 fluidRow(
   column(4,offset = 0,
-        DTOutput("tableDbNetwork")
+        DTOutput("tableDbNetwork"),
+        hidden(actionButton("showExpressionDatabase", "Show Expression Plots", 
+icon = NULL, width = NULL, 
+style="color: #fff; background-color: #32CD32; border-color: #2e6da4"))
         ),
   column(8,offset = 0,
-         hidden(actionButton("loadNetworkExplorer", "Load Circuit to GeneVyuha", icon = NULL, width = NULL)),
-         hidden(actionButton("loadNetworkRACIPE", "Load Circuit to RACIPE", icon = NULL, width = NULL)),
+         hidden(actionButton("loadNetworkDatabase", "Load Circuit", 
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4")),
          visNetworkOutput("plotDbNetwork")
   )
+
   ),
+shinyjs::hidden(downloadButton('downloadDbData', 'Download Data')),
+shinyjs::hidden(radioButtons("downloadDbDataType", "Format",
+                             c("RDS" = "RDS","Text" = "txt") , 
+                             selected = "RDS",
+                             inline = TRUE)),
+
     plotOutput("plotDbNetworkExprs"),
-hidden(downloadButton('downloadDbData', 'Download Data')),
+    plotOutput("plotDbPC"),
+
+
 hr(),
 hr()
 #print("~~~Disclaimer~~~~")

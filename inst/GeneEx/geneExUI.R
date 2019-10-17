@@ -4,22 +4,25 @@
 #
 # http://shiny.rstudio.com
 #
-source('modelExplorer.R')
-source('racipe.R')
-source('evaluate.R')
-#source('sRacipe.R')
-source('database.R')
-source('about.R')
+library(shinyjs)
+library(shinyalert)
+source('circuit.R', local = TRUE)
+source('modelExplorer.R', local = TRUE)
+source('racipe.R', local = TRUE)
+source('validate.R', local = TRUE)
+source('database.R', local = TRUE)
+source('about.R', local = TRUE)
+source('allSessions.R', local = TRUE)
 geneExUI <- navbarPage("Gene Circuit Explorer",
-                       tabPanel("Evaluate",evaluate),
+                       tabPanel("Circuit",circuit),
                        tabPanel("GeneVyuha", modelExplorer),
-                          tabPanel("About", about),
-                          tabPanel("RACIPE", racipe),
                        
-                          tabPanel("Database",database),
-                       
-                          tags$head(includeHTML("google.html")),
-                        tags$head(
+                       tabPanel("RACIPE", racipe),
+                       tabPanel("Validate",validate),
+                       tabPanel("Database",database),
+                       tabPanel("About", about),
+                       tags$head(includeHTML("google.html")),
+                       tags$head(
                           tags$style(type = 'text/css',
                                      HTML('.navbar { background-color: white;
                                           font-size:      1.5em;}

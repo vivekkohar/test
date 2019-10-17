@@ -15,7 +15,7 @@ sracipeSimulate(circuit = "inputs/test.tpo", config = config,
   printStart = 50, printInterval = 10, stepper = "RK4",
   thresholdModels = 5000, plots = FALSE, plotToFile = FALSE,
   genIC = TRUE, genParams = TRUE, integrate = TRUE,
-  rkTolerance = 0.01, ...)
+  rkTolerance = 0.01, timeSeries = FALSE, ...)
 }
 \arguments{
 \item{circuit}{data.frame or character. The file containing the circuit or}
@@ -164,8 +164,11 @@ for adaptive integration method.}
 \item{...}{Other arguments}
 }
 \value{
-List. A list containing the circuit, parameters, initial conditions,
-simulated gene expressions, and simulation configuration.
+\code{RacipeSE} object. RacipeSE class inherits 
+\code{SummarizedExperiment} and contains the circuit, parameters, 
+initial conditions,
+simulated gene expressions, and simulation configuration. These can be 
+accessed using correponding getters.
 }
 \description{
 Simulate a gene regulatory circuit using its topology as the

@@ -58,6 +58,18 @@ sracipeHeatmapSimilarity = function(
   # as p values are related
   # A separate funtion to change the assignment type. Change ClustFunction
   
+  commonGenes <- intersect(rownames(dataSimulation), rownames(dataReference))
+  if(length(commonGenes) == 0) {
+    message(" No Common genes found between the simulated and reference data.")
+    return()
+  }
+ if(is.null(colnames(dataReference))){
+   colnames(dataReference) <- seq(1:ncol(dataReference))
+ }
+  if(is.null(colnames(dataSimulation))){
+    colnames(dataSimulation) <- seq(1:ncol(dataSimulation))
+  }
+  
   message("Calculating the similarity index")
   #  nClusters = 3
   n.models <- dim(dataReference)[2]
@@ -80,7 +92,7 @@ sracipeHeatmapSimilarity = function(
     }
     
     # cluster the reference data if the clutering assignments has not been 
-    provided.
+    # provided.
     distance <- as.dist((1-refCor)/2)
     clusters <- hclust(distance, method = clusterMethod)
     #plot(clusters)
@@ -93,7 +105,11 @@ sracipeHeatmapSimilarity = function(
       }
       nClusters <- length(unique(clusterCut))
     }
-  
+  # Use only selected genes for comparison.
+  # Clustering is done using all genes. This can lead to differences in
+  # how the clusters look.
+  dataReference <- dataReference[commonGenes, ]
+  dataSimulation <- dataSimulation[commonGenes, ]
   # find the variance within each cluster
   #TO DO Will standard deviation be better? shouldn't be with ward method.
   
@@ -231,26 +247,35 @@ sracipeHeatmapSimilarity = function(
   similarity$KL <- sum(similarity$cluster.similarity )
   
   if(returnData){
-    similarity$dataReference <- dataReference
-    colnames(similarity$dataReference) <- clusterCut
-    similarity$dataReference <- 
-      similarity$dataReference[,order(colnames(similarity$dataReference))]
-    
-    
-    similarity$dataSimulation <- dataSimulation[,which(simulated.cluster>0)]
-    colnames(similarity$dataSimulation) <- 
+     # similarity$dataReference <- dataReference
+     dataRefSamples <- colnames(dataReference)
+ #    print(dataRefSamples)
+     dataRefSamples <- dataRefSamples[order(clusterCut)]
+#     print(dataRefSamples)
+     clusterCut <- clusterCut[order(clusterCut)]
+     #colnames(similarity$dataReference) <- clusterCut
+     similarity$dataReference <-
+      dataReference[,dataRefSamples]
+     #print(dim(dataReference))
+     # print(dim(similarity$dataReference))
+
+
+     similarity$dataSimulation <- dataSimulation[,which(simulated.cluster>0)]
+    colnames(similarity$dataSimulation) <-
       simulated.cluster[which(simulated.cluster>0)]
-    similarity$dataSimulation <- 
+     similarity$dataSimulation <-
       similarity$dataSimulation[,order(colnames(similarity$dataSimulation))]
     refSimCor <- numeric()
     previous.cluster.size <- 0
     refSimCor.ref <- numeric()
     previous.cluster.size.ref <- 0
-    
-    for(i in 1:(length(unique(colnames(similarity$dataSimulation)))))
+  #  print(colnames(similarity$dataSimulation))
+    # print(clusterCut)
+    for(i in 1:(nClusters+1) )#(length(unique(colnames(similarity$dataSimulation)))))
     {
+   #   print(i)
       temp.ref <- similarity$dataReference[,which(
-        colnames(similarity$dataReference)==i)]
+        clusterCut==i)]
       temp.sim <- similarity$dataSimulation[,which(
         colnames(similarity$dataSimulation)==i)]
       
@@ -274,10 +299,13 @@ sracipeHeatmapSimilarity = function(
     
     similarity$dataSimulation <- cbind(similarity$dataSimulation[,refSimCor],
                                        tmp)
-    
-    similarity$dataReference <- similarity$dataReference[,refSimCor.ref]
-    
+    colnames(similarity$dataSimulation) <- seq(1:ncol(similarity$dataSimulation))
+    #print(dim(similarity$dataReference))
+    # similarity$dataReference <- similarity$dataReference[,refSimCor.ref]
+    #print(dim(similarity$dataReference))
     #TO DO : This invovlves repeat calculation of cor--can be optimized
+ #   print(similarity$dataReference)
+ #   print(similarity$dataSimulation)
     similarity$simulated.refCor <- t(cor(similarity$dataReference, 
                                          similarity$dataSimulation, 
                                          method = corMethod))

@@ -7,8 +7,8 @@
 sracipeHeatmapSimilarity(dataReference, dataSimulation,
   clusterCut = NULL, nClusters = 3, pValue = 0.05, permutedVar,
   permutations = 1000, corMethod = "spearman",
-  clusterMethod = "ward.D2", method = "pvalue", buffer = 1e-04,
-  permutMethod = "simulation", return.data = FALSE)
+  clusterMethod = "ward.D2", method = "pvalue", buffer = 0.001,
+  permutMethod = "simulation", returnData = FALSE)
 }
 \arguments{
 \item{dataReference}{Matrix. The reference data matrix, for example, 
@@ -42,6 +42,9 @@ options include \code{complete}. Clustering method to be used to cluster the
 \code{\link[stats]{hclust}} for other options.}
 
 \item{permutMethod}{"sample" or "reference"}
+
+\item{returnData}{(optional) Logical. Default \code{FALSE}. Whether to
+return the sorted and clustered data.}
 }
 \value{
 A list containing the KL distance of new cluster distribution from 
