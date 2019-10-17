@@ -11,8 +11,8 @@ Suggests: knitr, BiocStyle, rmarkdown
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 biocViews: ResearchField, SystemsBiology, MathematicalBiology, GeneExpression, GeneRegulation, GeneTarget
-Depends: R (>= 3.3),SummarizedExperiment, methods, Rcpp
-Imports: ggplot2, reshape2, MASS, RColorBrewer, gridExtra,visNetwork, gplots, umap, htmlwidgets, S4Vectors, BiocGenerics, grDevices, stats, utils
+Depends: R (>= 3.5.0),SummarizedExperiment, methods, Rcpp
+Imports: ggplot2, reshape2, MASS, RColorBrewer, gridExtra,visNetwork, gplots, umap, htmlwidgets, S4Vectors, BiocGenerics, grDevices, stats, utils, shiny, graphics, shinyjs, shinyBS
 RoxygenNote: 6.1.1
 URL: https://github.com/vivekkohar/sRACIPE
 BugReport: https://github.com/vivekkohar/sRACIPE/issues

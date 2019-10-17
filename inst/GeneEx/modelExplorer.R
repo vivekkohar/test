@@ -33,7 +33,8 @@ These parameters can be modified using the dropdown box given below.
                                                         "Update",
                                                         width = "100%",
   style="color: #fff;background-color: #337ab7; border-color: #2e6da4"),
-                                           shinyBS::bsTooltip("updateGvParam", "You can modify the parameters using this button. 
+                                           shinyBS::bsTooltip("updateGvParam",
+                              "You can modify the parameters using this button. 
 The parameter set (drop down menu) contains
 two paramters for each gene, production (G_'gene') and degradation (k_'gene') 
 rate, and three parameters for each interactions ('source'_'target'),

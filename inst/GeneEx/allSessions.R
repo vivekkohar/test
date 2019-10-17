@@ -7,31 +7,33 @@
 
 useShinyjs()
 # Utility functions
-.sracipePlotDensity = function(plotData,binCount=40, plotColor=NULL, label1 = "x",
+.sracipePlotDensity = function(plotData,binCount=40, plotColor=NULL, 
+                               label1 = "x",
                                label2 = "y", ...){
   if(is.null(plotColor)){
     rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
     plotColor <- rf(32)
   }
   colnames(plotData[,1:2]) <- c(label1, label2)
-  h1 <- hist(as.numeric(plotData[,1]), breaks=binCount, plot=F)
-  h2 <- hist(as.numeric(plotData[,2]), breaks=binCount, plot=F)
+  h1 <- hist(as.numeric(plotData[,1]), breaks=binCount, plot=FALSE)
+  h2 <- hist(as.numeric(plotData[,2]), breaks=binCount, plot=FALSE)
   top <- max(h1$counts, h2$counts)
   kernelDensity <- kde2d(plotData[,1], plotData[,2], n=binCount)
 
   oldpar <- par()
   par(mgp=c(2,1,0),mar=c(3,3,1,1))
-  layout(matrix(c(2,0,1,3),2,2,byrow=T),c(3,1), c(1,3))
+  layout(matrix(c(2,0,1,3),2,2,byrow=TRUE),c(3,1), c(1,3))
   image(kernelDensity, cex = 2, cex.axis = 1, cex.lab = 1, 
         xlab= label1, ylab=label2) 
   par(mar=c(0,2,1,0))
-  barplot(h1$counts, axes=F, ylim=c(0, top), space=0, col='red')
+  barplot(h1$counts, axes=FALSE, ylim=c(0, top), space=0, col='red')
   par(mar=c(2,0,0.5,1))
-  barplot(h2$counts, axes=F, xlim=c(0, top), space=0, col='red', horiz=T)
+  barplot(h2$counts, axes=FALSE, xlim=c(0, top), space=0, col='red', horiz=TRUE)
   
 }
 
-.sracipePlotHeatmapInt <- function(plotData, nSamples = 500, plotColor = NULL, ...) {
+.sracipePlotHeatmapInt <- function(plotData, nSamples = 500, 
+                                   plotColor = NULL, ...) {
   if(is.null(plotColor)){
     rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
     plotColor <- rf(32)
@@ -69,7 +71,7 @@ useShinyjs()
    names(clustColors) <- assignedClusters
   gplots::heatmap.2(plotData, col=plotColor, 
                     hclustfun = function(x) hclust(x,method = 'ward.D2'), 
-                 #   distfun=function(x) as.dist((1-cor(t(x), method = "spear"))/2), 
+    #   distfun=function(x) as.dist((1-cor(t(x), method = "spear"))/2), 
                     trace="none", ColSideColors = clustColors,
                  ...)
 }
@@ -78,8 +80,8 @@ useShinyjs()
   if(is.null(pca)) {pca = prcomp(t(plotData), scale. = FALSE)}
   pcaData <- data.frame(x=pca$x[,1],y=pca$x[,2])
   .sracipePlotDensity(pcaData, 
-                      label1 = paste0("PC1(",100*summary(pca)$importance[2,1],"%)"),
-                      label2 = paste0("PC2(",100*summary(pca)$importance[2,2],"%)"),
+                  label1 = paste0("PC1(",100*summary(pca)$importance[2,1],"%)"),
+              label2 = paste0("PC2(",100*summary(pca)$importance[2,2],"%)"),
                       ...)
 }
 

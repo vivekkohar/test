@@ -47,7 +47,8 @@ observeEvent(input$simulateRacipe, {
 
   #      rs <- shinyModelExplorer()
   withProgress(message = 'Simulating', value = 0.25, {
-    shinyBS::createAlert(session, anchorId = "racipeAlert",alertId =  "racipeProcessing", title = "Processing",
+    shinyBS::createAlert(session, anchorId = "racipeAlert",
+                         alertId =  "racipeProcessing", title = "Processing",
                          content = "Please wait...", append = FALSE)
   rsRacipe <- sracipeSimulate(rsRacipe, plots = FALSE,genIC = TRUE, 
                               genParams = TRUE, integrate = TRUE, 
@@ -126,7 +127,7 @@ observeEvent(input$simulateRacipe, {
     })
     
   dataSimulation <- data.frame(t(assay(rsRacipe,1))) #sracipeNormalize(rsRacipe)
-  pca = prcomp((dataSimulation), scale. = F, center = F)
+  pca = prcomp((dataSimulation), scale. = FALSE, center = FALSE)
   filtered <- reactive({
     if (is.null(dataSimulation)) {
       return(NULL)
@@ -202,21 +203,27 @@ observeEvent(input$simulateRacipe, {
         on.exit(setwd(owd))
         files <- NULL;
 
-        fileName <- paste(annotation(racipeVals$rsRacipe()),"_GE",".txt",sep = "")
-        write.table(assay(racipeVals$rsRacipe()),fileName,sep = ' ', row.names = TRUE, 
+        fileName <- paste(annotation(racipeVals$rsRacipe()),"_GE",".txt",
+                          sep = "")
+        write.table(assay(racipeVals$rsRacipe()),fileName,sep = ' ', 
+                    row.names = TRUE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(racipeVals$rsRacipe()),"_IC",".txt",sep = "")
-        write.table(sracipeIC(racipeVals$rsRacipe()),fileName,sep = ' ', row.names = F, col.names = T)
+        fileName <- paste(annotation(racipeVals$rsRacipe()),"_IC",".txt",
+                          sep = "")
+        write.table(sracipeIC(racipeVals$rsRacipe()),fileName,sep = ' ',
+                    row.names = FALSE, col.names = TRUE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(racipeVals$rsRacipe()),"_network",".txt",sep = "")
+        fileName <- paste(annotation(racipeVals$rsRacipe()),"_network",".txt",
+                          sep = "")
         write.table(sracipeCircuit(racipeVals$rsRacipe()),fileName,sep = ' ', 
                     row.names = FALSE, col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(racipeVals$rsRacipe()),"_params",".txt",sep = "")
+        fileName <- paste(annotation(racipeVals$rsRacipe()),"_params",".txt",
+                          sep = "")
         write.table(sracipeParams(racipeVals$rsRacipe()),fileName,sep = ' ', 
                     row.names = TRUE, col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
@@ -284,8 +291,10 @@ observeEvent(input$stochasticRacipe, {
 # if(!racipeVals$annealFlag){
 #   
 # 
-#   sracipeConfig(rsSRacipe)$simParams["integrateStepSize"] <-input$stepSizeRacipe
-#   sracipeConfig(rsSRacipe)$simParams["simulationTime"] <-   input$simTimeRacipe
+#   sracipeConfig(rsSRacipe)$simParams["integrateStepSize"] <-
+    # input$stepSizeRacipe
+#   sracipeConfig(rsSRacipe)$simParams["simulationTime"] <-
+    # input$simTimeRacipe
 #   sracipeConfig(rsSRacipe)$stochParams["numModels"] <- input$numModels
 #   sracipeConfig(rsSRacipe)$stochParams["paramRange"] <-   input$parameterRange
 # 
@@ -307,15 +316,17 @@ isolate(
       output$CN <- renderText("Constant Noise Plots")
       rsSRacipe <- racipeVals$rSet
       withProgress(message = 'Simulating', value = 0.25, {
-        shinyBS::createAlert(session, anchorId = "racipeAlert",alertId =  "racipeProcessing", title = "Processing",
+        shinyBS::createAlert(session, anchorId = "racipeAlert",
+                          alertId =  "racipeProcessing", title = "Processing",
                              content = "Please wait...", append = FALSE)
 
-      rsSRacipe <- sracipeSimulate(rsSRacipe, plots = FALSE, anneal = FALSE,
-                                   nNoise = 1, numModels = isolate(input$numModels),
-                                   integrateStepSize = isolate(input$stepSizeRacipe),
-                                   simulationTime = isolate(input$simTimeRacipe),
-                                   paramRange = isolate(input$parameterRange),
-                                   initialNoise =  50*(0.5)^(20-isolate(input$sRacipeNoise)))
+      rsSRacipe <- sracipeSimulate(
+        rsSRacipe, plots = FALSE, anneal = FALSE,
+        nNoise = 1, numModels = isolate(input$numModels),
+        integrateStepSize = isolate(input$stepSizeRacipe),
+        simulationTime = isolate(input$simTimeRacipe),
+        paramRange = isolate(input$parameterRange),
+        initialNoise =  50*(0.5)^(20-isolate(input$sRacipeNoise)))
       rsSRacipe <- sracipeNormalize(rsSRacipe)
       
       racipeVals$rsSRacipe <- reactive(rsSRacipe)
@@ -326,7 +337,8 @@ isolate(
         assayDataTmp <- assays(rsSRacipe)
         metadataTmp <- metadata(rsSRacipe)
         plotData <- assayDataTmp[[1]]
-        pca1 = prcomp(t(plotData), scale. = FALSE) #summary(prcomp(plotData, scale. = FALSE))
+        pca1 = prcomp(t(plotData), scale. = FALSE) 
+        #summary(prcomp(plotData, scale. = FALSE))
         
       output$sRacipePcaDet <-renderPlot({
         if(is.null(plotData)) return(NULL)
@@ -348,9 +360,7 @@ isolate(
         if(is.null(plotDataSt)) return(NULL)
         
         pcaData <- data.frame(x=stochasticPca[,1],y=stochasticPca[,2])
-        #.sracipePlotDensity(pcaData, 
-        #                    label1 = paste0("PC1(",100*summary(pca1)$importance[2,1],"%)"),
-        #                    label2 = paste0("PC2(",100*summary(pca1)$importance[2,2],"%)"))
+
         pca1$x <- stochasticPca
         .sracipePlotPca(plotData = stochasticPca, pca = pca1)
       })
@@ -371,13 +381,17 @@ if(input$sRacipeOption == "annealing")
       if(!racipeVals$annealFlag){
         rsSRacipeAnneal <- racipeVals$rSet
         withProgress(message = 'Simulating', value = 0.25, {
-          shinyBS::createAlert(session, anchorId = "racipeAlert",alertId =  "racipeProcessing", title = "Processing",
-                               content = "Please wait...", append = FALSE)
-          rsSRacipeAnneal <- sracipeSimulate(rsSRacipeAnneal, annealing = TRUE, nNoise = 20, numModels = isolate(input$numModels),
-                                   integrateStepSize = isolate(input$stepSizeRacipe),
-                                   simulationTime = isolate(input$simTimeRacipe),
-                                   paramRange = isolate(input$parameterRange),
-                                   initialNoise =  50/sqrt(length(names(rsSRacipeAnneal))),
+          shinyBS::createAlert(
+            session, anchorId = "racipeAlert",
+            alertId =  "racipeProcessing", title = "Processing",
+            content = "Please wait...", append = FALSE)
+          rsSRacipeAnneal <- sracipeSimulate(
+            rsSRacipeAnneal, annealing = TRUE, nNoise = 20, 
+            numModels = isolate(input$numModels),
+            integrateStepSize = isolate(input$stepSizeRacipe),
+            simulationTime = isolate(input$simTimeRacipe),
+            paramRange = isolate(input$parameterRange),
+            initialNoise =  50/sqrt(length(names(rsSRacipeAnneal))),
                                    noiseScalingFactor = 0.5)
           rsSRacipeAnneal <- sracipeNormalize(rsSRacipeAnneal)
           
@@ -392,7 +406,8 @@ if(input$sRacipeOption == "annealing")
         assayDataTmp <- assays(rsSRacipeAnneal)
         metadataTmp <- metadata(rsSRacipeAnneal)
         plotData <- assayDataTmp[[1]]
-        pca1 = prcomp(t(plotData), scale. = FALSE) #summary(prcomp(plotData, scale. = FALSE))
+        pca1 = prcomp(t(plotData), scale. = FALSE)
+        #summary(prcomp(plotData, scale. = FALSE))
         
         output$sRacipePcaDet <-renderPlot({
           if(is.null(plotData)) return(NULL)
@@ -414,9 +429,6 @@ if(input$sRacipeOption == "annealing")
           if(is.null(plotDataSt)) return(NULL)
           
           pcaData <- data.frame(x=stochasticPca[,1],y=stochasticPca[,2])
-          #.sracipePlotDensity(pcaData, 
-          #                    label1 = paste0("PC1(",100*summary(pca1)$importance[2,1],"%)"),
-          #                    label2 = paste0("PC2(",100*summary(pca1)$importance[2,2],"%)"))
           pca1$x <- stochasticPca
           .sracipePlotPca(plotData = stochasticPca, pca = pca1)
         })
@@ -457,7 +469,8 @@ if(input$sRacipeOption == "annealing")
         files <- c(fileName,files)
 
         fileName <- paste(annotation(tmpRSet),"_IC",".txt",sep = "")
-        write.table(sracipeIC(tmpRSet),fileName,sep = ' ', row.names = F, col.names = T)
+        write.table(sracipeIC(tmpRSet),fileName,sep = ' ', row.names = FALSE,
+                    col.names = TRUE)
         files <- c(fileName,files)
 
         fileName <- paste(annotation(tmpRSet),"_network",".txt",sep = "")

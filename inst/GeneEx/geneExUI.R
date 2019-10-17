@@ -5,7 +5,6 @@
 # http://shiny.rstudio.com
 #
 library(shinyjs)
-library(shinyalert)
 source('circuit.R', local = TRUE)
 source('modelExplorer.R', local = TRUE)
 source('racipe.R', local = TRUE)
@@ -26,13 +25,13 @@ geneExUI <- navbarPage("Gene Circuit Explorer",
                           tags$style(type = 'text/css',
                                      HTML('.navbar { background-color: white;
                                           font-size:      1.5em;}
-                                          .navbar-default .navbar-brand{color: #0085CA;
+                                  .navbar-default .navbar-brand{color: #0085CA;
                                             font-size:      1.5em;}
-                                          .tab-panel{ background-color: white; color: #2C8FC8
+                               .tab-panel{ background-color: white; color: #2C8FC8
                                             font-size:      1.5em;}
-                                          .navbar-default .navbar-nav > .active > a,
-                                          .navbar-default .navbar-nav > .active > a:focus,
-                                          .navbar-default .navbar-nav > .active > a:hover {
+                               .navbar-default .navbar-nav > .active > a,
+                           .navbar-default .navbar-nav > .active > a:focus,
+                           .navbar-default .navbar-nav > .active > a:hover {
                                           color: #002D72;
                                           background-color: white;
                                           }')

@@ -83,13 +83,16 @@
 #' in the circuit, use \code{knockOut = "all"}. If it is a vector, then all
 #' the genes in the vector will be knocked out simultaneously.
 #' @param printStart (optional) numeric (0-\code{simulationTime}). 
-#' Default \code{simulationTime}. Its use should be avoided. 
+#' Default \code{simulationTime}. To be used only when \code{timeSeries} is 
+#' \code{TRUE}.
 #' The time from which the output should be recorded. Useful for time series
 #' analysis and studying the dynamics of a model for a particular initial
 #' condition. 
 #' @param printInterval (optional) numeric (\code{integrateStepSize}-
 #' \code{simulationTime - printStart}). Default 10. The separation between
-#' two recorded time points for a given trajectory.
+#' two recorded time points for a given trajectory. 
+#' To be used only when \code{timeSeries} is 
+#' \code{TRUE}.
 #' @param stepper (optional) Character. Stepper to be used for integrating the
 #' differential equations. The options include \code{"EM"} for Euler-Maruyama
 #' O(1), \code{"RK4"}
@@ -117,6 +120,9 @@
 #' rate and initial condition to zero.
 #' @param rkTolerance (optional) numeric. Default \code{0.01}. Error tolerance
 #' for adaptive integration method.
+#' @param timeSeries (optional) logical. Default \code{FALSE}. 
+#' Whether to generate time series for a single model instead of performing
+#' RACIPE simulations. 
 #' @return \code{RacipeSE} object. RacipeSE class inherits 
 #' \code{SummarizedExperiment} and contains the circuit, parameters, 
 #' initial conditions,
@@ -445,11 +451,11 @@ if(missing(nNoise)){
         if(configuration$stochParams["nNoise"] ==1){
           # print(dim(geneExpression))
           detGeneExp <- geneExpression[(1+dim(geneExpression)[1]/2):dim(geneExpression)[1],]
-          geneExpression <- geneExpression[(1:(dim(geneExpression)[1]/2)),]
+          geneExpression <- geneExpression[(seq_len(dim(geneExpression)[1]/2)),]
           #print(dim(geneExpression))
           detGeneExp <- t(detGeneExp)
           rownames(detGeneExp) <- geneNames
-          colnames(detGeneExp) <- timeStamps[1:dim(detGeneExp)[2]]
+          colnames(detGeneExp) <- timeStamps[seq_len(dim(detGeneExp)[2])]
           metadataTmp$timeSeriesDet <- NULL
           metadataTmp$timeSeriesDet <- detGeneExp
           #print(dim(detGeneExp))
@@ -471,7 +477,7 @@ if(missing(nNoise)){
 
         # print(dim(geneExpression))
         # print(length(timeStamps))
-        colnames(geneExpression) <- timeStamps[1:dim(geneExpression)[2]]
+        colnames(geneExpression) <- timeStamps[seq_len(dim(geneExpression)[2])]
         metadataTmp$timeSeries <- NULL
       metadataTmp$timeSeries <- geneExpression
 

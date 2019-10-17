@@ -23,13 +23,22 @@
 #' cluster the reference data.
 #' @param clusterMethod (optional) Character - default \code{ward.D2}, other
 #' options include \code{complete}. Clustering method to be used to cluster the
-#'  experimental data.
-#' \code{\link[stats]{hclust}} for other options.
+#'  experimental data. \code{\link[stats]{hclust}} for other options.
 #' @param corMethod (optional) Correlation method. Default method is "spearman".
 #'  For single cell data, use "kendall"
 #' @param permutMethod "sample" or "reference"
+#' @param permutations (optional) Integer. Default \code{1000}.
+#'  Number of gene permutations to generate the null distibution. 
 #' @param returnData (optional) Logical. Default \code{FALSE}. Whether to
 #' return the sorted and clustered data.
+#' @param buffer (optional) Numeric. Default \code{0.001}. The fraction of
+#' models to be assigned to clusters to which no samples could be assigned.
+#' For example, a minimum of 1 ghost sample in reference is assigned to
+#'  NULL cluster.
+#' @param method (optional) character. Method to compare the gene expressions.
+#'  Default \code{pvalue}. One can use \code{variance} as well which assigns
+#'  clusters based on the cluster whose samples have minimum variance with
+#'  the simulated sample.
 #' @return A list containing the KL distance of new cluster distribution from 
 #' reference data and
 #' the probability of each cluster in the reference and simulated data.
@@ -64,10 +73,10 @@ sracipeHeatmapSimilarity = function(
     return()
   }
  if(is.null(colnames(dataReference))){
-   colnames(dataReference) <- seq(1:ncol(dataReference))
+   colnames(dataReference) <- seq_len(ncol(dataReference))
  }
   if(is.null(colnames(dataSimulation))){
-    colnames(dataSimulation) <- seq(1:ncol(dataSimulation))
+    colnames(dataSimulation) <- seq_len(ncol(dataSimulation))
   }
   
   message("Calculating the similarity index")
@@ -114,12 +123,12 @@ sracipeHeatmapSimilarity = function(
   #TO DO Will standard deviation be better? shouldn't be with ward method.
   
   refClusterVar <- c(rep(0,nClusters))
-  for(j in 1:nClusters)
+  for(j in seq_len(nClusters))
   {
     #  print(j)
     temp.cluster.var <- (((1 - refCor[which(clusterCut==j), 
                                       which(clusterCut==j)])/2)^2)
-    refClusterVar[j] <- ClustFunction(
+    refClusterVar[j] <- .ClustFunction(
       temp.cluster.var[upper.tri(temp.cluster.var, diag = FALSE)])
     temp.cluster.var <- NULL
   }
@@ -137,23 +146,16 @@ sracipeHeatmapSimilarity = function(
   
   simulatedClusterVar <- matrix(0, nrow=nModelsKO, ncol = nClusters)
   
-  for(i in 1:nModelsKO){
-    for(j in 1:nClusters)
+  for(i in seq_len(nModelsKO)){
+    for(j in seq_len(nClusters))
     {
       temp.cluster.var <- ((1 - simulated.refCor[i, which(clusterCut==j)])/2)^2
-      simulatedClusterVar[i,j] <- ClustFunction(temp.cluster.var )
+      simulatedClusterVar[i,j] <- .ClustFunction(temp.cluster.var )
       temp.cluster.var <- NULL
     }
   }
   
-  # testing clustering robustness
-  # refClusterVar <- matrix(0, nrow = n.models, ncol =  nClusters)
-  # for(i in 1:n.models)
-  # for(j in 1:nClusters)
-  # {
-  #   refClusterVar[i,j] <- mean(((1 - refCor[i, which(clusterCut==j)])/2)^2)
-  # }
-  
+
   if (method == "variance") {
     simulated.cluster <- matrix(0, nrow =  nModelsKO, ncol = 2)
     simulated.cluster[, 2] <- apply(simulatedClusterVar,1,min)
@@ -172,9 +174,9 @@ sracipeHeatmapSimilarity = function(
     message("pvalue method")
     if(missing(permutedVar )) {
       if(permutMethod == "reference"){
-        permutedVar <- PermutedVar(simulated.refCor, clusterCut, permutations, 
+        permutedVar <- .PermutedVar(simulated.refCor, clusterCut, permutations, 
                                    refClusterVar)
-        simulatedVarPValue <- SimulatedVarPValue(permutedVar, pValue)
+        simulatedVarPValue <- .SimulatedVarPValue(permutedVar, pValue)
         # rowSums(simulated.cluster.allowed)
         # simulatedClusterVar.sorted <- sort(simulatedClusterVar, 
         # index.return = TRUE )
@@ -189,7 +191,7 @@ sracipeHeatmapSimilarity = function(
       } else {
         message("simulation permutation")
         
-        pValueMat <- ModelPvalue(
+        pValueMat <- .ModelPvalue(
           dataSimulation, dataReference, clusterCut, permutations,
           refClusterVar, corMethod, simulatedClusterVar)
         simulated.cluster <- matrix(0, nrow =  nModelsKO, ncol = 2)
@@ -220,7 +222,7 @@ sracipeHeatmapSimilarity = function(
   missing.ref.clusters.add <- numeric() 
   #c(rep(0,bufferEnteriesPerCluster*length(missing.ref.clusters)))
   if (length(missing.ref.clusters) > 0) {
-    for(i in 1:length(missing.ref.clusters))
+    for(i in seq_along(missing.ref.clusters))
     {
       missing.ref.clusters.add <- c(missing.ref.clusters.add, 
                                     rep(missing.ref.clusters[i],
@@ -271,7 +273,7 @@ sracipeHeatmapSimilarity = function(
     previous.cluster.size.ref <- 0
   #  print(colnames(similarity$dataSimulation))
     # print(clusterCut)
-    for(i in 1:(nClusters+1) )#(length(unique(colnames(similarity$dataSimulation)))))
+    for(i in seq_len((nClusters+1) ))#(length(unique(colnames(similarity$dataSimulation)))))
     {
    #   print(i)
       temp.ref <- similarity$dataReference[,which(
@@ -282,12 +284,12 @@ sracipeHeatmapSimilarity = function(
       temp.refSimCor <- cor(temp.ref,temp.sim, method = corMethod)
       refSimCor <- c(refSimCor,previous.cluster.size +
                          sort(colMeans(temp.refSimCor), 
-                              decreasing = T, index.return = T)$ix)
+                              decreasing = TRUE, index.return = TRUE)$ix)
       previous.cluster.size <- previous.cluster.size + dim(temp.sim)[2]
       
       refSimCor.ref <- c(refSimCor.ref, previous.cluster.size.ref +
-                             sort(rowMeans(temp.refSimCor), decreasing = T, 
-                                  index.return = T)$ix)
+                             sort(rowMeans(temp.refSimCor), decreasing = TRUE, 
+                                  index.return = TRUE)$ix)
       previous.cluster.size.ref <- previous.cluster.size.ref + dim(temp.ref)[2]
       
       
@@ -299,7 +301,7 @@ sracipeHeatmapSimilarity = function(
     
     similarity$dataSimulation <- cbind(similarity$dataSimulation[,refSimCor],
                                        tmp)
-    colnames(similarity$dataSimulation) <- seq(1:ncol(similarity$dataSimulation))
+    colnames(similarity$dataSimulation) <- seq_len(ncol(similarity$dataSimulation))
     #print(dim(similarity$dataReference))
     # similarity$dataReference <- similarity$dataReference[,refSimCor.ref]
     #print(dim(similarity$dataReference))
@@ -319,12 +321,11 @@ sracipeHeatmapSimilarity = function(
 #########################################################
 #' @title Find nth minimum value from a vector
 #' @description A utility function to find the nth minimum
-#'
 #' @param x the given unsorted vector
 #' @param index N.
 #' @return the nth minimum element of the vector
 #'
-NthMin <- function(x,index) {
+.NthMin <- function(x,index) {
   
   return (sort(x, decreasing = FALSE, partial = index)[index])
   
@@ -332,32 +333,32 @@ NthMin <- function(x,index) {
 
 #############################################
 
-ClustFunction <- function(x){
+.ClustFunction <- function(x){
   #return (mean(x))
   return (min(x))
 }
 
-#############################################
+
 #' @title Find variance of permutations
-#' @description A utility function to generate permutations
-#'
+#' @description A utility function to generate permutations 
 #' @param simulated.refCor Correlation matrix of simulated and reference data
 #' @param clusterCut The original cluster assignments
 #' @param permutations The number of permutations
+#' @param refClusterVar Reference Cluster Variance
 #' @return An array of dimension n.models by nClusters by permutations
 #'
-PermutedVar <- function(simulated.refCor, clusterCut, permutations, 
+.PermutedVar <- function(simulated.refCor, clusterCut, permutations, 
                         refClusterVar){
   
   nClusters <- length(unique(clusterCut))
   nModelsKO <- dim(simulated.refCor)[1]
   permutedVar <- array(0, c(nModelsKO, nClusters, permutations))
-  for(k in 1:permutations){
+  for(k in seq_len(permutations)){
     clusterCut.permuted <- sample(clusterCut)
-    for(j in 1:nClusters)
+    for(j in seq_len(nClusters))
     {
       cor.mat <- simulated.refCor[,which(clusterCut.permuted == j)]
-      for(i in 1:nModelsKO){
+      for(i in seq_len(nModelsKO)){
         temp.cluster.var <- (((1-cor.mat[i, ])/2)^2)
         permutedVar[i,j,k] <- (mean(temp.cluster.var)/ (refClusterVar[j]))
       }
@@ -373,27 +374,29 @@ PermutedVar <- function(simulated.refCor, clusterCut, permutations,
 #' @param clusterCut The original cluster assignments.
 #' @param permutations The number of permutations.
 #' @param refClusterVar SD of the clusters.
+#' @param corMethod Correlation method to be used.
+#' @param simulatedClusterVar Variance of simulated clusters
 #' @return An array of dimension n.models by nClusters by permutations.
 #'
-ModelPvalue <- function(dataSimulation, dataReference, clusterCut, permutations,
+.ModelPvalue <- function(dataSimulation, dataReference, clusterCut, permutations,
                         refClusterVar, corMethod, simulatedClusterVar){
   
   nClusters <- length(unique(clusterCut))
   nModelsKO <- dim(dataSimulation)[2]
   n.gene <- dim(dataSimulation)[1]
   pValueMat <- matrix(0, nrow = nModelsKO, ncol = nClusters)
-  randomModels <-  matrix(rep(seq(1:n.gene),permutations), n.gene, permutations)
+  randomModels <-  matrix(rep(seq_len(n.gene),permutations), n.gene, permutations)
   randomModels <- apply(randomModels,2,sample)
   #randomModels <- matrix(0, nrow = n.gene, ncol = permutations)
   #randomModels <- t(apply(dataSimulation,1,function(x)  sample(
   #x, replace = TRUE, size = permutations)))
   permutedRefCor <- matrix(0,nrow = permutations, ncol = dim(dataReference)[2])
   permutedRefCor <- cor(randomModels, dataReference, method = corMethod)
-  for(j in 1:nClusters)
+  for(j in seq_len(nClusters))
   {
     dist.mat <- ((1 - permutedRefCor[,which(clusterCut == j)])/2)^2
-    tempVector <- sort(apply(dist.mat,1,ClustFunction))
-    for (i in 1:nModelsKO) {
+    tempVector <- sort(apply(dist.mat,1,.ClustFunction))
+    for (i in seq_len(nModelsKO)) {
       pValueMat[i,j] <- (which(abs(
         tempVector - simulatedClusterVar[i,j]) ==min(abs(
           tempVector - simulatedClusterVar[i,j])))[1] - 1)/permutations
@@ -408,13 +411,13 @@ ModelPvalue <- function(dataSimulation, dataReference, clusterCut, permutations,
 #############################################
 #' @title Finds the variance corresponding to a given value.
 #' @description  A utility function for calculating the p values.
-#'
 #' @param permutedVar An array containing the distance of clusters for 
 #' each model for every permutation.
 #' @param pValue Cut off p vlaue.
 #' @return p-values for each model.
 #'
-SimulatedVarPValue <- function(permutedVar, pValue){
+
+.SimulatedVarPValue <- function(permutedVar, pValue){
   
   permutations <- dim(permutedVar)[3]
   nModelsKO <- dim(permutedVar)[1]
@@ -427,9 +430,9 @@ to achieve the required pValue.
   #print(selectedIndex)
   simulatedVarPValue <- matrix(0, nrow=nModelsKO, ncol = nClusters)
   
-  for (i in 1:nModelsKO) {
-    for(j in 1:nClusters)    {
-      simulatedVarPValue[i,j] <- NthMin(permutedVar[i,j,],selectedIndex)
+  for (i in seq_len(nModelsKO)) {
+    for(j in seq_len(nClusters))    {
+      simulatedVarPValue[i,j] <- .NthMin(permutedVar[i,j,],selectedIndex)
     }
   }
   
@@ -441,10 +444,10 @@ to achieve the required pValue.
 #' @description A utility function to calculate the absolute p values.
 #' @param permutedVar An array containing the distance of clusters for 
 #' each model for every permutation.
-#' @param pValue Cut off p vlaue.
+#' @param simulatedClusterVar Variance of simulated clusters
 #' @return p-values for each model.
 #'
-SimulatedPValueAbs <- function(permutedVar, simulatedClusterVar){
+.SimulatedPValueAbs <- function(permutedVar, simulatedClusterVar){
   
   permutations <- dim(permutedVar)[3]
   nModelsKO <- dim(permutedVar)[1]
@@ -452,8 +455,8 @@ SimulatedPValueAbs <- function(permutedVar, simulatedClusterVar){
   
   simulatedVarPValue <- matrix(0, nrow=nModelsKO, ncol = nClusters)
   
-  for (i in 1:nModelsKO) {
-    for(j in 1:nClusters)    {
+  for (i in seq_len(nModelsKO)) {
+    for(j in seq_len(nClusters) )   {
       tempVector <- sort(permutedVar[i,j,])
       
       simulatedVarPValue[i,j] <- which(abs(

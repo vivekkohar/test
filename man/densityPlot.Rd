@@ -13,6 +13,11 @@ densityPlot(plotData, binCount = 40, plotColor = NULL, ...)
 dividing the data along an axis.}
 
 \item{plotColor}{(optional) The color palette.}
+
+\item{...}{any additional arguments}
+}
+\value{
+plot
 }
 \description{
 Plot the density of points as an image alongwith histograms on
@@ -21,8 +26,8 @@ the sides.
 \section{Related Functions}{
 
 
-\code{\link{simulateGRC}},  \code{\link{knockdownAnalysis}},
-\code{\link{overExprAnalysis}},  \code{\link{plotData}},
-\code{\link{calcHeatmapSimilarity}}
+\code{\link{sracipeSimulate}},  \code{\link{sracipeKnockDown}},
+\code{\link{sracipeOverExp}},  \code{\link{sracipePlotData}},
+\code{\link{sracipeHeatmapSimilarity}}
 }
 

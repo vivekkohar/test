@@ -14,17 +14,18 @@ sracipeGetTS(.object)
 \item{.object}{RacipeSE object}
 }
 \value{
-list
+List
 }
 \description{
 If timeSeries option is used in sracipeSimulate function, this
 method will return the simulated time series.
 }
 \examples{
-
 data("demoCircuit")
+RacipeSet <- RacipeSE()
 sracipeCircuit(RacipeSet) <- demoCircuit
-RacipeSet <- sracipeSimulate(demoCircuit, timeSeries = T, simulationTime = 5)
+RacipeSet <- sracipeSimulate(demoCircuit, timeSeries = TRUE, 
+simulationTime = 2)
 trajectories <- sracipeGetTS(RacipeSet)
 rm(RacipeSet)
 }

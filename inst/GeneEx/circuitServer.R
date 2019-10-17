@@ -27,13 +27,14 @@ output$circuitTable<-renderUI({
         
         column(12,dataTableOutput("mainTable")),
         column(6,offset = 6,
-               HTML('<div class="btn-group" role="group" aria-label="Circuit Interaction Table">'),
-               actionButton(inputId = "addInteraction",label = "Add interaction",icon("plus-square"),
-                            style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+HTML('<div class="btn-group" role="group" aria-label="Circuit Interaction Table">'),
+               actionButton(inputId = "addInteraction",
+                            label = "Add interaction",icon("plus-square"),
+ style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
                HTML('</div>')
         ),
         tags$script(HTML('$(document).on("click", "input", function () {
-                         var checkboxes = document.getElementsByName("selectedRow");
+               var checkboxes = document.getElementsByName("selectedRow");
                          var checkboxesChecked = [];
                          for (var i=0; i<checkboxes.length; i++) {
                          
@@ -54,18 +55,19 @@ output$circuitTable<-renderUI({
   
 output$mainTable<-renderDataTable({
   DT=circuitVariables$circuit
-#  DT[["Select"]]<-paste0('<input type="checkbox" name="selectedRow" value="Row',1:nrow(circuitVariables$circuit),'"><br>')
-  
+
   DT[["Actions"]]<-
     paste0('
-           <div class="btn-group" role="group" aria-label="Circuit Interaction Table">
-           <button type="button" class="btn btn-secondary modify"id=modify_',1:nrow(circuitVariables$circuit),'>Modify</button>
-           <button type="button" class="btn btn-secondary delete" id=delete_',1:nrow(circuitVariables$circuit),'>Delete</button>
+<div class="btn-group" role="group" aria-label="Circuit Interaction Table">
+<button type="button" class="btn btn-secondary modify"id=modify_',
+1:nrow(circuitVariables$circuit),'>Modify</button>
+<button type="button" class="btn btn-secondary delete" id=delete_',
+1:nrow(circuitVariables$circuit),'>Delete</button>
            </div>
            
            ')
   datatable(DT,
-            escape=F)}
+            escape=FALSE)}
     )
 
 observeEvent(input$addInteraction,{
@@ -126,10 +128,12 @@ output$row_modif<-renderDataTable({
   {
     if (is.numeric(circuitVariables$circuit[[i]]))
     {
-      row_change[[i]]<-paste0('<input class="new_input" type="number" id=new_',i,'><br>')
+row_change[[i]] <-
+  paste0('<input class="new_input" type="number" id=new_',i,'><br>')
     }
     else
-      row_change[[i]]<-paste0('<input class="new_input" type="text" id=new_',i,'><br>')
+      row_change[[i]] <-
+        paste0('<input class="new_input" type="text" id=new_',i,'><br>')
   }
   row_change=as.data.table(row_change)
   setnames(row_change,colnames(old_row))
@@ -137,7 +141,7 @@ output$row_modif<-renderDataTable({
   rownames(DT)<-c("Current values","New values")
   DT
   
-},escape=F,options=list(dom='t',ordering=F),selection="none"
+},escape=FALSE,options=list(dom='t',ordering=FALSE),selection="none"
 )
 
 modalModify2 <-modalDialog(
@@ -173,10 +177,12 @@ output$rowModif2 <- renderDataTable({
   {
     if (is.numeric(circuitVariables$circuit[[i]]))
     {
-      row_change[[i]]<-paste0('<input class="new_input" type="number" id=new_',i,'><br>')
+      row_change[[i]]<-
+        paste0('<input class="new_input" type="number" id=new_',i,'><br>')
     }
     else
-      row_change[[i]]<-paste0('<input class="new_input" type="text" id=new_',i,'><br>')
+      row_change[[i]]<-
+        paste0('<input class="new_input" type="text" id=new_',i,'><br>')
   }
   row_change=as.data.table(row_change)
   setnames(row_change,colnames(old_row))
@@ -184,13 +190,13 @@ output$rowModif2 <- renderDataTable({
   rownames(DT)<-c("Current values","New values")
   DT
   
-},escape=F,options=list(dom='t',ordering=F),selection="none"
+},escape=FALSE,options=list(dom='t',ordering=FALSE),selection="none"
 )
 
 observeEvent(input$newValue,
              {
                newValue=lapply(input$newValue, function(col) {
-                 if (suppressWarnings(all(!is.na(as.numeric(as.character(col)))))) {
+      if (suppressWarnings(all(!is.na(as.numeric(as.character(col)))))) {
                    as.numeric(as.character(col))
                  } else {
                    col
@@ -198,7 +204,7 @@ observeEvent(input$newValue,
                })
                DF=data.frame(lapply(newValue, function(x) t(data.frame(x))))
                colnames(DF)=colnames(circuitVariables$circuit)
-               circuitVariables$circuit[as.numeric(gsub("modify_","",input$lastClickId))]<-DF
+circuitVariables$circuit[as.numeric(gsub("modify_","",input$lastClickId))]<-DF
                
              }
 )
@@ -248,7 +254,8 @@ observeEvent(input$newValue,
 # 
 # # Message on how to enter the circuit as text
 # output$networkTextFormat <- renderUI({HTML(
-#   "Enter the interactions separating the source, target and interactions type by
+#   "Enter the interactions separating the source, 
+# target and interactions type by
 #   space or tab or comma.\n
 #   Use 1 for activation and 2 for inhibition. For example,\n
 #   srcA,tgtA,1,srcB,tgtB,2,srcA,tgtB,2")})
@@ -271,7 +278,8 @@ observeEvent(input$updateCircuit,{
     annotation(rSet) <- isolate(input$circuitName)
     circuitVariables$rSet <- rSet
     racipeVals$rSet <- rSet
-    gvVals$rSet <- reactive(sracipeSimulate(rSet,integrate = FALSE, numModels = 1))
+    gvVals$rSet <- reactive(sracipeSimulate(rSet,integrate = FALSE,
+                                            numModels = 1))
     gvVals$parameterNamesME <- reactive(sracipeGenParamNames(gvVals$rSet()))
     gvVals$parametersME <- reactive(sracipeParams(gvVals$rSet()))
     
@@ -400,5 +408,4 @@ circuitVariables$circuit <- read.table(
       write.table(data, con, 
                   row.names = FALSE, quote = FALSE)
     }
-  )
-  
+)

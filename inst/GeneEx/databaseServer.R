@@ -150,10 +150,11 @@ output$databaseTable <- DT::renderDT({
     shinyjs::show("plotDbPC")
     
     withProgress(message = 'Loading', value = 0.25, {
-      shinyBS::createAlert(session, anchorId = "dbAlert",alertId =  "Processing", title = "Processing",
+      shinyBS::createAlert(session, anchorId = "dbAlert",
+                           alertId =  "Processing", title = "Processing",
                            content = "Please wait...", append = FALSE)
       rs <- isolate(databaseVals$rSet())
-      rs <- sracipeSimulate(rs, numModels = 500, plots = F, 
+      rs <- sracipeSimulate(rs, numModels = 500, plots = FALSE, 
                             integrateStepSize = 0.05, simulationTime = 50)
       rs <- sracipeNormalize(rs)
       plotData <- assay(rs,1)
@@ -186,7 +187,8 @@ output$databaseTable <- DT::renderDT({
           files <- c(fileName,files)
           
           fileName <- paste(annotation(rs),"_IC",".txt",sep = "")
-          write.table(sracipeIC(rs),fileName,sep = ' ', row.names = F, col.names = T)
+          write.table(sracipeIC(rs),fileName,sep = ' ', row.names = FALSE, 
+                      col.names = TRUE)
           files <- c(fileName,files)
           
           fileName <- paste(annotation(rs),"_network",".txt",sep = "")

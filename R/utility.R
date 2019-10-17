@@ -108,12 +108,13 @@ sracipeGenParamNames <- function(circuit = "inputs/test.tpo") {
 #' @param binCount (optional) Integer. Default 40. The number of bins to be used for
 #' dividing the data along an axis.
 #' @param plotColor (optional) The color palette.
-#'
+#' @param ... any additional arguments
+#' @return plot
 #' @section Related Functions:
 #'
-#' \code{\link{simulateGRC}},  \code{\link{knockdownAnalysis}},
-#' \code{\link{overExprAnalysis}},  \code{\link{plotData}},
-#' \code{\link{calcHeatmapSimilarity}}
+#' \code{\link{sracipeSimulate}},  \code{\link{sracipeKnockDown}},
+#' \code{\link{sracipeOverExp}},  \code{\link{sracipePlotData}},
+#' \code{\link{sracipeHeatmapSimilarity}}
 
 densityPlot = function(plotData, binCount=40, plotColor=NULL, ...) {
   colnames(plotData) <- c("x", "y")
@@ -121,20 +122,20 @@ densityPlot = function(plotData, binCount=40, plotColor=NULL, ...) {
     rf <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, 'Spectral')))
     plotColor <- rf(32)
   }
-  h1 <- hist(plotData$x, breaks = binCount, plot = F)
-  h2 <- hist(plotData$y, breaks = binCount, plot = F)
+  h1 <- hist(plotData$x, breaks = binCount, plot = FALSE)
+  h2 <- hist(plotData$y, breaks = binCount, plot = FALSE)
   top <- max(h1$counts, h2$counts)
   k <- MASS::kde2d(plotData$x, plotData$y, n = binCount)
   
   # margins
   oldpar <- par()
   par(mar = c(3, 3, 1, 1))
-  layout(matrix(c(2, 0, 1, 3), 2, 2, byrow = T), c(3, 1), c(1, 3))
+  layout(matrix(c(2, 0, 1, 3), 2, 2, byrow = TRUE), c(3, 1), c(1, 3))
   image(k, col = plotColor) #plot the image
   par(mar = c(0, 2, 1, 0))
   barplot(
     h1$counts,
-    axes = F,
+    axes = FALSE,
     ylim = c(0, top),
     space = 0,
     col = 'red'
@@ -142,10 +143,10 @@ densityPlot = function(plotData, binCount=40, plotColor=NULL, ...) {
   par(mar = c(2, 0, 0.5, 1))
   barplot(
     h2$counts,
-    axes = F,
+    axes = FALSE,
     xlim = c(0, top),
     space = 0,
     col = 'red',
-    horiz = T
+    horiz = TRUE
   )
 }

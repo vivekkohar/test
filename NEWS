@@ -1,2 +1,6 @@
+Changes in version 1.0.2 (2019-04-01)
++ Time series option added to sracipeSimulate
++ Minor bug fixes
+
 Changes in version 0.99.0 (2019-04-01)
 + submitted to Bioconductor

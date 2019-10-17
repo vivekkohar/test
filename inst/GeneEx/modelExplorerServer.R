@@ -6,7 +6,8 @@ demoCircuit = data.table(
   Source = c("A", "B"),
   Target = c("B", "A"),
   Interaction = c(2, 2))
-rSetTmp <- sracipeSimulate(circuit = demoCircuit, integrate = FALSE, numModels = 1)
+rSetTmp <- sracipeSimulate(circuit = demoCircuit, integrate = FALSE, 
+                           numModels = 1)
 annotation(rSetTmp) <- "Circuit1"
 gvVals$rSet <- reactive(rSetTmp)
 gvVals$parameterNamesME <- reactive(sracipeGenParamNames(rSetTmp))
@@ -75,13 +76,17 @@ observeEvent(input$updateGvParam,{
 ##################### Model Simulations #######################
 observeEvent(input$simulateGv, {
   
-  # if(!is.numeric(input$simTimeExplorer) | !is.numeric(input$stepSizeExplorer) | !is.numeric(input$noiseLevel)) {
+  # if(!is.numeric(input$simTimeExplorer) | !is.numeric(input$stepSizeExplorer)
+  # | !is.numeric(input$noiseLevel)) {
   #   createAlert(session, "gvAlert", "numericAlert", title = "Oops",
   #               content = "I only understand numeric values!", append = TRUE)
-  # } else if((input$simTimeExplorer < 0) | (input$stepSizeExplorer <0 ) | (input$noiseLevel) <0 ) {
+  # } else if((input$simTimeExplorer < 0) | (input$stepSizeExplorer <0 ) | 
+  # (input$noiseLevel) <0 ) {
   #   createAlert(session, "gvAlert", "numericAlert", title = "Oops",
-  #               content = "I can work with only positive values!", append = TRUE)
-  # } else if((input$simTimeExplorer >500) | (input$stepSizeExplorer > 1 ) | (input$noiseLevel) > 50 ) {
+  #               content = "I can work with only positive values!", 
+  # append = TRUE)
+  # } else if((input$simTimeExplorer >500) | (input$stepSizeExplorer > 1 )
+  # | (input$noiseLevel) > 50 ) {
   #   createAlert(session, "gvAlert", "numericAlert", title = "Oops",
   #               content = "I think the value is too high!", append = TRUE)
   # } else {
@@ -97,10 +102,11 @@ observeEvent(input$simulateGv, {
   withProgress(message = 'Simulating', value = 0.25, {
   sracipeParams(rs) <- gvVals$parametersME()
    
- #  sracipeConfig(rs)$simParams["integrateStepSize"] <- gvVals$stepSizeExplorer() #input$stepSizeRacipe
+ #  sracipeConfig(rs)$simParams["integrateStepSize"] <- 
+  # gvVals$stepSizeExplorer() #input$stepSizeRacipe
  #  sracipeConfig(rs)$simParams["simulationTime"] <-   input$simTimeRacipe
    
-   rs <- sracipeSimulate(rs, timeSeries = TRUE, plots = F, genIC = FALSE, 
+   rs <- sracipeSimulate(rs, timeSeries = TRUE, plots = FALSE, genIC = FALSE, 
                          genParams = FALSE, integrate = TRUE,
                         simulationTime  = isolate(gvVals$simTimeExplorer()),
                        integrateStepSize = isolate(gvVals$stepSizeExplorer()),
@@ -136,7 +142,8 @@ observeEvent(input$simulateGv, {
         files <- NULL;
 
         fileName <- paste(annotation(gvVals$rSet()),"_GE",".txt",sep = "")
-        write.table(metadata(gvVals$rSet())$timeSeries,fileName,sep = ' ', row.names = TRUE, 
+        write.table(metadata(gvVals$rSet())$timeSeries,fileName,sep = ' ', 
+                    row.names = TRUE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
@@ -145,12 +152,14 @@ observeEvent(input$simulateGv, {
         # files <- c(fileName,files)
 
         fileName <- paste(annotation(gvVals$rSet()),"_network",".txt",sep = "")
-        write.table(sracipeCircuit(gvVals$rSet()),fileName,sep = ' ', row.names = FALSE, 
+        write.table(sracipeCircuit(gvVals$rSet()),fileName,sep = ' ', 
+                    row.names = FALSE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
         fileName <- paste(annotation(gvVals$rSet()),"_params",".txt",sep = "")
-        write.table(sracipeParams(gvVals$rSet()),fileName,sep = ' ', row.names = TRUE, 
+        write.table(sracipeParams(gvVals$rSet()),fileName,sep = ' ', 
+                    row.names = TRUE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
@@ -220,14 +229,14 @@ observeEvent(input$simulateGv, {
     if(is.null(gvVals$parametersME())) return(NULL)
     textInput("parameterValueBifMin", "Min value", 
               value = 0.9*gvVals$parametersME()[input$selectedParameterMEBif], 
-              placeholder = 0.9*gvVals$parametersME()[input$selectedParameterMEBif])
+       placeholder = 0.9*gvVals$parametersME()[input$selectedParameterMEBif])
   })
 
   output$modelParamBifMax <- renderUI({
     if(is.null(gvVals$parametersME())) return(NULL)
     textInput("parameterValueBifMax", "Max value", 
               value = 1.1*gvVals$parametersME()[input$selectedParameterMEBif], 
-              placeholder = 1.1*gvVals$parametersME()[input$selectedParameterMEBif])
+       placeholder = 1.1*gvVals$parametersME()[input$selectedParameterMEBif])
   })
 
 
@@ -235,7 +244,8 @@ observeEvent(input$simulateGv, {
     modelNumBifurs <-   input$modelNumBifurs
     if(modelNumBifurs > 5000) modelNumBifurs <- 5000
 
-    newParametersME <- gvVals$parametersME()[rep(seq_len(nrow(gvVals$parametersME())), 
+    newParametersME <- 
+      gvVals$parametersME()[rep(seq_len(nrow(gvVals$parametersME())), 
                                                       modelNumBifurs),]
     modPar <- seq(from = input$parameterValueBifMin, 
                   to = input$parameterValueBifMax,
@@ -243,12 +253,16 @@ observeEvent(input$simulateGv, {
     newParametersME[input$selectedParameterMEBif] <- modPar
     rs <- RacipeSE()
     sracipeCircuit(rs) <- circuitVariables$circuit
-    rs <- sracipeSimulate(rs, genIC = TRUE, genParams = TRUE, integrate = FALSE, initialNoise = 0, nNoise = 0, numModels = modelNumBifurs)
+    rs <- sracipeSimulate(rs, genIC = TRUE, genParams = TRUE, integrate = FALSE,
+                          initialNoise = 0, nNoise = 0, 
+                          numModels = modelNumBifurs)
     sracipeParams(rs) <- newParametersME
     # sracipeConfig(rs)$simParams["numModels"] <- modelNumBifurs
     withProgress(message = 'Simulating', value = 0.25, {
 
-    rs <- sracipeSimulate(rs, genIC = TRUE, genParams = FALSE, integrate = TRUE, initialNoise = 0, nNoise = 0, numModels = modelNumBifurs)
+    rs <- sracipeSimulate(rs, genIC = TRUE, genParams = FALSE, integrate = TRUE,
+                          initialNoise = 0, nNoise = 0, 
+                          numModels = modelNumBifurs)
     gvVals$rSetBifur <- reactive(rs)
     # print(assays(gvVals$rSetBifur)[[1]])
     gvVals$modelNumBifurs <- reactive(modelNumBifurs)
@@ -271,7 +285,8 @@ observeEvent(input$simulateGv, {
       sexprs$bifurParameter <- test
       #print(sexprs)
       theme_set(theme_bw(base_size = 18))
-      isolate(qplot(isolate(bifurParameter), isolate(geneExp), data = isolate(sexprs), group = Gene, 
+      isolate(qplot(isolate(bifurParameter), isolate(geneExp), 
+                    data = isolate(sexprs), group = Gene, 
                     colour = Gene, geom = "point", ylab = "Gene Expression", 
                     xlab = isolate(input$selectedParameterMEBif )))
 #})
@@ -288,7 +303,7 @@ observeEvent(input$simulateGv, {
 
   # observeEvent(input$saveBifData,{
   #   saveRDS(rs, file = paste0("usrDatabase/",annotation(rs),"_BIF.RDS"))
-  #   output$fileSaveBifDatabase <- renderText(HTML("File uploaded to Database"))
+  #  output$fileSaveBifDatabase <- renderText(HTML("File uploaded to Database"))
   #   show("fileSaveBifDatabase")
   #
   # })

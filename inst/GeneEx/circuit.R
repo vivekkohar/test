@@ -26,38 +26,8 @@ provide a specific name to your circuit.
                                       placement = "bottom", trigger = "hover", 
                                       options = NULL),
                                     
-                             uiOutput("circuitTable")),#                                     tags$h4("Circuit Interactions"),
-#                                     
-#                                     fluidRow(
-#                                       # column(3, offset = 0,
-#                                       actionButton(('useSampleCircuit'), 'Use demo circuit')),
-#       #                              tabsetPanel(
-#                                     #  tabPanel("Upload File",
-#                                                
-#                                                br(),
-#                                               
-#                                       
-#                                       
-#                                       # tabPanel("Enter Text",
-#                                       #          fluidRow(
-#                                       #            
-#                                       #            textAreaInput( inputId =  ("uiTopology"),label = NULL,
-#                                       #                           value =  "", placeholder = "srcA,tgtA,1,srcB,tgtB,2,srcA,tgtB,2"),
-#                                       #            
-#                                       #            actionButton(("updateTopologyfromText"), "Load Circuit"),
-#                                       #            htmlOutput(("networkTextFormat"))
-#                                       #          ))
-#                                       
-#                                    # ),
-#                                     br(),
-#                                     
-#                                     br(),
-#                                     hidden(downloadButton(('downloadCircuit'), 'Download'))
-#                              ),
-# #                             column(3, offset = 0,
-# #                                    DTOutput(("circuitTable"))
-#                                     
-# #                             ),
+                             uiOutput("circuitTable")),
+                             #             tags$h4("Circuit Interactions"),
                              column(5, offset = 0,
                                     (visNetworkOutput(("circuit")))
                              )),
@@ -99,4 +69,3 @@ shinyBS::bsTooltip("updateCircuit", "If the interactions look good, you can
 hr()
 #                           
 )
-                           

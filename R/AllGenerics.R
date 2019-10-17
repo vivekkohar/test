@@ -134,14 +134,15 @@ setGeneric("sracipeParams",
 #' @description If timeSeries option is used in sracipeSimulate function, this
 #' method will return the simulated time series.
 #' @param .object RacipeSE object
-#' @examples
-#' 
+#' @examples 
 #' data("demoCircuit")
+#' RacipeSet <- RacipeSE()
 #' sracipeCircuit(RacipeSet) <- demoCircuit
-#' RacipeSet <- sracipeSimulate(demoCircuit, timeSeries = T, simulationTime = 5)
+#' RacipeSet <- sracipeSimulate(demoCircuit, timeSeries = TRUE, 
+#' simulationTime = 2)
 #' trajectories <- sracipeGetTS(RacipeSet)
 #' rm(RacipeSet)
-#' @return list
+#' @return List
 #'
 
 setGeneric(name="sracipeGetTS",
@@ -164,6 +165,7 @@ setGeneric(name="sracipeGetTS",
 #' sracipeParams(rSet) <- parameters
 #' rm(parameters, rSet)
 #' @return A RacipeSE object
+#' 
 
 setGeneric("sracipeParams<-",
            def = function(.object, value)
@@ -246,7 +248,7 @@ setGeneric("sracipeNormalize",
 
 
 #' @export
-#' @import grDevices
+#' @import grDevices 
 #' @title Plot Gene Regulatory Circuit
 #' @description  Plot Gene Regulatory Circuit to a file or output device.
 #' @param .object RacipeSE object
@@ -277,6 +279,7 @@ setGeneric("sracipePlotCircuit",
 #' @export
 #' @import SummarizedExperiment
 #' @importFrom gplots heatmap.2
+#' @importFrom graphics barplot hist image layout par
 #' @import ggplot2
 #' @import gridExtra
 #' @import umap

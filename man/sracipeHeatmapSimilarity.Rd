@@ -33,13 +33,25 @@ model belongs to a specific cluster.}
 
 \item{permutedVar}{(optional) Similarity scores computed after permutations.}
 
+\item{permutations}{(optional) Integer. Default \code{1000}.
+Number of gene permutations to generate the null distibution.}
+
 \item{corMethod}{(optional) Correlation method. Default method is "spearman".
 For single cell data, use "kendall"}
 
 \item{clusterMethod}{(optional) Character - default \code{ward.D2}, other
 options include \code{complete}. Clustering method to be used to cluster the
- experimental data.
-\code{\link[stats]{hclust}} for other options.}
+ experimental data. \code{\link[stats]{hclust}} for other options.}
+
+\item{method}{(optional) character. Method to compare the gene expressions.
+Default \code{pvalue}. One can use \code{variance} as well which assigns
+clusters based on the cluster whose samples have minimum variance with
+the simulated sample.}
+
+\item{buffer}{(optional) Numeric. Default \code{0.001}. The fraction of
+models to be assigned to clusters to which no samples could be assigned.
+For example, a minimum of 1 ghost sample in reference is assigned to
+ NULL cluster.}
 
 \item{permutMethod}{"sample" or "reference"}
 
