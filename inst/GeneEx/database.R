@@ -16,10 +16,10 @@ hr(),
 br(),
 fluidRow(
   column(4,offset = 0,
-        DTOutput("tableDbNetwork"),
-        hidden(actionButton("showExpressionDatabase", "Show Expression Plots", 
-icon = NULL, width = NULL, 
-style="color: #fff; background-color: #32CD32; border-color: #2e6da4"))
+        DTOutput("tableDbNetwork")
+#         hidden(actionButton("showExpressionDatabase", "Show Expression Plots", 
+# icon = NULL, width = NULL, 
+# style="color: #fff; background-color: #32CD32; border-color: #2e6da4"))
         ),
   column(8,offset = 0,
          hidden(actionButton("loadNetworkDatabase", "Load Circuit", 
@@ -34,8 +34,8 @@ shinyjs::hidden(radioButtons("downloadDbDataType", "Format",
                              selected = "RDS",
                              inline = TRUE)),
 
-    plotOutput("plotDbNetworkExprs"),
-    plotOutput("plotDbPC"),
+#    plotOutput("plotDbNetworkExprs"),
+#    plotOutput("plotDbPC"),
 
 
 hr(),

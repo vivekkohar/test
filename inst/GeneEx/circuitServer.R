@@ -67,7 +67,7 @@ output$mainTable<-renderDataTable({
            
            ')
   datatable(DT,
-            escape=FALSE)}
+            escape=FALSE, options = list(pageLength = 100))}
     )
 
 observeEvent(input$addInteraction,{

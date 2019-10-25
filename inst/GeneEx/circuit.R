@@ -20,17 +20,20 @@ provide a specific name to your circuit.
 #                      fluidRow(
                              
 
-                                    column(7, offset = 0,
+                             #       column(7, offset = 0,
                                     shinyBS::bsTooltip(
                                       "circuitTable", "Circuit interactions.", 
                                       placement = "bottom", trigger = "hover", 
                                       options = NULL),
                                     
-                             uiOutput("circuitTable")),
+                             uiOutput("circuitTable")
+#                             )
+,
                              #             tags$h4("Circuit Interactions"),
-                             column(5, offset = 0,
-                                    (visNetworkOutput(("circuit")))
-                             )),
+#                             column(5, offset = 0,
+                                 
+#                             )
+),
 fluidRow(
   column(12, offset = 0,style = "margin-top:-1em",
          
@@ -41,20 +44,24 @@ fluidRow(
   
 ),
 fluidRow(
-  column(1, offset = 0,style = "margin-top:0em",
-         downloadButton(('downloadCircuit'), 'Download Circuit'),
-         shinyBS::bsTooltip("downloadCircuit", 
-                            "Download the circuit as a text file.", 
-                            placement = "bottom", trigger = "hover", 
-                            options = NULL)
-         
-  ),
-  column(7, offset = 1,style = "margin-top:-2em",
+#  column(7, offset = 3,style = "margin-top:4em",
    
-textInput(("circuitName"), "Circuit Name", "Circuit1"))),
+textInput(("circuitName"), "Circuit Name", "Circuit1"),
 shinyBS::bsTooltip("circuitName", "Name of the circuit which will be used as 
                    annotation for RacipeSE object", placement = "bottom", 
-                   trigger = "hover", options = NULL),
+                   trigger = "hover", options = NULL)),
+#),
+
+fluidRow(
+  #  column(1, offset = 0,style = "margin-top:1em",
+  downloadButton(('downloadCircuit'), 'Download Circuit'),
+  shinyBS::bsTooltip("downloadCircuit", 
+                     "Download the circuit as a text file.", 
+                     placement = "bottom", trigger = "hover", 
+                     options = NULL),
+  
+),
+
 
 fluidRow(
 column(3,offset = 5,
@@ -65,6 +72,8 @@ shinyBS::bsTooltip("updateCircuit", "If the interactions look good, you can
                    Load the circuit for further analysis. 
                    It will update the circuit figures.", placement = "bottom", 
                    trigger = "hover", options = NULL),
+
+visNetworkOutput("circuit"),
 
 hr()
 #                           

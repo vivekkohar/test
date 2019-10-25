@@ -1,10 +1,11 @@
 #' @export
-#' @import shiny shinyjs shinyBS
+#' @import shinyBS shiny
+#' @importFrom shinyjs hidden 
 #' @title Run GeneEx - webapp for sRACIPE
 #' @description GeneEx enables interactive simulations, visualization, and data
 #' analysis using sRACIPE.
 #' @return Webapp interface 
-runGeneEx <- function() {
+sracipeGeneEx <- function() {
   appDir <- system.file("GeneEx", package = "sRACIPE")
   if (appDir == "") {
     stop("Could not find example directory. Try re-installing `sRACIPE`.", call. = FALSE)

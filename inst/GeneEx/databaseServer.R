@@ -22,8 +22,8 @@ output$databaseTable <- DT::renderDT({
     shinyjs::show("loadNetworkDatabase")
     shinyjs::hide("downloadDbData")
     shinyjs::hide("downloadDbDataType")
-    shinyjs::hide("plotDbNetworkExprs")
-    shinyjs::hide("plotDbPC")
+#    shinyjs::hide("plotDbNetworkExprs")
+#    shinyjs::hide("plotDbPC")
     
     output$msg <- renderText("")
     # print("clicked")
@@ -137,81 +137,81 @@ output$databaseTable <- DT::renderDT({
       shinyjs::hide("uploadToDatabaseUI_url_sRacipe")
       shinyjs::hide("uploadToDatabaseUI_pubMedIds_sRacipe")
     })
-    shinyjs::show("showExpressionDatabase")
+#    shinyjs::show("showExpressionDatabase")
 
     
  })
   
-  
-  observeEvent(input$showExpressionDatabase, {
-    shinyjs::show("downloadDbData")
-    shinyjs::show("downloadDbDataType")
-    shinyjs::show("plotDbNetworkExprs")
-    shinyjs::show("plotDbPC")
-    
-    withProgress(message = 'Loading', value = 0.25, {
-      shinyBS::createAlert(session, anchorId = "dbAlert",
-                           alertId =  "Processing", title = "Processing",
-                           content = "Please wait...", append = FALSE)
-      rs <- isolate(databaseVals$rSet())
-      rs <- sracipeSimulate(rs, numModels = 500, plots = FALSE, 
-                            integrateStepSize = 0.05, simulationTime = 50)
-      rs <- sracipeNormalize(rs)
-      plotData <- assay(rs,1)
-      output$plotDbNetworkExprs <- renderPlot({
-        
-        .sracipePlotHeatmap(plotData = plotData)
-      })
-      output$plotDbPC <- renderPlot({
-        
-        .sracipePlotPca(plotData = plotData)
-      })
-      shinyBS::closeAlert(session, alertId = "Processing")
-    })
-    
-    output$downloadDbData <- downloadHandler(
-      filename = function(){
-        if(input$downloadDbDataType == "txt"){
-          return(paste0(annotation(rs),".zip"))}
-        else return(paste0(annotation(rs),".RDS"))
-      },
-      content = function(file){
-        if(input$downloadDbDataType == "txt"){
-          owd <- setwd(tempdir())
-          on.exit(setwd(owd))
-          files <- NULL;
-          
-          fileName <- paste(annotation(rs),"_GE",".txt",sep = "")
-          write.table(assay(rs,1),fileName,sep = ' ', row.names = TRUE, 
-                      col.names = TRUE, quote = FALSE)
-          files <- c(fileName,files)
-          
-          fileName <- paste(annotation(rs),"_IC",".txt",sep = "")
-          write.table(sracipeIC(rs),fileName,sep = ' ', row.names = FALSE, 
-                      col.names = TRUE)
-          files <- c(fileName,files)
-          
-          fileName <- paste(annotation(rs),"_network",".txt",sep = "")
-          write.table(sracipeCircuit(rs),fileName,sep = ' ', row.names = FALSE, 
-                      col.names = TRUE, quote = FALSE)
-          files <- c(fileName,files)
-          
-          fileName <- paste(annotation(rs),"_params",".txt",sep = "")
-          write.table(sracipeParams(rs),fileName,sep = ' ', row.names = TRUE, 
-                      col.names = TRUE, quote = FALSE)
-          files <- c(fileName,files)
-          
-          #create the zip file
-          zip(file,files)
-        }
-        else{
-          saveRDS(rs, file)
-        }
-      }
-    )
-    
-  })
-  
+#   
+#   observeEvent(input$showExpressionDatabase, {
+#     shinyjs::show("downloadDbData")
+#     shinyjs::show("downloadDbDataType")
+#     shinyjs::show("plotDbNetworkExprs")
+#     shinyjs::show("plotDbPC")
+#     
+#     withProgress(message = 'Loading', value = 0.25, {
+#       shinyBS::createAlert(session, anchorId = "dbAlert",
+#                            alertId =  "Processing", title = "Processing",
+#                            content = "Please wait...", append = FALSE)
+#       rs <- isolate(databaseVals$rSet())
+#       rs <- sracipeSimulate(rs, numModels = 500, plots = FALSE, 
+#                             integrateStepSize = 0.05, simulationTime = 50)
+#       rs <- sracipeNormalize(rs)
+#       plotData <- assay(rs,1)
+#       output$plotDbNetworkExprs <- renderPlot({
+#         
+#         .sracipePlotHeatmap(plotData = plotData)
+#       })
+#       output$plotDbPC <- renderPlot({
+#         
+#         .sracipePlotPca(plotData = plotData)
+#       })
+#       shinyBS::closeAlert(session, alertId = "Processing")
+#     })
+#     
+#     output$downloadDbData <- downloadHandler(
+#       filename = function(){
+#         if(input$downloadDbDataType == "txt"){
+#           return(paste0(annotation(rs),".zip"))}
+#         else return(paste0(annotation(rs),".RDS"))
+#       },
+#       content = function(file){
+#         if(input$downloadDbDataType == "txt"){
+#           owd <- setwd(tempdir())
+#           on.exit(setwd(owd))
+#           files <- NULL;
+#           
+#           fileName <- paste(annotation(rs),"_GE",".txt",sep = "")
+#           write.table(assay(rs,1),fileName,sep = ' ', row.names = TRUE, 
+#                       col.names = TRUE, quote = FALSE)
+#           files <- c(fileName,files)
+#           
+#           fileName <- paste(annotation(rs),"_IC",".txt",sep = "")
+#           write.table(sracipeIC(rs),fileName,sep = ' ', row.names = FALSE, 
+#                       col.names = TRUE)
+#           files <- c(fileName,files)
+#           
+#           fileName <- paste(annotation(rs),"_network",".txt",sep = "")
+#           write.table(sracipeCircuit(rs),fileName,sep = ' ', row.names = FALSE, 
+#                       col.names = TRUE, quote = FALSE)
+#           files <- c(fileName,files)
+#           
+#           fileName <- paste(annotation(rs),"_params",".txt",sep = "")
+#           write.table(sracipeParams(rs),fileName,sep = ' ', row.names = TRUE, 
+#                       col.names = TRUE, quote = FALSE)
+#           files <- c(fileName,files)
+#           
+#           #create the zip file
+#           zip(file,files)
+#         }
+#         else{
+#           saveRDS(rs, file)
+#         }
+#       }
+#     )
+#     
+#   })
+#   
   return(databaseTable[,1:10])  
 }, selection = 'single', editable = FALSE, rownames= FALSE, 
 options = list(pageLength = 5)

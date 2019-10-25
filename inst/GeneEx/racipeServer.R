@@ -113,7 +113,7 @@ observeEvent(input$simulateRacipe, {
       
       selectInput("selectedParameter2", "Parameter",
                   parameterNames,
-                  selected = 1
+                  selected = 2
       )
     })
     
@@ -122,7 +122,7 @@ observeEvent(input$simulateRacipe, {
       
       selectInput("selectedParameter3", "Parameter",
                   parameterNames,
-                  selected = 1
+                  selected = 3
       )
     })
     

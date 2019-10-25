@@ -32,13 +32,14 @@ bsAlert("racipeAlert"),
        htmlOutput("racipeDeterministicText")),
 
        fluidRow(
-           column(8,
+        #   column(8,
 
-           hidden(plotOutput("racipeHeatmap"))
-           ),
-           column(4,
+           hidden(plotOutput("racipeHeatmap")),
+     #      ),
+       #    column(4,
            hidden(plotOutput("racipePca"))
-           )),
+#           )
+),
 fluidRow(
 column(3, offset=8,
        hidden(actionButton("validateRacipe", "Validate", 
