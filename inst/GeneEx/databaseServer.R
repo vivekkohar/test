@@ -38,7 +38,8 @@ output$databaseTable <- DT::renderDT({
     databaseVals$rSet <- reactive(rs)
     output$tableDbNetwork <- DT::renderDT({
       circuit
-    })
+    }, options = list(
+      pageLength = 100))
     
     output$plotDbNetwork <- renderVisNetwork({
       sracipePlotCircuit(rs, plotToFile = FALSE)
@@ -93,7 +94,7 @@ output$databaseTable <- DT::renderDT({
       shinyjs::hide("racipeHeatmap")
       shinyjs::hide("racipePca")
       shinyjs::hide("parametricAnalysisRacipe")
-      shinyjs::hide("h5")
+      shinyjs::hide("paDescrpt")
       shinyjs::hide("filteredOutputRacipe")
       shinyjs::hide("filterSliderRacipe")
       shinyjs::hide("filteredOutputRacipe2")

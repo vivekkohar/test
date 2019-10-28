@@ -1,12 +1,12 @@
 # Initialize the network to NULL
 # Do not use simple reactive as we update the network from different places
 circuitVariables <- reactiveValues()
-circuitVariables$circuit <- data.table(
+circuitVariables$circuit <- reactive(data.table(
 #  if(input$updateTopologyfromText ==0) {
 #   if(input$updateTopologyfromFile ==0) {
      Source = c("A", "B"),
                         Target = c("B", "A"),
-                        Interaction = c(2, 2)
+                        Interaction = c(2, 2))
 #  }
 #  }
 )
@@ -54,15 +54,16 @@ HTML('<div class="btn-group" role="group" aria-label="Circuit Interaction Table"
     })
   
 output$mainTable<-renderDataTable({
-  DT=circuitVariables$circuit
+  circuitTmp <- circuitVariables$circuit()
+  DT=circuitTmp
 
   DT[["Actions"]]<-
     paste0('
 <div class="btn-group" role="group" aria-label="Circuit Interaction Table">
 <button type="button" class="btn btn-secondary modify"id=modify_',
-1:nrow(circuitVariables$circuit),'>Modify</button>
+1:nrow(circuitTmp),'>Modify</button>
 <button type="button" class="btn btn-secondary delete" id=delete_',
-1:nrow(circuitVariables$circuit),'>Delete</button>
+1:nrow(circuitTmp),'>Delete</button>
            </div>
            
            ')
@@ -76,7 +77,8 @@ observeEvent(input$addInteraction,{
     Target = "TgtGene",
     Interaction = 1)
   
-  circuitVariables$circuit<-rbind(circuitVariables$circuit,newInteraction)
+  circuitVariables$circuit <- reactive(rbind(circuitTmp,
+                                             newInteraction))
 #  showModal(modalModify2)
 })
 
@@ -108,10 +110,11 @@ observeEvent(input$save_changes, {
 } )
 observeEvent(input$lastClick,
              {
+               circuitTmp <- circuitVariables$circuit()
                if (input$lastClickId%like%"delete")
                {
                  row_to_del=as.numeric(gsub("delete_","",input$lastClickId))
-                 circuitVariables$circuit=circuitVariables$circuit[-row_to_del]
+                 circuitVariables$circuit=circuitTmp[-row_to_del]
                }
                else if (input$lastClickId%like%"modify")
                {
@@ -121,12 +124,13 @@ observeEvent(input$lastClick,
 )
 
 output$row_modif<-renderDataTable({
+  circuitTmp <- circuitVariables$circuit()
   selected_row=as.numeric(gsub("modify_","",input$lastClickId))
-  old_row=circuitVariables$circuit[selected_row]
+  old_row=circuitTmp[selected_row]
   row_change=list()
   for (i in colnames(old_row))
   {
-    if (is.numeric(circuitVariables$circuit[[i]]))
+    if (is.numeric(circuitTmp[[i]]))
     {
 row_change[[i]] <-
   paste0('<input class="new_input" type="number" id=new_',i,'><br>')
@@ -169,13 +173,14 @@ modalModify2 <-modalDialog(
 # } )
 
 output$rowModif2 <- renderDataTable({
-  selected_row=(nrow(circuitVariables$circuit))
+  circuitTmp <- circuitVariables$circuit()
+  selected_row=(nrow(circuitTmp))
   
-  old_row=circuitVariables$circuit[selected_row]
+  old_row=circuitTmp[selected_row]
   row_change=list()
   for (i in colnames(old_row))
   {
-    if (is.numeric(circuitVariables$circuit[[i]]))
+    if (is.numeric(circuitTmp[[i]]))
     {
       row_change[[i]]<-
         paste0('<input class="new_input" type="number" id=new_',i,'><br>')
@@ -203,8 +208,9 @@ observeEvent(input$newValue,
                  }
                })
                DF=data.frame(lapply(newValue, function(x) t(data.frame(x))))
-               colnames(DF)=colnames(circuitVariables$circuit)
-circuitVariables$circuit[as.numeric(gsub("modify_","",input$lastClickId))]<-DF
+               colnames(DF)=colnames(circuitVariables$circuit())
+circuitVariables$circuit[as.numeric(gsub("modify_","",input$lastClickId))] <- 
+  reactive(DF)
                
              }
 )
@@ -274,7 +280,7 @@ observeEvent(input$updateCircuit,{
 #    else
   {
     rSet <-  RacipeSE()
-    sracipeCircuit(rSet) <- circuitVariables$circuit
+    sracipeCircuit(rSet) <- circuitVariables$circuit()
     annotation(rSet) <- isolate(input$circuitName)
     circuitVariables$rSet <- rSet
     racipeVals$rSet <- rSet
@@ -388,13 +394,13 @@ output$circuit <- renderVisNetwork({
   observeEvent(input$circuitFile,{
     circuitData <- input$circuitFile
 
-circuitVariables$circuit <- read.table(
-       circuitData$datapath,sep=" ", header =TRUE, stringsAsFactors = FALSE)
+circuitVariables$circuit <- reactive(read.table(
+       circuitData$datapath,sep=" ", header =TRUE, stringsAsFactors = FALSE))
   
   })
   
   
-  output$downloadCircuit <- downloadHandler(
+output$downloadCircuit <- downloadHandler(
     filename = function() {
       if(is.null(circuitVariables$rSet)) return("circuit.tpo")
       paste(annotation(circuitVariables$rSet), '.tpo', sep='')

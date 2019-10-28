@@ -32,13 +32,10 @@ bsAlert("racipeAlert"),
        htmlOutput("racipeDeterministicText")),
 
        fluidRow(
-        #   column(8,
 
-           hidden(plotOutput("racipeHeatmap")),
-     #      ),
-       #    column(4,
-           hidden(plotOutput("racipePca"))
-#           )
+         hidden(plotOutput("racipePca")),
+           hidden(plotOutput("racipeHeatmap"))
+
 ),
 fluidRow(
 column(3, offset=8,
@@ -104,7 +101,7 @@ style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
                 hidden(  actionButton("parametricAnalysisRacipe", 
                                       "Parametric Analysis", 
 style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
-         hidden(tags$h5("Use the sliders to control the range of one or more 
+         hidden(tags$h5(id = "paDescrpt","Use the sliders to control the range of one or more 
                         parameters and observe the resulting change in 
                         distribution of models in different clusters"))
        ),
@@ -136,7 +133,7 @@ hr(),
 ################# STOCHASTIC RACIPE ##############################
 fluidRow(
   column(5, offset=4,
-         (actionButton("stochasticRacipe", "Stochastic RACIPE", 
+         hidden(actionButton("stochasticRacipe", "Stochastic RACIPE", 
                        style="color: #fff; background-color: #337ab7; 
                        border-color: #2e6da4")))
 ),

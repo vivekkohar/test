@@ -1,18 +1,17 @@
 # Data and functions shared across all sessions in the same R process
 # Utility functions not depending on output and input
-# The database object
-
-
-
-
-useShinyjs()
 # Utility functions
 .sracipePlotDensity = function(plotData,binCount=40, plotColor=NULL, 
                                label1 = "x",
                                label2 = "y", ...){
   if(is.null(plotColor)){
-    rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
-    plotColor <- rf(32)
+    plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
+                   "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
+                   "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
+                   "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
+                   "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
+                   "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
+                   "#AF1446", "#9E0142")
   }
   colnames(plotData[,1:2]) <- c(label1, label2)
   h1 <- hist(as.numeric(plotData[,1]), breaks=binCount, plot=FALSE)
@@ -35,8 +34,13 @@ useShinyjs()
 .sracipePlotHeatmapInt <- function(plotData, nSamples = 500, 
                                    plotColor = NULL, ...) {
   if(is.null(plotColor)){
-    rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
-    plotColor <- rf(32)
+    plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
+                   "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
+                   "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
+                   "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
+                   "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
+                   "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
+                   "#AF1446", "#9E0142")
   }
   hmap <- heatmaply(plotData, col=plotColor)
 }
@@ -48,8 +52,13 @@ useShinyjs()
                                 assignedClusters = NULL, ...) {
   plotData <- plotData[,1:min(nSamples,ncol(plotData))]
   if(is.null(plotColor)){
-    rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
-    plotColor <- rf(32)
+    plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
+                   "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
+                   "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
+                   "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
+                   "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
+                   "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
+                   "#AF1446", "#9E0142")
   }
 
   if(is.null(assignedClusters)){
@@ -72,7 +81,8 @@ useShinyjs()
   gplots::heatmap.2(plotData, col=plotColor, 
                     hclustfun = function(x) hclust(x,method = 'ward.D2'), 
     #   distfun=function(x) as.dist((1-cor(t(x), method = "spear"))/2), 
-                    trace="none", ColSideColors = clustColors,
+                    trace="none", ColSideColors = clustColors, labCol = FALSE,
+    xlab="Models", margins = c(2, 2),
                  ...)
 }
 
@@ -80,9 +90,29 @@ useShinyjs()
   if(is.null(pca)) {pca = prcomp(t(plotData), scale. = FALSE)}
   pcaData <- data.frame(x=pca$x[,1],y=pca$x[,2])
   .sracipePlotDensity(pcaData, 
-                  label1 = paste0("PC1(",100*summary(pca)$importance[2,1],"%)"),
-              label2 = paste0("PC2(",100*summary(pca)$importance[2,2],"%)"),
+      label1 = paste0("PC1(",100*summary(pca)$importance[2,1],"%)"),
+      label2 = paste0("PC2(",100*summary(pca)$importance[2,2],"%)"),
                       ...)
+}
+
+.sracipePlotPcaPoints <- function(plotData, pca = NULL, plotColor = NULL, ...){
+  if(is.null(pca)) {pca = prcomp(t(plotData), scale. = FALSE)}
+  pcaData <- data.frame(x=pca$x[,1],y=pca$x[,2])
+  if(is.null(plotColor)){
+    plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
+                   "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
+                   "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
+                   "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
+                   "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
+                   "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
+                   "#AF1446", "#9E0142")
+  }
+  ggplot2::ggplot(pcaData) +
+      geom_point(aes(x = pcaData[,1], y =pcaData[,2])) +
+      xlab(paste0("PC1(",100*summary(pca)$importance[2,1],"%)")) +
+      ylab(paste0("PC2(",100*summary(pca)$importance[2,2],"%)")) +
+      theme_bw() +
+      NULL
 }
 
 .sracipePlotTS <- function(plotData, ...){
@@ -91,8 +121,13 @@ useShinyjs()
   sexprs$time <- rep(as.numeric(rownames(plotData)), ncol(plotData))
   theme_set(theme_bw(base_size = 18))
   ggplot2::qplot(time, geneExp, data = sexprs, group = Gene, colour = Gene,
-                 geom = "line", ylab = "Gene Expression", xlab = "time" )
+      geom = "line", ylab = "Gene Expression", xlab = "time" )
 }
 
-rf <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, 'Spectral')))
-plotColor <- rf(32)
+plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
+               "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
+               "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
+               "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
+               "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
+               "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
+               "#AF1446", "#9E0142")

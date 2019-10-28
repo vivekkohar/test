@@ -23,7 +23,7 @@ fluidRow(
         ),
   column(8,offset = 0,
          hidden(actionButton("loadNetworkDatabase", "Load Circuit", 
-style="color: #fff;background-color: #337ab7; border-color: #2e6da4")),
+style="color: #fff;background-color: #32CD32; border-color: #2e6da4")),
          visNetworkOutput("plotDbNetwork")
   )
 
