@@ -1,221 +1,307 @@
 # Initialize the network to NULL
-# Do not use simple reactive as we update the network from different places
+# Use global vars instead of simple reactive as we update the network 
+# from different places
 circuitVariables <- reactiveValues()
-circuitVariables$circuit <- reactive(data.table(
-#  if(input$updateTopologyfromText ==0) {
-#   if(input$updateTopologyfromFile ==0) {
-     Source = c("A", "B"),
-                        Target = c("B", "A"),
-                        Interaction = c(2, 2))
-#  }
-#  }
+circuitVariables$circuit <- data.frame(
+  Source = c("A", "B"),
+  Target = c("B", "A"),
+  Interaction = c(2, 2), stringsAsFactors = FALSE
 )
+circuitVariables$deletedRows <- NULL 
+circuitVariables$deletedRowIndices <- list()
+observeEvent(input$circuitFile,{
+  circuitData <- input$circuitFile
+  
+  circuitVariables$circuit <- read.table(
+    circuitData$datapath,sep=" ", header =TRUE, stringsAsFactors = FALSE)
+  circuitVariables$deletedRows <- NULL
+  circuitVariables$deletedRowIndices = list()
+  
+})
+
+
+output$downloadCircuit <- downloadHandler(
+  filename = function() {
+    if(is.null(circuitVariables$rSet)) return("circuit.txt")
+    paste(annotation(circuitVariables$rSet), '.txt', sep='')
+  },
+  content = function(con) {
+    if(is.null(circuitVariables$rSet)) { data = data.frame(
+      Source = c("A", "B"),
+      Target = c("B", "A"),
+      Interaction = c(2, 2), stringsAsFactors = FALSE)}
+    else {data = sracipeCircuit(circuitVariables$rSet)}
+    write.table(data, con, 
+                row.names = FALSE, quote = FALSE)
+  }
+)
+
 # output$circuitTable <-renderDT({
-#   # return(isolate(circuitVariables$circuit()))
+#   # return(isolate(circuitVariables$circuit))
 #   return(data.frame(Source = c("A", "B"),
-#              Target = c("B", "A"), 
+#              Target = c("B", "A"),
 #              Interaction = c("2", "2")))
 # }, selection = 'none', editable = TRUE, rownames = FALSE,filter = 'top'
 # )
 
-output$circuitTable<-renderUI({
-  fluidPage(
-#    box(width=12,
-        h3(strong("Circuit Interactions"),align="center"),
-        hr(),
-
-        
-        column(12,dataTableOutput("mainTable")),
-        column(6,offset = 6,
-HTML('<div class="btn-group" role="group" aria-label="Circuit Interaction Table">'),
-               actionButton(inputId = "addInteraction",
-                            label = "Add interaction",icon("plus-square"),
- style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-               HTML('</div>')
-        ),
-        tags$script(HTML('$(document).on("click", "input", function () {
-               var checkboxes = document.getElementsByName("selectedRow");
-                         var checkboxesChecked = [];
-                         for (var i=0; i<checkboxes.length; i++) {
-                         
-                         if (checkboxes[i].checked) {
-                         checkboxesChecked.push(checkboxes[i].value);
-                         }
-                         }
-                         Shiny.onInputChange("checkedRows",checkboxesChecked);
-})')),
-      tags$script("$(document).on('click', '#mainTable button', function () {
-                  Shiny.onInputChange('lastClickId',this.id);
-                  Shiny.onInputChange('lastClick', Math.random())
-                  });")
-
-#      )
-      )
-    })
-  
-output$mainTable<-renderDataTable({
-  circuitTmp <- circuitVariables$circuit()
-  DT=circuitTmp
-
-  DT[["Actions"]]<-
-    paste0('
-<div class="btn-group" role="group" aria-label="Circuit Interaction Table">
-<button type="button" class="btn btn-secondary modify"id=modify_',
-1:nrow(circuitTmp),'>Modify</button>
-<button type="button" class="btn btn-secondary delete" id=delete_',
-1:nrow(circuitTmp),'>Delete</button>
-           </div>
-           
-           ')
-  datatable(DT,
-            escape=FALSE, options = list(pageLength = 100))}
-    )
-
-observeEvent(input$addInteraction,{
-  newInteraction=data.frame(
-    Source = "SrcGene",
-    Target = "TgtGene",
-    Interaction = 1)
-  
-  circuitVariables$circuit <- reactive(rbind(circuitTmp,
-                                             newInteraction))
-#  showModal(modalModify2)
+observeEvent(input$circuitTable_cell_edit, {
+  circuitVariables$circuit[input$circuitTable_cell_edit$row,
+                        (input$circuitTable_cell_edit$col)] <- 
+    input$circuitTable_cell_edit$value
 })
 
-
-##Managing in row deletion
-modal_modify<-modalDialog(
-  fluidPage(
-    h3(strong("Interaction"),align="center"),
-    hr(),
-    dataTableOutput('row_modif'),
-    
-    
-    tags$script(HTML("$(document).on('click', '#save_changes', function () {
-                     var list_value=[]
-                     for (i = 0; i < $( '.new_input' ).length; i++)
-                     {
-                     list_value.push($( '.new_input' )[i].value)
-                     }
-                     
-                     Shiny.onInputChange('newValue', list_value)
-                     });"))
-    ),
-  size="l", footer = 
-    actionButton("save_changes","Save changes"),easyClose = TRUE
-    )
-
-observeEvent(input$save_changes, {
-  removeModal()
-} )
-observeEvent(input$lastClick,
-             {
-               circuitTmp <- circuitVariables$circuit()
-               if (input$lastClickId%like%"delete")
-               {
-                 row_to_del=as.numeric(gsub("delete_","",input$lastClickId))
-                 circuitVariables$circuit=circuitTmp[-row_to_del]
-               }
-               else if (input$lastClickId%like%"modify")
-               {
-                 showModal(modal_modify)
-               }
-             }
-)
-
-output$row_modif<-renderDataTable({
-  circuitTmp <- circuitVariables$circuit()
-  selected_row=as.numeric(gsub("modify_","",input$lastClickId))
-  old_row=circuitTmp[selected_row]
-  row_change=list()
-  for (i in colnames(old_row))
-  {
-    if (is.numeric(circuitTmp[[i]]))
-    {
-row_change[[i]] <-
-  paste0('<input class="new_input" type="number" id=new_',i,'><br>')
-    }
-    else
-      row_change[[i]] <-
-        paste0('<input class="new_input" type="text" id=new_',i,'><br>')
-  }
-  row_change=as.data.table(row_change)
-  setnames(row_change,colnames(old_row))
-  DT=rbind(old_row,row_change)
-  rownames(DT)<-c("Current values","New values")
-  DT
+observeEvent(input$addInteraction, {
+  rowNum <- (1 + nrow(circuitVariables$circuit))
+  dataRow <- data.frame(Source = "srcGene", Target = "tgtGene", Interaction = 1,
+                        stringsAsFactors = FALSE)
   
-},escape=FALSE,options=list(dom='t',ordering=FALSE),selection="none"
+  circuitVariables$circuit <- rbind(dataRow,circuitVariables$circuit)
+})
+
+observeEvent(input$deletePressed, {
+  rowNum <- parseDeleteEvent(input$deletePressed)
+  dataRow <- circuitVariables$circuit[rowNum,]
+  
+  # Put the deleted row into a data frame so we can undo
+  # Last item deleted is in position 1
+  circuitVariables$deletedRows <- rbind(dataRow, circuitVariables$deletedRows)
+  circuitVariables$deletedRowIndices <- append(circuitVariables$deletedRowIndices, rowNum, after = 0)
+  
+  # Delete the row from the data frame
+  circuitVariables$circuit <- circuitVariables$circuit[-rowNum,]
+})
+
+observeEvent(input$undoDelete, {
+  if(nrow(circuitVariables$deletedRows) > 0) {
+    row <- circuitVariables$deletedRows[1, ]
+    circuitVariables$circuit <- addRowAt(
+      circuitVariables$circuit, row, circuitVariables$deletedRowIndices[[1]])
+    
+    # Remove row
+    circuitVariables$deletedRows <- circuitVariables$deletedRows[-1,]
+    # Remove index
+    circuitVariables$deletedRowIndices <- circuitVariables$deletedRowIndices[-1]
+  }
+})
+
+# Disable the undo button if we have not deleted anything
+output$undoUI <- renderUI({
+  if(
+    !is.null(circuitVariables$deletedRows) && 
+    nrow(circuitVariables$deletedRows) > 0) {
+    actionButton(
+      'undoDelete', label = 'Undo Delete', icon('undo'), 
+      style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+  } else {
+    actionButton('undo', label = 'Undo delete', icon('undo'), disabled = TRUE)
+  }
+})
+
+output$circuitTable <- DT::renderDataTable(
+  # Add the delete button column
+  deleteButtonColumn(circuitVariables$circuit, 'delete_button')
 )
 
-modalModify2 <-modalDialog(
-  fluidPage(
-    h3(strong("Interaction"),align="center"),
-    hr(),
-    dataTableOutput('rowModif2'),
-    
-    tags$script(HTML("$(document).on('click', '#save_changes', function () {
-                     var list_value=[]
-                     for (i = 0; i < $( '.new_input' ).length; i++)
-                     {
-                     list_value.push($( '.new_input' )[i].value)
-                     }
-                     
-                     Shiny.onInputChange('newValue', list_value)
-                     });"))
-    ),
-  size="l", footer = 
-    actionButton("save_changes","Save changes"),easyClose = TRUE
-    )
 
-# observeEvent(input$saveChanges2, {
+# output$circuitTable<-renderUI({
+#   fluidPage(
+# #    box(width=12,
+#         h3(strong("Circuit Interactions"),align="center"),
+#         hr(),
+# 
+#         
+#         column(12,dataTableOutput("mainTable")),
+#         column(6,offset = 6,
+# HTML('<div class="btn-group" role="group" aria-label="Circuit Interaction Table">'),
+#                actionButton(inputId = "addInteraction",
+#                             label = "Add interaction",icon("plus-square"),
+#  style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+#                HTML('</div>')
+#         ),
+#         tags$script(HTML('$(document).on("click", "input", function () {
+#                var checkboxes = document.getElementsByName("selectedRow");
+#                          var checkboxesChecked = [];
+#                          for (var i=0; i<checkboxes.length; i++) {
+#                          
+#                          if (checkboxes[i].checked) {
+#                          checkboxesChecked.push(checkboxes[i].value);
+#                          }
+#                          }
+#                          Shiny.onInputChange("checkedRows",checkboxesChecked);
+# })')),
+#       tags$script("$(document).on('click', '#mainTable button', function () {
+#                   Shiny.onInputChange('lastClickId',this.id);
+#                   Shiny.onInputChange('lastClick', Math.random())
+#                   });")
+# 
+# #      )
+#       )
+#     })
+#   
+# output$mainTable<-renderDataTable({
+#   circuitTmp <- circuitVariables$circuit
+#   DT=circuitTmp
+# 
+#   DT[["Actions"]]<-
+#     paste0('
+# <div class="btn-group" role="group" aria-label="Circuit Interaction Table">
+# <button type="button" class="btn btn-secondary modify"id=modify_',
+# 1:nrow(circuitTmp),'>Modify</button>
+# <button type="button" class="btn btn-secondary delete" id=delete_',
+# 1:nrow(circuitTmp),'>Delete</button>
+#            </div>
+#            
+#            ')
+#   datatable(DT,
+#             escape=FALSE, options = list(pageLength = 100))
+#   }
+#     )
+
+# observeEvent(input$addInteraction,{
+#   newInteraction=data.frame(
+#     Source = "SrcGene",
+#     Target = "TgtGene",
+#     Interaction = 1)
+#   
+#   circuitVariables$circuit <- reactive(rbind(circuitTmp,
+#                                              newInteraction))
+# #  showModal(modalModify2)
+# })
+
+
+# ##Managing in row deletion
+# modal_modify<-modalDialog(
+#   fluidPage(
+#     h3(strong("Interaction"),align="center"),
+#     hr(),
+#     dataTableOutput('row_modif'),
+#     
+#     
+#     tags$script(HTML("$(document).on('click', '#save_changes', function () {
+#                      var list_value=[]
+#                      for (i = 0; i < $( '.new_input' ).length; i++)
+#                      {
+#                      list_value.push($( '.new_input' )[i].value)
+#                      }
+#                      
+#                      Shiny.onInputChange('newValue', list_value)
+#                      });"))
+#     ),
+#   size="l", footer = 
+#     actionButton("save_changes","Save changes"),easyClose = TRUE
+#     )
+# 
+# observeEvent(input$save_changes, {
 #   removeModal()
 # } )
-
-output$rowModif2 <- renderDataTable({
-  circuitTmp <- circuitVariables$circuit()
-  selected_row=(nrow(circuitTmp))
-  
-  old_row=circuitTmp[selected_row]
-  row_change=list()
-  for (i in colnames(old_row))
-  {
-    if (is.numeric(circuitTmp[[i]]))
-    {
-      row_change[[i]]<-
-        paste0('<input class="new_input" type="number" id=new_',i,'><br>')
-    }
-    else
-      row_change[[i]]<-
-        paste0('<input class="new_input" type="text" id=new_',i,'><br>')
-  }
-  row_change=as.data.table(row_change)
-  setnames(row_change,colnames(old_row))
-  DT=rbind(old_row,row_change)
-  rownames(DT)<-c("Current values","New values")
-  DT
-  
-},escape=FALSE,options=list(dom='t',ordering=FALSE),selection="none"
-)
-
-observeEvent(input$newValue,
-             {
-               newValue=lapply(input$newValue, function(col) {
-      if (suppressWarnings(all(!is.na(as.numeric(as.character(col)))))) {
-                   as.numeric(as.character(col))
-                 } else {
-                   col
-                 }
-               })
-               DF=data.frame(lapply(newValue, function(x) t(data.frame(x))))
-               colnames(DF)=colnames(circuitVariables$circuit())
-circuitVariables$circuit[as.numeric(gsub("modify_","",input$lastClickId))] <- 
-  reactive(DF)
-               
-             }
-)
-
-
+# observeEvent(input$lastClick,
+#              {
+#                circuitTmp <- circuitVariables$circuit
+#                if (input$lastClickId%like%"delete")
+#                {
+#                  row_to_del=as.numeric(gsub("delete_","",input$lastClickId))
+#                  circuitVariables$circuit=circuitTmp[-row_to_del]
+#                }
+#                else if (input$lastClickId%like%"modify")
+#                {
+#                  showModal(modal_modify)
+#                }
+#              }
+# )
+# 
+# output$row_modif<-renderDataTable({
+#   circuitTmp <- circuitVariables$circuit
+#   selected_row=as.numeric(gsub("modify_","",input$lastClickId))
+#   old_row=circuitTmp[selected_row]
+#   row_change=list()
+#   for (i in colnames(old_row))
+#   {
+#     if (is.numeric(circuitTmp[[i]]))
+#     {
+# row_change[[i]] <-
+#   paste0('<input class="new_input" type="number" id=new_',i,'><br>')
+#     }
+#     else
+#       row_change[[i]] <-
+#         paste0('<input class="new_input" type="text" id=new_',i,'><br>')
+#   }
+#   row_change=as.data.table(row_change)
+#   setnames(row_change,colnames(old_row))
+#   DT=rbind(old_row,row_change)
+#   rownames(DT)<-c("Current values","New values")
+#   DT
+#   
+# },escape=FALSE,options=list(dom='t',ordering=FALSE),selection="none"
+# )
+# 
+# modalModify2 <-modalDialog(
+#   fluidPage(
+#     h3(strong("Interaction"),align="center"),
+#     hr(),
+#     dataTableOutput('rowModif2'),
+#     
+#     tags$script(HTML("$(document).on('click', '#save_changes', function () {
+#                      var list_value=[]
+#                      for (i = 0; i < $( '.new_input' ).length; i++)
+#                      {
+#                      list_value.push($( '.new_input' )[i].value)
+#                      }
+#                      
+#                      Shiny.onInputChange('newValue', list_value)
+#                      });"))
+#     ),
+#   size="l", footer = 
+#     actionButton("save_changes","Save changes"),easyClose = TRUE
+#     )
+# 
+# # observeEvent(input$saveChanges2, {
+# #   removeModal()
+# # } )
+# 
+# output$rowModif2 <- renderDataTable({
+#   circuitTmp <- circuitVariables$circuit
+#   selected_row=(nrow(circuitTmp))
+#   
+#   old_row=circuitTmp[selected_row]
+#   row_change=list()
+#   for (i in colnames(old_row))
+#   {
+#     if (is.numeric(circuitTmp[[i]]))
+#     {
+#       row_change[[i]]<-
+#         paste0('<input class="new_input" type="number" id=new_',i,'><br>')
+#     }
+#     else
+#       row_change[[i]]<-
+#         paste0('<input class="new_input" type="text" id=new_',i,'><br>')
+#   }
+#   row_change=as.data.table(row_change)
+#   setnames(row_change,colnames(old_row))
+#   DT=rbind(old_row,row_change)
+#   rownames(DT)<-c("Current values","New values")
+#   DT
+#   
+# },escape=FALSE,options=list(dom='t',ordering=FALSE),selection="none"
+# )
+# 
+# observeEvent(input$newValue,
+#              {
+#                newValue=lapply(input$newValue, function(col) {
+#       if (suppressWarnings(all(!is.na(as.numeric(as.character(col)))))) {
+#                    as.numeric(as.character(col))
+#                  } else {
+#                    col
+#                  }
+#                })
+#                DF=data.frame(lapply(newValue, function(x) t(data.frame(x))))
+#                colnames(DF)=colnames(circuitVariables$circuit)
+# circuitVariables$circuit[as.numeric(gsub("modify_","",input$lastClickId))] <- 
+#   reactive(DF)
+#                
+#              }
+# )
+# 
+# 
 
 
 
@@ -275,12 +361,13 @@ observeEvent(input$updateCircuit,{
 #  if(input$updateTopologyfromText ==0) {
 #    if(input$updateTopologyfromFile ==0) {
 #      if(input$loadNetworkExplorer == 0)
-#  if(is.null(circuitVariables$circuit())){
+#  if(is.null(circuitVariables$circuit)){
 #    { return ()}
 #    else
   {
     rSet <-  RacipeSE()
-    sracipeCircuit(rSet) <- circuitVariables$circuit()
+    
+    sracipeCircuit(rSet) <- circuitVariables$circuit
     annotation(rSet) <- isolate(input$circuitName)
     circuitVariables$rSet <- rSet
     racipeVals$rSet <- rSet
@@ -391,27 +478,3 @@ output$circuit <- renderVisNetwork({
   sracipePlotCircuit(circuitVariables$rSet, plotToFile = FALSE)
 })
 
-  observeEvent(input$circuitFile,{
-    circuitData <- input$circuitFile
-
-circuitVariables$circuit <- reactive(read.table(
-       circuitData$datapath,sep=" ", header =TRUE, stringsAsFactors = FALSE))
-  
-  })
-  
-  
-output$downloadCircuit <- downloadHandler(
-    filename = function() {
-      if(is.null(circuitVariables$rSet)) return("circuit.tpo")
-      paste(annotation(circuitVariables$rSet), '.tpo', sep='')
-    },
-    content = function(con) {
-      if(is.null(circuitVariables$rSet)) { data = data.table(
-        Source = c("A", "B"),
-        Target = c("B", "A"),
-        Interaction = c(2, 2))}
-      else {data = sracipeCircuit(circuitVariables$rSet)}
-      write.table(data, con, 
-                  row.names = FALSE, quote = FALSE)
-    }
-)
