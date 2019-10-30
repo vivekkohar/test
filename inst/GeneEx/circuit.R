@@ -1,9 +1,7 @@
 ############## Network Input ##################################################
 
-circuit <-  tabPanel(
-  "Circuit", tags$em(
-  "
-The network/circuit to be simulated can be specified here.
+circuit <-  tabPanel("Circuit", 
+                     tags$em("The network/circuit to be simulated can be specified here.
 There are multiple ways to do so. As an example, we have
 loaded the canonical toggle switch circuit as the default circuit. 
 It can be modified either by loading the circuit from a file containing 
@@ -22,10 +20,10 @@ provide a specific name to your circuit.
            fluidRow(
              textInput("circuitName", "Circuit Name", value = "Circuit1"),
              br(),
-             
+
              fileInput(("circuitFile"), #label = "Choose Circuit File",
                        div("Choose Circuit File",
-                           br(), 
+                           br(),
                            downloadLink("downloadSampleCircuit",
                                         "Example circuit file")
                            )
@@ -37,15 +35,18 @@ provide a specific name to your circuit.
 
 
                actionButton( inputId = "updateCircuit", label = "Load Circuit",
-               icon("thumbs-up"), style="color: #fff; background-color: #32CD32; 
-           border-color: #2e6da4", title =
+               icon("thumbs-up"), style="color: #fff; background-color: #32CD32;
+           border-color: #2e6da4",
+               title =
            "If the interactions look good
-           you can load the circuit for further 
+           you can load the circuit for further
            analysis. It will show the circuit figure below this button.
-           "),
-           ),
-           br(),
+           "
+           )
            
+          ),
+           br(),
+
            fluidRow(
              visNetwork::visNetworkOutput("circuit")
              )
@@ -53,18 +54,18 @@ provide a specific name to your circuit.
     column(5,offset = 0,
            fluidRow(
              column(1,offset = 0,
-                    
+
                       actionButton(
-                        "addInteraction", "Add Interaction", 
-                        style="color: #fff; background-color: #337ab7; 
+                        "addInteraction", "Add Interaction",
+                        style="color: #fff; background-color: #337ab7;
                         border-color: #2e6da4", title = "Add an interaction
                       (srcGene,tgtGene,1) to the circuit at
                       the top of the table which can then be modified by double
                       clicking the individaul entries.
-                      "),
+                      ")
                     ),
             column(1,offset = 3,
-                    tipify(uiOutput('undoUI'), 
+                    tipify(uiOutput('undoUI'),
                            "Put back the deleted interaction")
                    )
             ),
