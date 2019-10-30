@@ -1,18 +1,35 @@
 # Data and functions shared across all sessions in the same R process
 # Utility functions not depending on output and input
+# Libraries
+suppressMessages(library(shiny))
+suppressMessages(library(reshape2))
+suppressMessages(library(ggplot2))
+suppressMessages(library(gplots))
+suppressMessages(library(MASS))
+suppressMessages(library(RColorBrewer))
+suppressMessages(library(DT))
+suppressMessages(library(visNetwork))
+suppressMessages(library(shinyjs))
+suppressMessages(library(sRACIPE))
+suppressMessages(library(data.table))
+suppressMessages(library(shinyBS))
+# library(htmlwidgets)
+# library(d3heatmap)
+
+plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
+               "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
+               "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
+               "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
+               "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
+               "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
+               "#AF1446", "#9E0142")
+options(shiny.sanitize.errors = FALSE)
+
 # Utility functions
-.sracipePlotDensity = function(plotData,binCount=40, plotColor=NULL, 
+.sracipePlotDensity = function(plotData,binCount=40, plotColor=plotColor, 
                                label1 = "x",
                                label2 = "y", ...){
-  if(is.null(plotColor)){
-    plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
-                   "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
-                   "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
-                   "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
-                   "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
-                   "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
-                   "#AF1446", "#9E0142")
-  }
+
   colnames(plotData[,1:2]) <- c(label1, label2)
   h1 <- hist(as.numeric(plotData[,1]), breaks=binCount, plot=FALSE)
   h2 <- hist(as.numeric(plotData[,2]), breaks=binCount, plot=FALSE)
@@ -32,7 +49,7 @@
 }
 
 .sracipePlotHeatmapInt <- function(plotData, nSamples = 500, 
-                                   plotColor = NULL, ...) {
+                                   plotColor = plotColor, ...) {
   if(is.null(plotColor)){
     plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
                    "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
@@ -47,19 +64,10 @@
 
 
 
-.sracipePlotHeatmap <- function(plotData, nSamples = 500, plotColor = NULL, 
+.sracipePlotHeatmap <- function(plotData, nSamples = 500, plotColor = plotColor, 
                                 nClusters = 3, 
                                 assignedClusters = NULL, ...) {
   plotData <- plotData[,1:min(nSamples,ncol(plotData))]
-  if(is.null(plotColor)){
-    plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
-                   "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
-                   "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
-                   "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
-                   "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
-                   "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
-                   "#AF1446", "#9E0142")
-  }
 
   if(is.null(assignedClusters)){
   #ref_cor <- cor((plotData), method = "spearman")
@@ -95,18 +103,9 @@
                       ...)
 }
 
-.sracipePlotPcaPoints <- function(plotData, pca = NULL, plotColor = NULL, ...){
+.sracipePlotPcaPoints <- function(plotData, pca = NULL, plotColor = plotColor, ...){
   if(is.null(pca)) {pca = prcomp(t(plotData), scale. = FALSE)}
   pcaData <- data.frame(x=pca$x[,1],y=pca$x[,2])
-  if(is.null(plotColor)){
-    plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
-                   "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
-                   "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
-                   "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
-                   "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
-                   "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
-                   "#AF1446", "#9E0142")
-  }
   ggplot2::ggplot(pcaData) +
       geom_point(aes(x = pcaData[,1], y =pcaData[,2])) +
       xlab(paste0("PC1(",100*summary(pca)$importance[2,1],"%)")) +
@@ -124,13 +123,6 @@
       geom = "line", ylab = "Gene Expression", xlab = "time" )
 }
 
-plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
-               "#51ABAE", "#62BEA6", "#77C8A4", "#8ED1A4", "#A4DAA4",
-               "#B8E2A1", "#CBEA9D", "#DEF199", "#EAF69F", "#F2FAAC",
-               "#FAFDB8", "#FEFAB6", "#FEF0A5", "#FEE695", "#FDD985",
-               "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
-               "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
-               "#AF1446", "#9E0142")
 
 # Using datatable functions from https://github.com/stefaneng/Shiny-DeleteRowsDT
 #' Adds a row at a specified index
@@ -174,7 +166,7 @@ deleteButtonColumn <- function(df, id, ...) {
   DT::datatable(cbind(df,Delete = deleteCol),
                 # Need to disable escaping for html as string to work
                 escape = FALSE,
-                options = list(
+                options = list(pageLength = 100,
                   # Disable sorting for the delete column
                   columnDefs = list(list(targets = 1, sortable = FALSE))
                 ),editable = TRUE)
@@ -186,4 +178,97 @@ deleteButtonColumn <- function(df, id, ...) {
 parseDeleteEvent <- function(idstr) {
   res <- as.integer(sub(".*_([0-9]+)", "\\1", idstr))
   if (! is.na(res)) res
+}
+
+# Create a little question mark link that shows a help popup on hover
+# https://github.com/daattali/ddpcr/blob/master/inst/shiny/ui/helpers.R
+
+helpPopup <- function(content, title = NULL) {
+  a(href = "#",
+    class = "popover-link",
+    `data-toggle` = "popover",
+    `data-title` = title,
+    `data-content` = content,
+    `data-html` = "true",
+    `data-trigger` = "hover",
+    icon("question-circle")
+  )
+}
+
+# https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R
+withBusyIndicatorCSS <- "
+.btn-loading-container {
+margin-left: 10px;
+font-size: 1.2em;
+}
+.btn-done-indicator {
+color: green;
+}
+.btn-err {
+margin-top: 10px;
+color: red;
+}
+"
+
+withBusyIndicatorUI <- function(button) {
+  id <- button[['attribs']][['id']]
+  div(
+    shinyjs::useShinyjs(),
+    singleton(tags$head(
+      tags$style(withBusyIndicatorCSS)
+    )),
+    `data-for-btn` = id,
+    button,
+    span(
+      class = "btn-loading-container",
+      shinyjs::hidden(
+        icon("spinner", class = "btn-loading-indicator fa-spin"),
+        icon("check", class = "btn-done-indicator")
+      )
+    ),
+    shinyjs::hidden(
+      div(class = "btn-err",
+          div(icon("exclamation-circle"),
+              tags$b("Error: "),
+              span(class = "btn-err-msg")
+          )
+      )
+    )
+  )
+}
+
+# Call this function from the server with the button id that is clicked and the
+# expression to run when the button is clicked
+withBusyIndicatorServer <- function(buttonId, expr) {
+  # UX stuff: show the "busy" message, hide the other messages, disable the button
+  loadingEl <- sprintf("[data-for-btn=%s] .btn-loading-indicator", buttonId)
+  doneEl <- sprintf("[data-for-btn=%s] .btn-done-indicator", buttonId)
+  errEl <- sprintf("[data-for-btn=%s] .btn-err", buttonId)
+  shinyjs::disable(buttonId)
+  shinyjs::show(selector = loadingEl)
+  shinyjs::hide(selector = doneEl)
+  shinyjs::hide(selector = errEl)
+  on.exit({
+    shinyjs::enable(buttonId)
+    shinyjs::hide(selector = loadingEl)
+  })
+  
+  # Try to run the code when the button is clicked and show an error message if
+  # an error occurs or a success message if it completes
+  tryCatch({
+    value <- expr
+    shinyjs::show(selector = doneEl)
+    shinyjs::delay(2000, shinyjs::hide(selector = doneEl, anim = TRUE, animType = "fade",
+                                       time = 0.5))
+    value
+  }, error = function(err) { errorFunc(err, buttonId) })
+}
+
+# When an error happens after a button click, show the error
+errorFunc <- function(err, buttonId) {
+  errEl <- sprintf("[data-for-btn=%s] .btn-err", buttonId)
+  errElMsg <- sprintf("[data-for-btn=%s] .btn-err-msg", buttonId)
+  errMessage <- gsub("^ddpcr: (.*)", "\\1", err$message)
+  shinyjs::html(html = errMessage, selector = errElMsg)
+  shinyjs::show(selector = errEl, anim = TRUE, animType = "fade")
 }

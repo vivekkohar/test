@@ -18,51 +18,66 @@ provide a specific name to your circuit.
 'Download Circuit' will download the loaded circuit as a text file."),
   hr(),
   fluidRow(
-    column(3,offset = 0,
-    uiOutput('undoUI')),
-    column(3,offset = 0,
-    actionButton(
-      "addInteraction","Add Interaction", 
-      style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
-    )
+    column(5,offset = 1,
+           fluidRow(
+             textInput("circuitName", "Circuit Name", value = "Circuit1"),
+             br(),
+             
+             fileInput(("circuitFile"), #label = "Choose Circuit File",
+                       div("Choose Circuit File",
+                           br(), 
+                           downloadLink("downloadSampleCircuit",
+                                        "Example circuit file")
+                           )
+                       ),
+             shinyBS::tipify(downloadButton(('downloadCircuit'), 'Download Circuit'),
+                    "Download the circuit as a text file."),
+             br(),
+             br(),
+
+
+               actionButton( inputId = "updateCircuit", label = "Load Circuit",
+               icon("thumbs-up"), style="color: #fff; background-color: #32CD32; 
+           border-color: #2e6da4", title =
+           "If the interactions look good
+           you can load the circuit for further 
+           analysis. It will show the circuit figure below this button.
+           "),
+           ),
+           br(),
+           
+           fluidRow(
+             visNetwork::visNetworkOutput("circuit")
+             )
+           ),
+    column(5,offset = 0,
+           fluidRow(
+             column(1,offset = 0,
+                    
+                      actionButton(
+                        "addInteraction", "Add Interaction", 
+                        style="color: #fff; background-color: #337ab7; 
+                        border-color: #2e6da4", title = "Add an interaction
+                      (srcGene,tgtGene,1) to the circuit at
+                      the top of the table which can then be modified by double
+                      clicking the individaul entries.
+                      "),
+                    ),
+            column(1,offset = 3,
+                    tipify(uiOutput('undoUI'), 
+                           "Put back the deleted interaction")
+                   )
+            ),
+           br(),
+           fluidRow(
+             DT::dataTableOutput("circuitTable"),
+             shinyBS::bsTooltip(
+               "circuitTable", "Current Circuit interactions",
+             placement = "bottom", trigger = "hover", options = NULL)
+             )
+           )
     ),
-  fluidRow(
-    DT::dataTableOutput("circuitTable"),
-    # uiOutput("circuitTable"),
-    shinyBS::bsTooltip(
-      "circuitTable", "Circuit interactions.",
-      placement = "bottom", trigger = "hover", options = NULL),
-    fileInput(("circuitFile"),label = "Choose Circuit File"),
-    shinyBS::bsTooltip("circuitFile", "Input the circuit using a file.",
-                       placement = "bottom", trigger = "hover", options = NULL),
-    textInput(("circuitName"), "Circuit Name", "Circuit1"),
-    shinyBS::bsTooltip(
-    "circuitName", "Name of the circuit which will be used as
-    annotation for RacipeSE object", placement = "bottom", 
-    trigger = "hover", options = NULL),
-    downloadButton(('downloadCircuit'), 'Download Circuit'),
-    shinyBS::bsTooltip(
-      "downloadCircuit", "Download the circuit as a text file.", 
-      placement = "bottom", trigger = "hover", options = NULL)
-
-),
-
-fluidRow(
-  column(3,offset = 5,
-         actionButton(
-           "updateCircuit", "Load Circuit",icon("thumbs-up"),
-           style="color: #fff; background-color: #32CD32; 
-           border-color: #2e6da4")
-         )
-  ),
-  shinyBS::bsTooltip(
-  "updateCircuit", "If the interactions look good, you can 
-  Load the circuit for further analysis. 
-  It will update the circuit figures.", placement = "bottom", 
-  trigger = "hover", options = NULL),
-
-fluidRow(  visNetwork::visNetworkOutput("circuit")),
-
-hr()
+  hr(),
+  hr()
 #                           
 )

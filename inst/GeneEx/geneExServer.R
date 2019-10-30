@@ -5,23 +5,7 @@
 # http://shiny.rstudio.com
 #
 
-suppressMessages(library(shiny))
-suppressMessages(library(reshape2))
-suppressMessages(library(ggplot2))
-suppressMessages(library(gplots))
-suppressMessages(library(MASS))
-suppressMessages(library(RColorBrewer))
-suppressMessages(library(DT))
-suppressMessages(library(visNetwork))
-suppressMessages(library(shinyjs))
-suppressMessages(library(sRACIPE))
-suppressMessages(library(data.table))
-suppressMessages(library(shinyBS))
-# library(htmlwidgets)
-# library(d3heatmap)
-rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
-plot_color <- rf(32)
-options(shiny.sanitize.errors = FALSE)
+
 
 geneExServer <- shinyServer(function(input, output, session) {
   source('circuitServer.R', local = TRUE)
@@ -30,6 +14,6 @@ geneExServer <- shinyServer(function(input, output, session) {
   source('validateServer.R', local = TRUE)
   source('databaseServer.R', local = TRUE)
 
-  session$onSessionEnded(stopApp)
+#  session$onSessionEnded(stopApp)
 })
 
