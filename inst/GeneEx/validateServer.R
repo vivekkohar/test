@@ -48,6 +48,7 @@ observeEvent(input$fileSimExp,{
 
 
   observeEvent(input$compareValidate,{
+    withBusyIndicatorServer("compareValidate",{
     validateVars$pValue <- reactive(isolate(input$validatePValue))
     validateVars$nClust <- reactive(isolate(input$validateNClust))
     validateVars$validateNPermut <- reactive(isolate(input$stepSizeExplorer ))
@@ -91,7 +92,7 @@ observeEvent(input$fileSimExp,{
                       dendrogram = "none", Colv=FALSE, col = plotColor,
                       main = "Reference Data")
     
-    
+  
   })
   
   output$validateSimHeatmap <- renderPlot({
@@ -120,18 +121,20 @@ observeEvent(input$fileSimExp,{
     # refClusters <- c(refClusters,rep(dim(similarity$simulated.refCor)[1], 
     #                                  similarity$ref.cluster.freq[1]*
     #                                    nrow(similarity$simulated.refCor)))
-    simClusters <- similarity$simClusters
-    refClusters <- similarity$refClusters
-    print(length(simClusters))
-    print(length(refClusters))
-    print(dim(similarity$simulated.refCor))
+    simClusters <- as.character(col2[(1+similarity$simClusters)])
+    refClusters <- as.character(col2[(1+similarity$refClusters)])
+    # print((simClusters))
+    # print((refClusters))
+    # print(length(simClusters))
+    # print(length(refClusters))
+    # print(dim(similarity$simulated.refCor))
     #print(refClusters)
     #print(simClusters)
-    gplots::heatmap.2(similarity$simulated.refCor, Rowv = FALSE,
-                      Colv = FALSE, ColSideColors = as.character(col2[refClusters]),
-                      RowSideColors = as.character(col2[simClusters]) ,trace = "none",
-                      xlab =  "Simulation Data Samples",
-                      ylab = "Ref Data Samples", col = plotColor, 
+    gplots::heatmap.2(as.matrix(similarity$simulated.refCor), Rowv = FALSE,
+                      Colv = FALSE, ColSideColors = refClusters,
+                      RowSideColors = simClusters ,trace = "none",
+                      ylab =  "Simulation Data Samples",
+                      xlab = "Ref Data Samples", col = plotColor, 
                       dendrogram = 'none',
 main = "Correlation between reference
           and simulated samples" )
@@ -164,7 +167,7 @@ main = "Correlation between reference
                  similarity$KL,"."))
     
     })
-  
+    })
   
   })
   

@@ -75,7 +75,8 @@ observeEvent(input$deletePressed, {
   # Put the deleted row into a data frame so we can undo
   # Last item deleted is in position 1
   circuitVariables$deletedRows <- rbind(dataRow, circuitVariables$deletedRows)
-  circuitVariables$deletedRowIndices <- append(circuitVariables$deletedRowIndices, rowNum, after = 0)
+  circuitVariables$deletedRowIndices <- 
+    append(circuitVariables$deletedRowIndices, rowNum, after = 0)
   
   # Delete the row from the data frame
   circuitVariables$circuit <- circuitVariables$circuit[-rowNum,]

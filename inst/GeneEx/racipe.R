@@ -27,12 +27,13 @@ numericInput(inputId = "racipeNClusters",
              column(9, offset=1,
            ( numericInput(inputId = "stepSizeRacipe", "Integration Time Step",
                           min = 0.001, max = 0.9, value = 0.05)),
-           (actionButton("simulateRacipe", "Simulate", 
+           withBusyIndicatorUI(   actionButton("simulateRacipe", "Simulate", 
+                                               class = 'btn-primary',
     style="color: #fff; background-color: #32CD32; border-color: #2e6da4"))))),
   column(6, offset=0,
   visNetworkOutput("racipeCircuit"))
 ),
-bsAlert("racipeAlert"),
+# bsAlert("racipeAlert"),
        fluidRow(
        htmlOutput("racipeDeterministicText")),
 
@@ -105,10 +106,10 @@ style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
          column(5, offset=4,
                 hidden(  actionButton("parametricAnalysisRacipe", 
                                       "Parametric Analysis", 
-style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
-         hidden(tags$h5(id = "paDescrpt","Use the sliders to control the range of one or more 
-                        parameters and observe the resulting change in 
-                        distribution of models in different clusters"))
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))
+         # hidden(tags$h5(id = "paDescrpt","Use the sliders to control the range of one or more 
+         #                parameters and observe the resulting change in 
+         #                distribution of models in different clusters"))
        ),
        fluidRow(
          column(3,
@@ -154,10 +155,10 @@ fluidRow(
 
   column(5, offset=0,
          br(),
-         hidden(  actionButton("simulateSRacipe", 
-                               "Perform Stochastic Simulations", 
+         withBusyIndicatorUI(     hidden(  actionButton("simulateSRacipe", 
+      "Perform Stochastic Simulations",  class = 'btn-primary',
                                style="color: #fff; background-color: #32CD32; 
-                           border-color: #2e6da4")))
+                           border-color: #2e6da4"))))
 ),
 fluidRow(
   column(6,

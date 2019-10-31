@@ -97,8 +97,7 @@ observeEvent(input$simulateGv, {
   shinyjs::show("saveMEData")
   shinyjs::show("GvTS")
   rs <- gvVals$rSet()
-  withProgress(message = 'Please wait...', value = 0.0,
-             {
+#  withProgress(message = 'Please wait...', value = 0.0, {
   sracipeParams(rs) <- gvVals$parametersME()
    
  #  sracipeConfig(rs)$simParams["integrateStepSize"] <- 
@@ -113,7 +112,7 @@ observeEvent(input$simulateGv, {
                        nNoise = isolate(gvVals$nNoise()) 
                        )
   gvVals$rSet <- reactive(rs)
-})
+#})
   output$GvTS <- renderPlot({
 
     if(input$simulateGv == 0) return()

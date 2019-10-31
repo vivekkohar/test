@@ -66,9 +66,9 @@ inputId = "validateNClust", "Number of Clusters",  min = 2, max = 8, value = 3)
                                            "Number of permutations",  
                                            min = 100, max = 10000, value = 1000)
                                        ),
-                                       (actionButton("compareValidate", 
-                                                     "Validate", 
-      style="color: #fff; background-color: #32CD32; border-color: #2e6da4"))
+withBusyIndicatorUI(    (actionButton("compareValidate",  "Validate", 
+                                      class = 'btn-primary',
+      style="color: #fff; background-color: #32CD32; border-color: #2e6da4")))
                                 ))
                               ),
                         column(4, offset=0,

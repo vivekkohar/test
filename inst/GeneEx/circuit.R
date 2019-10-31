@@ -1,7 +1,8 @@
 ############## Network Input ##################################################
 
 circuit <-  tabPanel("Circuit", 
-                     tags$em("The network/circuit to be simulated can be specified here.
+                     tags$em("The network/circuit to be 
+                     simulated can be specified here.
 There are multiple ways to do so. As an example, we have
 loaded the canonical toggle switch circuit as the default circuit. 
 It can be modified either by loading the circuit from a file containing 
@@ -28,7 +29,8 @@ provide a specific name to your circuit.
                                         "Example circuit file")
                            )
                        ),
-             shinyBS::tipify(downloadButton(('downloadCircuit'), 'Download Circuit'),
+             shinyBS::tipify(downloadButton(('downloadCircuit'), 
+                                            'Download Circuit'),
                     "Download the circuit as a text file."),
              br(),
              br(),

@@ -18,6 +18,7 @@ output$racipeCircuit <- renderVisNetwork({
 
 
 observeEvent(input$simulateRacipe, {
+  withBusyIndicatorServer("simulateRacipe",{
   shinyjs::show("racipeDeterministicText")
   shinyjs::show("racipeHeatmap")
   shinyjs::show("racipePca")
@@ -47,7 +48,7 @@ observeEvent(input$simulateRacipe, {
 #                   FALSE)
 
   #      rs <- shinyModelExplorer()
-  withProgress(message = 'Simulating', value = 0.25, {
+ # withProgress(message = 'Simulating', value = 0.25, {
     shinyBS::createAlert(session, anchorId = "racipeAlert",
                          alertId =  "racipeProcessing", title = "Processing",
                          content = "Please wait...", append = FALSE)
@@ -61,7 +62,8 @@ observeEvent(input$simulateRacipe, {
   rsRacipe <- sracipeNormalize(rsRacipe)
   racipeVals$rsRacipe <- reactive(rsRacipe)
   shinyBS::closeAlert(session, alertId = "racipeProcessing")
-  })
+ # })
+
   output$racipeDeterministicText <- renderUI({HTML(
     "Hierarchical clustering and principal component 
     analysis of deterministic simulations ")})
@@ -80,6 +82,7 @@ observeEvent(input$simulateRacipe, {
       plotData <- assay(rsRacipe)
       .sracipePlotHeatmap(plotData, nClusters = input$racipeNClusters)
     })
+  })
   })
   ###########################################
   # Parametric Analysis
@@ -285,11 +288,12 @@ observeEvent(input$simulateRacipe, {
     output$fileRacipeData <- renderText(HTML("File uploaded to Database"))
     shinyjs::show("fileRacipeData")
   })
-})
+}) 
 ###########################################
 # sRACIPE
 ###########################################
 observeEvent(input$stochasticRacipe, {
+  
   shinyjs::show("sRacipeOption")
   shinyjs::show("sRacipeNoise")
   shinyjs::show("simulateSRacipe")
@@ -302,7 +306,7 @@ observeEvent(input$stochasticRacipe, {
   shinyjs::show("downloadSRacipeDataType")
 
   observeEvent(input$simulateSRacipe, {
-    
+    withBusyIndicatorServer("simulateSRacipe",{
 #  show("sRacipeHeatmap")
 #  show("sRacipePca")
 # if(!racipeVals$annealFlag){
@@ -352,7 +356,7 @@ isolate(
       racipeVals$rsSRacipe <- reactive(rsSRacipe)
       
 })
-      withProgress(message = 'Plotting', value = 0.25, {
+#      withProgress(message = 'Plotting', value = 0.25, {
 
         assayDataTmp <- assays(rsSRacipe)
         metadataTmp <- metadata(rsSRacipe)
@@ -391,7 +395,7 @@ isolate(
         .sracipePlotHeatmap(plotDataSt, nClusters = input$racipeNClusters)
       })
       shinyBS::closeAlert(session, alertId = "racipeProcessing")
-})
+#})
 
     }
 )
@@ -426,7 +430,7 @@ if(input$sRacipeOption == "annealing")
         })
       }
 
-      withProgress(message = 'Plotting', value = 0.25, {
+ #     withProgress(message = 'Plotting', value = 0.25, {
         rsSRacipeAnneal <- isolate(racipeVals$rsSRacipeAnneal())
         assayDataTmp <- assays(rsSRacipeAnneal)
         metadataTmp <- metadata(rsSRacipeAnneal)
@@ -464,10 +468,10 @@ if(input$sRacipeOption == "annealing")
           .sracipePlotHeatmap(plotDataSt, nClusters = input$racipeNClusters)
         })
         shinyBS::closeAlert(session, alertId = "racipeProcessing")
-      })
+  #    })
 
 }
-
+})
 })
 
   output$downloadSRacipeData <- downloadHandler(
