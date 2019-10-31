@@ -33,7 +33,7 @@ options(shiny.sanitize.errors = FALSE)
 # Utility functions
 .sracipePlotDensity = function(plotData,binCount=40, col=plotColor, 
                                label1 = "x",
-                               label2 = "y",title = title, ...){
+                               label2 = "y",imagetitle = NULL, ...){
 
   colnames(plotData[,1:2]) <- c(label1, label2)
   h1 <- hist(as.numeric(plotData[,1]), breaks=binCount, plot=FALSE)
@@ -46,7 +46,7 @@ options(shiny.sanitize.errors = FALSE)
   layout(matrix(c(2,0,1,3),2,2,byrow=TRUE),c(3,1), c(1,3))
   image(kernelDensity, cex = 2, cex.axis = 1, cex.lab = 1, 
         xlab= label1, ylab=label2, col=plotColor) 
-  title(title, line = -2, adj = 0)
+  title(imagetitle, line = -2, adj = 0)
   par(mar=c(0,2,1,0))
   barplot(h1$counts, axes=FALSE, ylim=c(0, top), space=0, col='red')
   

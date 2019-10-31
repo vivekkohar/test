@@ -127,12 +127,12 @@ column(3,
 
 
            fluidRow(
-             column(8,
-                    hidden(  plotOutput("racipeHeatmapFiltered"))
-             ),
-             column(4,
-                    hidden(    plotOutput("racipePcaFiltered"))
-             )
+          #   column(8,
+             hidden(    plotOutput("racipePcaFiltered")),
+          #   ),
+          #   column(4,
+          hidden(  plotOutput("racipeHeatmapFiltered"))
+           #  )
            ),
 
 hr(),
