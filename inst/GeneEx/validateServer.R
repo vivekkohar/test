@@ -47,7 +47,6 @@ observeEvent(input$fileSimExp,{
  })
 
 
-
   observeEvent(input$compareValidate,{
     validateVars$pValue <- reactive(isolate(input$validatePValue))
     validateVars$nClust <- reactive(isolate(input$validateNClust))
@@ -89,31 +88,69 @@ observeEvent(input$fileSimExp,{
     if(is.null(validateVars$refExp())) return()
     plotData <- validateVars$refExp()
     gplots::heatmap.2(similarity$dataReference, trace = "none",
-                      dendrogram = "none", Colv=FALSE, col = plotColor)
+                      dendrogram = "none", Colv=FALSE, col = plotColor,
+                      main = "Reference Data")
+    
     
   })
   
   output$validateSimHeatmap <- renderPlot({
     if(is.null(validateVars$simExp())) return()
     gplots::heatmap.2(similarity$dataSimulation, trace = "none", 
-                      dendrogram = "none", Colv=FALSE, col = plotColor)
+                      dendrogram = "none", Colv=FALSE, col = plotColor,
+                      main = "Simulated Data")
   })
   output$validateRefSim <- renderPlot({
     if(is.null(similarity)) return()
-    image(similarity$simulated.refCor, col = plotColor, 
-          xlab = "Simulation Data Samples", ylab = "Ref Data Samples", 
-          axes=FALSE, useRaster = TRUE, title = "Correlation between reference
-          and simulated samples")
+    # refClusters <- integer()
+    # clusters <- similarity$ref.cluster.freq[-1]
+    # for(i in seq_len(dim(clusters)[1])){
+    #   refClusters <- c(refClusters,
+    #                    rep(i,(clusters[i]*ncol(similarity$simulated.refCor))))
+    # }
+    # clusters <- similarity$simulated.cluster.freq[-1]
+    # simClusters <- integer()
+    # for(i in seq_len(dim(clusters)[1])){
+    #   simClusters <- c(simClusters,
+    #                    rep(i,(clusters[i]*nrow(similarity$simulated.refCor))))
+    # }
+    # simClusters <- c(simClusters,rep(dim(similarity$simulated.refCor)[1],
+    #                                  as.integer(similarity$simulated.cluster.freq[1]*
+    #                                    nrow(similarity$simulated.refCor))))
+    # refClusters <- c(refClusters,rep(dim(similarity$simulated.refCor)[1], 
+    #                                  similarity$ref.cluster.freq[1]*
+    #                                    nrow(similarity$simulated.refCor)))
+    simClusters <- similarity$simClusters
+    refClusters <- similarity$refClusters
+    print(length(simClusters))
+    print(length(refClusters))
+    print(dim(similarity$simulated.refCor))
+    #print(refClusters)
+    #print(simClusters)
+    gplots::heatmap.2(similarity$simulated.refCor, Rowv = FALSE,
+                      Colv = FALSE, ColSideColors = as.character(col2[refClusters]),
+                      RowSideColors = as.character(col2[simClusters]) ,trace = "none",
+                      xlab =  "Simulation Data Samples",
+                      ylab = "Ref Data Samples", col = plotColor, 
+                      dendrogram = 'none',
+main = "Correlation between reference
+          and simulated samples" )
+    # image(similarity$simulated.refCor, col = plotColor, 
+    #       xlab = "Simulation Data Samples", ylab = "Ref Data Samples", 
+    #       axes=FALSE, useRaster = TRUE, title = "Correlation between reference
+    #       and simulated samples")
   })
   
   output$validateRefClustTable <- renderTable({ if(is.null(similarity)) return()
     tableData <- data.frame(similarity$ref.cluster.freq*100)
     colnames(tableData) <- c("Cluster", "Percentage in Reference Data")
+    tableData <- tableData[-1,]
     return(tableData)
     })
   output$validateSimClustTable <- renderTable({if(is.null(similarity)) return()
     tableData <- data.frame(similarity$simulated.cluster.freq*100)
     colnames(tableData) <- c("Cluster", "Percentage in Simulated Data")
+    tableData <- tableData[-1,]
     return(tableData)
     })
   # 

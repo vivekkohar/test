@@ -59,7 +59,7 @@ provide a specific name to your circuit.
                         "addInteraction", "Add Interaction",
                         style="color: #fff; background-color: #337ab7;
                         border-color: #2e6da4", title = "Add an interaction
-                      (srcGene,tgtGene,1) to the circuit at
+                      (srcGene, tgtGene, 1) to the circuit at
                       the top of the table which can then be modified by double
                       clicking the individaul entries.
                       ")

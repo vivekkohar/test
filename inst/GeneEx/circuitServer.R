@@ -162,7 +162,7 @@ observeEvent(input$updateCircuit,{
     shinyjs::hide("racipeHeatmap")
     shinyjs::hide("racipePca")
     shinyjs::hide("parametricAnalysisRacipe")
-    shinyjs::hide("h5")
+    # shinyjs::hide("h5")
     shinyjs::hide("filteredOutputRacipe")
     shinyjs::hide("filterSliderRacipe")
     shinyjs::hide("filteredOutputRacipe2")

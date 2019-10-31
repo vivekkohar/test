@@ -13,6 +13,8 @@ suppressMessages(library(shinyjs))
 suppressMessages(library(sRACIPE))
 suppressMessages(library(data.table))
 suppressMessages(library(shinyBS))
+suppressMessages(library(sendmailR))
+
 # library(htmlwidgets)
 # library(d3heatmap)
 
@@ -23,12 +25,15 @@ plotColor <- c("#5E4FA2", "#4F61AA", "#4173B3", "#3386BC", "#4198B6",
                "#FDC978", "#FDB96A", "#FCA75E", "#F99254", "#F67D4A",
                "#F26943", "#E85A47", "#DE4B4B", "#D33C4E", "#C1284A",
                "#AF1446", "#9E0142")
+col2 <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
+          "#D55E00", "#CC79A7")
+
 options(shiny.sanitize.errors = FALSE)
 
 # Utility functions
-.sracipePlotDensity = function(plotData,binCount=40, plotColor=plotColor, 
+.sracipePlotDensity = function(plotData,binCount=40, col=plotColor, 
                                label1 = "x",
-                               label2 = "y", ...){
+                               label2 = "y",title = title, ...){
 
   colnames(plotData[,1:2]) <- c(label1, label2)
   h1 <- hist(as.numeric(plotData[,1]), breaks=binCount, plot=FALSE)
@@ -41,8 +46,10 @@ options(shiny.sanitize.errors = FALSE)
   layout(matrix(c(2,0,1,3),2,2,byrow=TRUE),c(3,1), c(1,3))
   image(kernelDensity, cex = 2, cex.axis = 1, cex.lab = 1, 
         xlab= label1, ylab=label2) 
+  title(title, line = -2, adj = 0)
   par(mar=c(0,2,1,0))
   barplot(h1$counts, axes=FALSE, ylim=c(0, top), space=0, col='red')
+  
   par(mar=c(2,0,0.5,1))
   barplot(h2$counts, axes=FALSE, xlim=c(0, top), space=0, col='red', horiz=TRUE)
   
@@ -64,10 +71,10 @@ options(shiny.sanitize.errors = FALSE)
 
 
 
-.sracipePlotHeatmap <- function(plotData, nSamples = 500, plotColor = plotColor, 
+.sracipePlotHeatmap <- function(plotData, nSamples = 500, col = plotColor, 
                                 nClusters = 3, 
                                 assignedClusters = NULL, ...) {
-  plotData <- plotData[,1:min(nSamples,ncol(plotData))]
+  plotData <- plotData[,(1:min(nSamples,ncol(plotData)))]
 
   if(is.null(assignedClusters)){
   #ref_cor <- cor((plotData), method = "spearman")
@@ -86,21 +93,24 @@ options(shiny.sanitize.errors = FALSE)
               "#D55E00", "#CC79A7")
     clustColors <- col2[clustColors]
    names(clustColors) <- assignedClusters
-  gplots::heatmap.2(plotData, col=plotColor, 
+  gplots::heatmap.2(plotData, 
+                    col=plotColor, 
                     hclustfun = function(x) hclust(x,method = 'ward.D2'), 
     #   distfun=function(x) as.dist((1-cor(t(x), method = "spear"))/2), 
-                    trace="none", ColSideColors = clustColors, labCol = FALSE,
-    xlab="Models", margins = c(2, 2),
-                 ...)
+                    trace="none",
+  ColSideColors = clustColors, labCol = FALSE,
+    xlab="Models",
+    margins = c(2, 5), ...
+    )
 }
 
-.sracipePlotPca <- function(plotData, pca = NULL, ...){
+.sracipePlotPca <- function(plotData, pca = NULL, title = NULL, ...){
   if(is.null(pca)) {pca = prcomp(t(plotData), scale. = FALSE)}
   pcaData <- data.frame(x=pca$x[,1],y=pca$x[,2])
   .sracipePlotDensity(pcaData, 
       label1 = paste0("PC1(",100*summary(pca)$importance[2,1],"%)"),
       label2 = paste0("PC2(",100*summary(pca)$importance[2,2],"%)"),
-                      ...)
+                      title = title, ...)
 }
 
 .sracipePlotPcaPoints <- function(plotData, pca = NULL, plotColor = plotColor, ...){
@@ -196,6 +206,7 @@ helpPopup <- function(content, title = NULL) {
 }
 
 # https://github.com/daattali/advanced-shiny/blob/master/busy-indicator/helpers.R
+
 withBusyIndicatorCSS <- "
 .btn-loading-container {
 margin-left: 10px;

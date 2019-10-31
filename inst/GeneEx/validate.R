@@ -84,15 +84,16 @@ hr(),
 
 textOutput('validateKL'),
 hr(),
+fluidRow(
+  
+  column(4, offset=0,
+         tableOutput('validateRefClustTable')),
+  column(4, offset=0,
+         tableOutput('validateSimClustTable'))
+),
 plotOutput("validateRefSim"),
 hr(),
-fluidRow(
 
-column(4, offset=0,
-tableOutput('validateRefClustTable')),
-column(4, offset=0,
-tableOutput('validateSimClustTable'))
-),
 #tableOutput('validateClustTable'),
 hr()
 

@@ -10,6 +10,11 @@ racipe <-
            column(9, offset=1,
            ( numericInput(inputId = "numModels", "Number of Models",  min = 1, 
                           max = 5000, value = 500.0)))),
+         fluidRow(
+           column(9, offset=1,
+numericInput(inputId = "racipeNClusters", 
+                               "Expected Number of Clusters",  min = 2, step = 1,
+                               max = 10, value = 3))),
           fluidRow(
             column(9, offset=1,
              ( numericInput(inputId = "parameterRange", "Parameter Range",  
@@ -39,7 +44,7 @@ bsAlert("racipeAlert"),
 ),
 fluidRow(
 column(3, offset=8,
-       hidden(actionButton("validateRacipe", "Validate", 
+       hidden(actionButton("validateRacipe", "Load for Validation", 
                            style="color: #fff; background-color: #32CD32; 
                            border-color: #2e6da4")))
 ),

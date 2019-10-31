@@ -78,7 +78,7 @@ observeEvent(input$simulateRacipe, {
     if(input$simulateRacipe == 0) return()
     withProgress(message = 'Hierarchical clustering', value = 0.25, {
       plotData <- assay(rsRacipe)
-      .sracipePlotHeatmap(plotData)
+      .sracipePlotHeatmap(plotData, nClusters = input$racipeNClusters)
     })
   })
   ###########################################
@@ -171,7 +171,8 @@ observeEvent(input$simulateRacipe, {
 
   output$racipePcaFiltered <- renderPlot({
     if(is.null(filtered())) return(NULL)
-    pcaData <- scale(filtered(), pca$center, pca$scale) %*% pca$rotation
+    pcaData <- filtered()
+    pcaData <- scale(pcaData, pca$center, pca$scale) %*% pca$rotation
     pcaData <- data.frame(PC1=pcaData[,1],PC2=pcaData[,2])
     rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
     plotColor <- rf(32)
@@ -182,20 +183,34 @@ observeEvent(input$simulateRacipe, {
   output$racipeHeatmapFiltered <- renderPlot({
     if(is.null(filtered())) return(NULL)
     withProgress(message = 'Hierarchichal clustering', value = 0.25, {
-      .sracipePlotHeatmap(t(filtered()))
+      plotData <- filtered()
+      .sracipePlotHeatmap(t(plotData),nClusters = input$racipeNClusters)
   })
   })
 
 })
  observeEvent(input$validateRacipe,{
    validateVars$simExp <- reactive(assay(racipeVals$rsRacipe(),1))
+   output$validateSimHeatmap <- renderPlot({     return()})
+   output$validateRefHeatmap <- renderPlot({     return()})
+   output$validateRefSim <- renderPlot({     return()})
+   output$validateRefClustTable <- renderTable({  return() })
+   output$validateSimClustTable <- renderTable({return()})
+   output$validateKL <- renderText({return()})
+   output$validateSimHeatmap <- renderPlot({
+     if(is.null(validateVars$simExp())) return()
+     gplots::heatmap.2(validateVars$simExp, trace = "none", 
+                       Colv=TRUE, col = plotColor,
+                       main = "Simulated Data")
+   })
 })
+
   ########################### Download and Upload ########################
   output$downloadRacipeData <- downloadHandler(
     filename = function(){
       if(input$downloadRacipeDataType == "txt"){
-        return(paste0(annotation(racipeVals$rsRacipe()),".zip"))}
-      else return(paste0(annotation(racipeVals$rsRacipe()),".RDS"))
+        return(paste0(Sys.time(),"_",annotation(racipeVals$rsRacipe()),".zip"))}
+      else return(paste0(Sys.time(),"_",annotation(racipeVals$rsRacipe()),".RDS"))
     },
 
     content = function(file){
@@ -250,6 +265,7 @@ observeEvent(input$simulateRacipe, {
     shinyjs::show("uploadToDatabaseUI_abstract_Racipe")
     shinyjs::show("uploadToDatabaseUI_url_Racipe")
     shinyjs::show("uploadToDatabaseUI_pubMedIds_Racipe")
+    shinyjs::hide("fileRacipeData")
 
   })
 
@@ -265,7 +281,7 @@ observeEvent(input$simulateRacipe, {
 
     metadata(rsRacipe)$meta <- tmp
     saveRDS(rsRacipe, file = paste0("usrDatabase/",
-                                      annotation(rsRacipe),"_RACIPE.RDS"))
+                                    Sys.time(),"_",annotation(rsRacipe),"_RACIPE.RDS"))
     output$fileRacipeData <- renderText(HTML("File uploaded to Database"))
     shinyjs::show("fileRacipeData")
   })
@@ -315,7 +331,9 @@ isolate(
     if(input$sRacipeOption == "constantNoise")
       {
       output$CN <- renderText("Constant Noise Plots")
-      rsSRacipe <- racipeVals$rSet
+      rsSRacipe <- racipeVals$rsRacipe()
+      detParam <- FALSE
+      if(is.null(sracipeParams(rsSRacipe))) detParam <- TRUE
       withProgress(message = 'Simulating', value = 0.25, {
         shinyBS::createAlert(session, anchorId = "racipeAlert",
                           alertId =  "racipeProcessing", title = "Processing",
@@ -327,7 +345,8 @@ isolate(
         integrateStepSize = isolate(input$stepSizeRacipe),
         simulationTime = isolate(input$simTimeRacipe),
         paramRange = isolate(input$parameterRange),
-        initialNoise =  50*(0.5)^(20-isolate(input$sRacipeNoise)))
+        initialNoise =  50*(0.5)^(20-isolate(input$sRacipeNoise)),
+        genParams = detParam, genIC = detParam)
       rsSRacipe <- sracipeNormalize(rsSRacipe)
       
       racipeVals$rsSRacipe <- reactive(rsSRacipe)
@@ -343,12 +362,13 @@ isolate(
         
       output$sRacipePcaDet <-renderPlot({
         if(is.null(plotData)) return(NULL)
-        .sracipePlotPca(plotData = plotData, pca = pca1)
+        .sracipePlotPca(plotData = plotData, pca = pca1,
+                        title = "Deterministic")
         })
       
       output$sRacipeHeatmapDet <- renderPlot({
         if(input$simulateSRacipe == 0) return()
-        .sracipePlotHeatmap(plotData)
+        .sracipePlotHeatmap(plotData, nClusters = input$racipeNClusters)
       })
       plotDataSt <- assayDataTmp[[2]]
       # plotDataSt <- plotDataSt[is.finite(rowMeans(plotDataSt)),]
@@ -363,11 +383,12 @@ isolate(
         pcaData <- data.frame(x=stochasticPca[,1],y=stochasticPca[,2])
 
         pca1$x <- stochasticPca
-        .sracipePlotPca(plotData = stochasticPca, pca = pca1)
+        .sracipePlotPca(plotData = stochasticPca, pca = pca1,
+                        title = "Stochastic" )
       })
       output$sRacipeHeatmap <- renderPlot({
         if(input$simulateSRacipe == 0) return()
-        .sracipePlotHeatmap(plotDataSt)
+        .sracipePlotHeatmap(plotDataSt, nClusters = input$racipeNClusters)
       })
       shinyBS::closeAlert(session, alertId = "racipeProcessing")
 })
@@ -380,7 +401,9 @@ if(input$sRacipeOption == "annealing")
       output$Anneal <- renderText("Annealing Simulation Data")
 
       if(!racipeVals$annealFlag){
-        rsSRacipeAnneal <- racipeVals$rSet
+        rsSRacipeAnneal <- racipeVals$rsRacipe()
+        detParam <- FALSE
+        if(is.null(sracipeParams(rsSRacipe))) detParam <- TRUE
         withProgress(message = 'Simulating', value = 0.25, {
           shinyBS::createAlert(
             session, anchorId = "racipeAlert",
@@ -393,7 +416,8 @@ if(input$sRacipeOption == "annealing")
             simulationTime = isolate(input$simTimeRacipe),
             paramRange = isolate(input$parameterRange),
             initialNoise =  50/sqrt(length(names(rsSRacipeAnneal))),
-                                   noiseScalingFactor = 0.5)
+                                   noiseScalingFactor = 0.5,
+            genIC = detParam, genParams = detParam)
           rsSRacipeAnneal <- sracipeNormalize(rsSRacipeAnneal)
           
       racipeVals$annealFlag <- TRUE
@@ -412,12 +436,13 @@ if(input$sRacipeOption == "annealing")
         
         output$sRacipePcaDet <-renderPlot({
           if(is.null(plotData)) return(NULL)
-          .sracipePlotPca(plotData = plotData, pca = pca1)
+          .sracipePlotPca(plotData = plotData, pca = pca1, 
+                          title = "Deterministic")
         })
         
         output$sRacipeHeatmapDet <- renderPlot({
           if(input$simulateSRacipe == 0) return()
-          .sracipePlotHeatmap(plotData)
+          .sracipePlotHeatmap(plotData, nClusters = input$racipeNClusters)
         })
         plotDataSt <- assayDataTmp[[(22 - input$sRacipeNoise)]]
         # plotDataSt <- plotDataSt[is.finite(rowMeans(plotDataSt)),]
@@ -431,11 +456,12 @@ if(input$sRacipeOption == "annealing")
           
           pcaData <- data.frame(x=stochasticPca[,1],y=stochasticPca[,2])
           pca1$x <- stochasticPca
-          .sracipePlotPca(plotData = stochasticPca, pca = pca1)
+          .sracipePlotPca(plotData = stochasticPca, pca = pca1,
+                          title = "Stochastic")
         })
         output$sRacipeHeatmap <- renderPlot({
           if(input$simulateSRacipe == 0) return()
-          .sracipePlotHeatmap(plotDataSt)
+          .sracipePlotHeatmap(plotDataSt, nClusters = input$racipeNClusters)
         })
         shinyBS::closeAlert(session, alertId = "racipeProcessing")
       })
@@ -447,8 +473,8 @@ if(input$sRacipeOption == "annealing")
   output$downloadSRacipeData <- downloadHandler(
     filename = function(){
       if(input$downloadSRacipeDataType == "txt"){
-        return(paste0(annotation(racipeVals$rSet),".zip"))}
-      else return(paste0(annotation(racipeVals$rSet),".RDS"))
+        return(paste0(Sys.time(),"_",annotation(racipeVals$rSet),".zip"))}
+      else return(paste0(Sys.time(),"_",annotation(racipeVals$rSet),".RDS"))
     },
 
     content = function(file){
@@ -529,7 +555,7 @@ if(input$sRacipeOption == "annealing")
       tmpRSet <- racipeVals$rsSRacipe()
     metadata(tmpRSet)$meta <- tmp
     saveRDS(tmpRSet, file = paste0("usrDatabase/",
-                                       annotation(tmpRSet),"_sRACIPE.RDS"))
+                                   Sys.time(),"_",annotation(tmpRSet),"_sRACIPE.RDS"))
     output$fileSRacipeData <- renderText(HTML("File uploaded to Database"))
     shinyjs::show("fileSRacipeData")
   })

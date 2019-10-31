@@ -33,7 +33,7 @@ gvVals$simTimeExplorer <- reactive({
 # Use maximum and minimum limits on the initial step size
 gvVals$stepSizeExplorer <- reactive({
   if(input$stepSizeExplorer > 1) return(0.99)
-  if(input$stepSizeExplorer < .001) return(0.001)
+  if(input$stepSizeExplorer < .0001) return(0.0001)
   else return(input$stepSizeExplorer)
 })
 
@@ -69,13 +69,11 @@ output$newModelParamValue <- renderUI({
 
 observeEvent(input$updateGvParam,{
   params <- gvVals$parametersME()
-  params[input$selectedParameterME] <- input$parametervalue
+  params[input$selectedParameterME] <- as.numeric(input$parametervalue)
   gvVals$parametersME <- reactive(params)
 })
-
-##################### Model Simulations #######################
 observeEvent(input$simulateGv, {
-  
+  withBusyIndicatorServer("simulateGv",{
   # if(!is.numeric(input$simTimeExplorer) | !is.numeric(input$stepSizeExplorer)
   # | !is.numeric(input$noiseLevel)) {
   #   createAlert(session, "gvAlert", "numericAlert", title = "Oops",
@@ -99,7 +97,8 @@ observeEvent(input$simulateGv, {
   shinyjs::show("saveMEData")
   shinyjs::show("GvTS")
   rs <- gvVals$rSet()
-  withProgress(message = 'Simulating', value = 0.25, {
+  withProgress(message = 'Please wait...', value = 0.0,
+             {
   sracipeParams(rs) <- gvVals$parametersME()
    
  #  sracipeConfig(rs)$simParams["integrateStepSize"] <- 
@@ -118,11 +117,11 @@ observeEvent(input$simulateGv, {
   output$GvTS <- renderPlot({
 
     if(input$simulateGv == 0) return()
-    withProgress(message = 'Plotting', value = 0.25, {
+  #  withProgress(message = 'Plotting', value = 0.25, {
       plotData <- t(metadata(gvVals$rSet())$timeSeries)
       .sracipePlotTS(plotData)
-    })
-
+  #  })
+})
   })
   # output$info <- renderText({
   #   paste0("x=", input$plot_click_MEts$x, "\ny=", input$plot_click_MEts$y)
@@ -131,8 +130,8 @@ observeEvent(input$simulateGv, {
   output$downloadMEData <- downloadHandler(
       filename = function(){
         if(input$downloadMEDataType == "txt"){
-        return(paste0(annotation(gvVals$rSet()),".zip"))}
-        else return(paste0(annotation(gvVals$rSet()),".RDS"))
+        return(paste0(Sys.time(),"_",annotation(gvVals$rSet()),".zip"))}
+        else return(paste0(Sys.time(),"_",annotation(gvVals$rSet()),".RDS"))
       },
 
       content = function(file){
@@ -180,6 +179,7 @@ observeEvent(input$simulateGv, {
     shinyjs::show("uploadToDatabaseUI_abstract_Explorer")
     shinyjs::show("uploadToDatabaseUI_url_Explorer")
     shinyjs::show("uploadToDatabaseUI_pubMedIds_Explorer")
+    shinyjs::hide("fileSaveDatabase1")
   })
 
   observeEvent(input$uploadMEData,{
@@ -193,7 +193,7 @@ observeEvent(input$simulateGv, {
     tmp@url <- input$uploadToDatabaseUI_url_Explorer
     tmp@pubMedIds <- input$uploadToDatabaseUI_pubMedIds_Explorer
     metadata(rSet)$experimentData <- tmp
-    saveRDS(rSet, file = paste0("usrDatabase/",annotation(rSet),"_TS.RDS"))
+    saveRDS(rSet, file = paste0("usrDatabase/",Sys.time(),"_",annotation(rSet),"_TS.RDS"))
     output$fileSaveDatabase1 <- renderText(HTML("File uploaded to Database"))
     shinyjs::show("fileSaveDatabase1")
     hide("uploadMEData")
@@ -208,13 +208,13 @@ observeEvent(input$simulateGv, {
 
   ##################### Bifurcation Diagram #######################
   observeEvent(input$bifurcationExplorer,{
-    toggle("modelParamsBif")
-  toggle("modelParamBifMin")
-  toggle("modelParamBifMax")
-  toggle("modelNumBifurs")
-  toggle("bifurcationME")
-  toggle("modifiedBifME")
-  toggle("downloadBifData")
+    shinyjs::show("modelParamsBif")
+    shinyjs::show("modelParamBifMin")
+    shinyjs::show("modelParamBifMax")
+    shinyjs::show("modelNumBifurs")
+    shinyjs::show("bifurcationME")
+    shinyjs::show("modifiedBifME")
+    
   })
   # Limit the maximum number of models to 5000.
 
@@ -241,14 +241,16 @@ observeEvent(input$simulateGv, {
 
 
   observeEvent(input$bifurcationME, {
+    withBusyIndicatorServer("bifurcationME",{
+    shinyjs::show("downloadBifData")
     modelNumBifurs <-   input$modelNumBifurs
     if(modelNumBifurs > 5000) modelNumBifurs <- 5000
 
     newParametersME <- 
       gvVals$parametersME()[rep(seq_len(nrow(gvVals$parametersME())), 
                                                       modelNumBifurs),]
-    modPar <- seq(from = input$parameterValueBifMin, 
-                  to = input$parameterValueBifMax,
+    modPar <- seq(from = as.numeric(input$parameterValueBifMin), 
+                  to = as.numeric(input$parameterValueBifMax),
                   length.out = modelNumBifurs)
     newParametersME[input$selectedParameterMEBif] <- modPar
     rs <- RacipeSE()
@@ -258,7 +260,7 @@ observeEvent(input$simulateGv, {
                           numModels = modelNumBifurs)
     sracipeParams(rs) <- newParametersME
     # sracipeConfig(rs)$simParams["numModels"] <- modelNumBifurs
-    withProgress(message = 'Simulating', value = 0.25, {
+ #   withProgress(message = 'Simulating', value = 0.25, {
 
     rs <- sracipeSimulate(rs, genIC = TRUE, genParams = FALSE, integrate = TRUE,
                           initialNoise = 0, nNoise = 0, 
@@ -267,7 +269,7 @@ observeEvent(input$simulateGv, {
     # print(assays(gvVals$rSetBifur)[[1]])
     gvVals$modelNumBifurs <- reactive(modelNumBifurs)
     gvVals$newParametersME <- reactive(newParametersME)
-    })
+ #   })
     # Prevent grpah changes when parameter values are changed.
     # Change only when bifurcationME is clicked
     output$modifiedBifME <- renderPlot({
@@ -278,7 +280,8 @@ observeEvent(input$simulateGv, {
       sexprs <- reshape2::melt(t(sexprs))
       colnames(sexprs) <- c("bifurParameter","Gene","geneExp")
      test <- isolate(rep(seq(
-        from = input$parameterValueBifMin, to = input$parameterValueBifMax,
+        from = as.numeric(input$parameterValueBifMin),
+        to = as.numeric(input$parameterValueBifMax),
         length.out = gvVals$modelNumBifurs()), (ncol(sexprs)-1)))
       # print(test)
       
@@ -292,10 +295,11 @@ observeEvent(input$simulateGv, {
 #})
       # plotRSet(rs, "exprsHeatmap")
     })
+    })
   }
   )
   output$downloadBifData <- downloadHandler(
-    filename <- paste0(annotation(gvVals$rSetBifur()),".RDS" ),
+    filename <- paste0(Sys.time(),"_",annotation(gvVals$rSetBifur()),".RDS" ),
     content = function(con) {
       saveRDS(gvVals$rSetBifur(), con)
     }
