@@ -253,7 +253,8 @@ observeEvent(input$simulateGv, {
                   length.out = modelNumBifurs)
     newParametersME[input$selectedParameterMEBif] <- modPar
     rs <- RacipeSE()
-    sracipeCircuit(rs) <- circuitVariables$circuit
+    
+    sracipeCircuit(rs) <- sracipeCircuit(gvVals$rSet())
     rs <- sracipeSimulate(rs, genIC = TRUE, genParams = TRUE, integrate = FALSE,
                           initialNoise = 0, nNoise = 0, 
                           numModels = modelNumBifurs)

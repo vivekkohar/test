@@ -73,7 +73,14 @@ observeEvent(input$simulateRacipe, {
     if(input$simulateRacipe == 0) return()
     withProgress(message = 'Plotting pca', value = 0.25, {
       plotData <- assay(rsRacipe)
-        .sracipePlotPca(plotData)
+      pca = prcomp(t(plotData), scale. = FALSE)
+      racipeVals$pca <- pca
+      pcaData <- data.frame(x=pca$x[,1],y=pca$x[,2])
+        .sracipePlotDensity(pcaData, 
+                            label1 = paste0("PC1(",100*summary(pca)$importance[2,1],"%)"),
+                            label2 = paste0("PC2(",100*summary(pca)$importance[2,2],"%)"),
+                            title = title)
+
     })
   })
   output$racipeHeatmap <- renderPlot({
@@ -108,7 +115,7 @@ observeEvent(input$simulateRacipe, {
       # print(parameterNames)
       selectInput("selectedParameter", "Parameter",
                   parameterNames,
-                  selected = 1
+                  selected = parameterNames[1]
       )
     })
     
@@ -117,7 +124,7 @@ observeEvent(input$simulateRacipe, {
       
       selectInput("selectedParameter2", "Parameter",
                   parameterNames,
-                  selected = 2
+                  selected = parameterNames[2]
       )
     })
     
@@ -126,7 +133,7 @@ observeEvent(input$simulateRacipe, {
       
       selectInput("selectedParameter3", "Parameter",
                   parameterNames,
-                  selected = 3
+                  selected = parameterNames[3]
       )
     })
     
@@ -177,10 +184,7 @@ observeEvent(input$simulateRacipe, {
     pcaData <- filtered()
     pcaData <- scale(pcaData, pca$center, pca$scale) %*% pca$rotation
     pcaData <- data.frame(PC1=pcaData[,1],PC2=pcaData[,2])
-    rf <- colorRampPalette(rev(brewer.pal(11,'Spectral')))
-    plotColor <- rf(32)
-    binCount <- 40
-    .sracipePlotDensity(pcaData,binCount,plotColor)
+    .sracipePlotDensity(pcaData)
   })
 
   output$racipeHeatmapFiltered <- renderPlot({

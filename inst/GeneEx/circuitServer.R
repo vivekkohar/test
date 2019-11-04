@@ -53,6 +53,13 @@ output$downloadCircuit <- downloadHandler(
 #              Interaction = c("2", "2")))
 # }, selection = 'none', editable = TRUE, rownames = FALSE,filter = 'top'
 # )
+observeEvent(input$toggleAddInteraction, {
+
+  shinyjs::toggle("newIntSrc") 
+  shinyjs::toggle("newIntTgt") 
+  shinyjs::toggle("newIntType")  
+  shinyjs::toggle("addInteraction") 
+})
 
 observeEvent(input$circuitTable_cell_edit, {
   circuitVariables$circuit[input$circuitTable_cell_edit$row,
@@ -62,10 +69,13 @@ observeEvent(input$circuitTable_cell_edit, {
 
 observeEvent(input$addInteraction, {
   rowNum <- (1 + nrow(circuitVariables$circuit))
-  dataRow <- data.frame(Source = "srcGene", Target = "tgtGene", Interaction = 1,
+  dataRow <- data.frame(Source = input$newIntSrc, Target = input$newIntTgt, 
+                        Interaction = as.integer(input$newIntType),
                         stringsAsFactors = FALSE)
+  circuitVariables$circuit <- addRowAt(
+    circuitVariables$circuit, dataRow, 1)
   
-  circuitVariables$circuit <- rbind(dataRow,circuitVariables$circuit)
+ # circuitVariables$circuit <- rbind(dataRow,circuitVariables$circuit)
 })
 
 observeEvent(input$deletePressed, {
@@ -110,7 +120,7 @@ output$undoUI <- renderUI({
 
 output$circuitTable <- DT::renderDataTable(
   # Add the delete button column
-  deleteButtonColumn(circuitVariables$circuit, 'delete_button')
+  deleteButtonColumn(circuitVariables$circuit, 'delete_button') 
 )
 
 observeEvent(input$updateCircuit,{
@@ -211,3 +221,58 @@ output$circuit <- renderVisNetwork({
   sracipePlotCircuit(circuitVariables$rSet, plotToFile = FALSE)
 })
 
+#' A column of delete buttons for each row in the data frame 
+#' for the first column
+#'
+#' @param df data frame
+#' @param id id prefix to add to each actionButton. 
+#' The buttons will be id'd as id_INDEX.
+#' @return A DT::datatable with escaping turned off that has the delete buttons
+#'  in the first column and \code{df} in the other
+deleteButtonColumn <- function(df, id, ...) {
+  # function to create one action button as string
+  f <- function(i) {
+    # https://shiny.rstudio.com/articles/communicating-with-js.html
+    as.character(
+      actionButton(
+        paste(id, i, sep="_"), label = NULL, icon = icon('trash'),
+        onclick = 'Shiny.setInputValue(\"deletePressed\",  this.id, 
+        {priority: "event"})'))
+  }
+  
+  deleteCol <- unlist(lapply(seq_len(nrow(df)), f))
+  
+  # Return a data table
+  DT::datatable(cbind(df,Delete = deleteCol),
+                # Need to disable escaping for html as string to work
+                escape = FALSE,
+                options = list(pageLength = 100, 
+                               # Disable sorting for the delete column
+                               columnDefs = list(list(targets = 3, sortable = FALSE))
+                ),editable = FALSE, rownames= FALSE)
+}
+
+#' Extracts the row id number from the id string
+#' @param idstr the id string formated as id_INDEX
+#' @return INDEX from the id string id_INDEX
+parseDeleteEvent <- function(idstr) {
+  res <- as.integer(sub(".*_([0-9]+)", "\\1", idstr))
+  if (! is.na(res)) res
+}
+
+# Using datatable functions from https://github.com/stefaneng/Shiny-DeleteRowsDT
+#' Adds a row at a specified index
+#'
+#' @param df a data frame
+#' @param row a row with the same columns as \code{df}
+#' @param i the index we want to add row at.
+#' @return the data frame with \code{row} added to \code{df} at index \code{i}
+addRowAt <- function(df, row, i) {
+  # Slow but easy to understand
+  if (i > 1) {
+    rbind(df[1:(i - 1), ], row, df[-(1:(i - 1)), ])
+  } else {
+    rbind(row, df)
+  }
+  
+}

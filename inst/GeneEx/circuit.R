@@ -54,30 +54,64 @@ provide a specific name to your circuit.
              )
            ),
     column(5,offset = 0,
-           fluidRow(
-             column(1,offset = 0,
-
-                      actionButton(
-                        "addInteraction", "Add Interaction",
-                        style="color: #fff; background-color: #337ab7;
-                        border-color: #2e6da4", title = "Add an interaction
-                      (srcGene, tgtGene, 1) to the circuit at
-                      the top of the table which can then be modified by double
-                      clicking the individaul entries.
-                      ")
-                    ),
-            column(1,offset = 3,
-                    tipify(uiOutput('undoUI'),
-                           "Put back the deleted interaction")
-                   )
-            ),
-           br(),
+           
+           
            fluidRow(
              DT::dataTableOutput("circuitTable"),
              shinyBS::bsTooltip(
                "circuitTable", "Current Circuit interactions",
-             placement = "bottom", trigger = "hover", options = NULL)
+               placement = "bottom", trigger = "hover", options = NULL)
+           ),
+           br(),
+          
+           fluidRow(
+             column(1,offset = 0,
+                    shinyBS::tipify(uiOutput('undoUI'),
+                           "Put back the deleted interaction")
              )
+           ),
+           br(),
+           fluidRow(
+             column(1,offset = 0,
+                    
+                    actionButton(
+                      "toggleAddInteraction", "Add Interaction",
+                      icon("plus-circle"),
+                      style="color: #fff; background-color: #337ab7;
+                        border-color: #2e6da4", title = "Add an interaction
+          to the circuit.
+                      ")
+             )
+),
+           fluidRow(
+             column(3,offset = 0,
+                    
+                    shinyjs::hidden(
+                      textInput("newIntSrc", "Source",value = "srcGene"))
+             ),
+             column(3,offset = 0,
+                    
+                    shinyjs::hidden( textInput(
+                      "newIntTgt", "Target",value = "tgtGene"))
+             ),
+             column(3,offset = 0,
+                    
+                    shinyjs::hidden(numericInput(
+                      "newIntType", "Interaction",min = 1,max = 2, value = 1))
+             ),        
+             column(3,offset = 0,
+                                   
+                                   shinyjs::hidden(actionButton(
+                                     "addInteraction", "Add",
+                                     style="color: #fff; background-color: #337ab7;
+                        border-color: #2e6da4", title = "Add this interaction
+          to the circuit.
+                      ")
+             ))
+
+             )
+
+
            )
     ),
   hr(),

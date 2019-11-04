@@ -12,7 +12,7 @@ racipe <-
                           max = 5000, value = 500.0)))),
          fluidRow(
            column(9, offset=1,
-numericInput(inputId = "racipeNClusters", 
+                  numericInput(inputId = "racipeNClusters", 
                                "Expected Number of Clusters",  min = 2, step = 1,
                                max = 10, value = 3))),
           fluidRow(
@@ -27,9 +27,10 @@ numericInput(inputId = "racipeNClusters",
              column(9, offset=1,
            ( numericInput(inputId = "stepSizeRacipe", "Integration Time Step",
                           min = 0.001, max = 0.9, value = 0.05)),
-           withBusyIndicatorUI(   actionButton("simulateRacipe", "Simulate", 
+           withBusyIndicatorUI(actionButton("simulateRacipe", "Simulate", 
                                                class = 'btn-primary',
-    style="color: #fff; background-color: #32CD32; border-color: #2e6da4"))))),
+    style="color: #fff; background-color: #32CD32; border-color: #2e6da4",
+    title = "Simulate the circuit with given parameters"))))),
   column(6, offset=0,
   visNetworkOutput("racipeCircuit"))
 ),
@@ -39,15 +40,17 @@ numericInput(inputId = "racipeNClusters",
 
        fluidRow(
 
-         hidden(plotOutput("racipePca")),
-           hidden(plotOutput("racipeHeatmap"))
+         shinyjs::hidden(plotOutput("racipePca")),
+         shinyjs::hidden(plotOutput("racipeHeatmap"))
 
 ),
 fluidRow(
 column(3, offset=8,
-       hidden(actionButton("validateRacipe", "Load for Validation", 
+       shinyjs::hidden(actionButton("validateRacipe", "Load for Validation", 
                            style="color: #fff; background-color: #32CD32; 
-                           border-color: #2e6da4")))
+                           border-color: #2e6da4", title = "Use this 
+                           simulated data for comparison with experimental
+                           data in the validation tab")))
 ),
 ################### RACIPE DATA DOWNLOAD #########################
 
@@ -70,68 +73,70 @@ style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))
 
 fluidRow(
   column(3, offset = 1,
-         hidden(textInput("uploadToDatabaseUI_name_Racipe", "Name", ""))),
+         shinyjs::hidden(textInput("uploadToDatabaseUI_name_Racipe", "Name", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_lab_Racipe", "Lab", ""))),
+         shinyjs::hidden(  textInput("uploadToDatabaseUI_lab_Racipe", "Lab", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_contact_Racipe", 
+         shinyjs::hidden(  textInput("uploadToDatabaseUI_contact_Racipe", 
                             "Contact", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_title_Racipe", 
+                 shinyjs::hidden(   textInput("uploadToDatabaseUI_title_Racipe", 
                                      "Title", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_abstract_Racipe",
+                 shinyjs::hidden(   textInput("uploadToDatabaseUI_abstract_Racipe",
                                      "Abstract", "")))
 ),
 fluidRow(
   column(3, offset = 1,
-         hidden( textInput("uploadToDatabaseUI_url_Racipe", "URL", ""))),
+         shinyjs::hidden( textInput("uploadToDatabaseUI_url_Racipe", "URL", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_pubMedIds_Racipe", 
+         shinyjs::hidden(  textInput("uploadToDatabaseUI_pubMedIds_Racipe", 
                             "PubMed ID", "")))
 ),
 
 fluidRow(
   column(1, offset=1,
-         hidden(actionButton("uploadRacipeData", "Upload",
+         shinyjs::hidden(actionButton("uploadRacipeData", "Upload",
 style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
   column(3, offset=0,
-         hidden(htmlOutput("fileRacipeData")))
+         shinyjs::hidden(htmlOutput("fileRacipeData")))
 ),
            hr(),
 ################# PARAMETERIC ANALYSIS ###########################
        fluidRow(
          column(5, offset=4,
-                hidden(  actionButton("parametricAnalysisRacipe", 
+                shinyjs::hidden(  actionButton("parametricAnalysisRacipe", 
                                       "Parametric Analysis", 
-style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4", 
+title = "Display the distributions when the parameter values are limited to 
+a given percentage of the original distribution.")))
          # hidden(tags$h5(id = "paDescrpt","Use the sliders to control the range of one or more 
          #                parameters and observe the resulting change in 
          #                distribution of models in different clusters"))
        ),
        fluidRow(
          column(3,
-        hidden( uiOutput("filteredOutputRacipe")),
-           hidden(uiOutput("filterSliderRacipe"))
+                shinyjs::hidden( uiOutput("filteredOutputRacipe")),
+                shinyjs::hidden(uiOutput("filterSliderRacipe"))
 ),
 column(3,
        hidden(uiOutput("filteredOutputRacipe2")),
-              hidden( uiOutput("filterSliderRacipe2"))),
+       shinyjs::hidden( uiOutput("filterSliderRacipe2"))),
 column(3,
 
-       hidden(  uiOutput("filteredOutputRacipe3")),
-       hidden(uiOutput("filterSliderRacipe3"))
+       shinyjs::hidden(  uiOutput("filteredOutputRacipe3")),
+       shinyjs::hidden(uiOutput("filterSliderRacipe3"))
 )),
 
 
            fluidRow(
           #   column(8,
-             hidden(    plotOutput("racipePcaFiltered")),
+             shinyjs::hidden(    plotOutput("racipePcaFiltered")),
           #   ),
           #   column(4,
-          hidden(  plotOutput("racipeHeatmapFiltered"))
+          shinyjs::hidden(  plotOutput("racipeHeatmapFiltered"))
            #  )
            ),
 
@@ -139,39 +144,40 @@ hr(),
 ################# STOCHASTIC RACIPE ##############################
 fluidRow(
   column(5, offset=4,
-         hidden(actionButton("stochasticRacipe", "Stochastic RACIPE", 
+         shinyjs::hidden(actionButton("stochasticRacipe", "Stochastic RACIPE", 
                        style="color: #fff; background-color: #337ab7; 
-                       border-color: #2e6da4")))
+                       border-color: #2e6da4", title = "Displays stochastic
+                simulation options")))
 ),
 fluidRow(
   column(3,
-         hidden(radioButtons("sRacipeOption", "Stochastic Simulation Type:",
+         shinyjs::hidden(radioButtons("sRacipeOption", "Stochastic Simulation Type:",
                       c("Constant Noise" = "constantNoise",
                         "Annealing" = "annealing")))
   ),
   column(3, offset=0,
-         hidden(  sliderInput("sRacipeNoise", "Noise Level",step = 1,  min = 1, 
+         shinyjs::hidden(  sliderInput("sRacipeNoise", "Noise Level",step = 1,  min = 1, 
                               max = 20, value = 0))),
 
   column(5, offset=0,
          br(),
-         withBusyIndicatorUI(     hidden(  actionButton("simulateSRacipe", 
+         withBusyIndicatorUI(     shinyjs::hidden(  actionButton("simulateSRacipe", 
       "Perform Stochastic Simulations",  class = 'btn-primary',
                                style="color: #fff; background-color: #32CD32; 
                            border-color: #2e6da4"))))
 ),
 fluidRow(
   column(6,
-         hidden(plotOutput("sRacipePcaDet"))
+         shinyjs::hidden(plotOutput("sRacipePcaDet"))
   ),
 column(6,
-       hidden(plotOutput("sRacipePca"))
+       shinyjs::hidden(plotOutput("sRacipePca"))
 )),
 fluidRow(
   column(6,
 hidden(plotOutput("sRacipeHeatmapDet"))),
 column(6,
-       hidden(plotOutput("sRacipeHeatmap")))),
+       shinyjs::hidden(plotOutput("sRacipeHeatmap")))),
 
 
 ################### SRACIPE DATA DOWNLOAD #########################
@@ -179,50 +185,50 @@ column(6,
 fluidRow(
   column(3, offset=1,
          fluidRow(
-           hidden(downloadButton('downloadSRacipeData', 'Download Data'))),
+           shinyjs::hidden(downloadButton('downloadSRacipeData', 'Download Data'))),
          fluidRow(
-           hidden(radioButtons("downloadSRacipeDataType", "Format",
+           shinyjs::hidden(radioButtons("downloadSRacipeDataType", "Format",
                                c("RDS" = "RDS","Text" = "txt") , 
                                selected = "RDS",
                                inline = TRUE)))),
 
   column(3, offset=0,
-         hidden(actionButton("saveSRacipeData", "Upload Options",
+         shinyjs::hidden(actionButton("saveSRacipeData", "Upload Options",
 style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))
 
 ),
 
 fluidRow(
   column(3, offset = 1,
-         hidden(textInput("uploadToDatabaseUI_name_sRacipe", "Name", ""))),
+         shinyjs::hidden(textInput("uploadToDatabaseUI_name_sRacipe", "Name", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_lab_sRacipe", "Lab", ""))),
+         shinyjs::hidden(  textInput("uploadToDatabaseUI_lab_sRacipe", "Lab", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_contact_sRacipe", 
+         shinyjs::hidden(  textInput("uploadToDatabaseUI_contact_sRacipe", 
                             "Contact", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_title_sRacipe",
+                 shinyjs::hidden(   textInput("uploadToDatabaseUI_title_sRacipe",
                                      "Title", "")))
 ),
 fluidRow( column(10, offset = 1,
-                 hidden(   textInput("uploadToDatabaseUI_abstract_sRacipe",
+                 shinyjs::hidden(   textInput("uploadToDatabaseUI_abstract_sRacipe",
                                      "Abstract", "")))
 ),
 fluidRow(
   column(3, offset = 1,
-         hidden( textInput("uploadToDatabaseUI_url_sRacipe", "URL", ""))),
+         shinyjs::hidden( textInput("uploadToDatabaseUI_url_sRacipe", "URL", ""))),
   column(3, offset = 0,
-         hidden(  textInput("uploadToDatabaseUI_pubMedIds_sRacipe", 
+         shinyjs::hidden(  textInput("uploadToDatabaseUI_pubMedIds_sRacipe", 
                             "PubMed ID", "")))
 ),
 
 fluidRow(
   column(1, offset=1,
-         hidden(actionButton("uploadSRacipeData", "Upload",
+         shinyjs::hidden(actionButton("uploadSRacipeData", "Upload",
 style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
   column(3, offset=0,
-         hidden(htmlOutput("fileSRacipeData")))
+         shinyjs::hidden(htmlOutput("fileSRacipeData")))
 ),
 #downloadButton('downloadCNData', 'Download Constant Noise Simulation Data'),
 
