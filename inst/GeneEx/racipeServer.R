@@ -65,26 +65,26 @@ observeEvent(input$simulateRacipe, {
     zipFile <- paste0(tempfile(),annotation(racipeVals$rsRacipe()),".zip")
     files <- NULL;
     
-    fileName <- paste(annotation(racipeVals$rsRacipe()),"_GE",".txt",
+    fileName <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_GE",".txt",
                       sep = "")
     write.table(assay(racipeVals$rsRacipe()),fileName,sep = ' ', 
                 row.names = TRUE, 
                 col.names = TRUE, quote = FALSE)
     files <- c(fileName,files)
     
-    fileName <- paste(annotation(racipeVals$rsRacipe()),"_IC",".txt",
+    fileName <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_IC",".txt",
                       sep = "")
     write.table(sracipeIC(racipeVals$rsRacipe()),fileName,sep = ' ',
                 row.names = FALSE, col.names = TRUE)
     files <- c(fileName,files)
     
-    fileName <- paste(annotation(racipeVals$rsRacipe()),"_network",".txt",
+    fileName <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_network",".txt",
                       sep = "")
     write.table(sracipeCircuit(racipeVals$rsRacipe()),fileName,sep = ' ', 
                 row.names = FALSE, col.names = TRUE, quote = FALSE)
     files <- c(fileName,files)
     
-    fileName <- paste(annotation(racipeVals$rsRacipe()),"_params",".txt",
+    fileName <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_params",".txt",
                       sep = "")
     write.table(sracipeParams(racipeVals$rsRacipe()),fileName,sep = ' ', 
                 row.names = TRUE, col.names = TRUE, quote = FALSE)
@@ -271,26 +271,26 @@ observeEvent(input$simulateRacipe, {
         on.exit(setwd(owd))
         files <- NULL;
 
-        fileName <- paste(annotation(racipeVals$rsRacipe()),"_GE",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_GE",".txt",
                           sep = "")
         write.table(assay(racipeVals$rsRacipe()),fileName,sep = ' ', 
                     row.names = TRUE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(racipeVals$rsRacipe()),"_IC",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_IC",".txt",
                           sep = "")
         write.table(sracipeIC(racipeVals$rsRacipe()),fileName,sep = ' ',
                     row.names = FALSE, col.names = TRUE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(racipeVals$rsRacipe()),"_network",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_network",".txt",
                           sep = "")
         write.table(sracipeCircuit(racipeVals$rsRacipe()),fileName,sep = ' ', 
                     row.names = FALSE, col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(racipeVals$rsRacipe()),"_params",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_params",".txt",
                           sep = "")
         write.table(sracipeParams(racipeVals$rsRacipe()),fileName,sep = ' ', 
                     row.names = TRUE, col.names = TRUE, quote = FALSE)
@@ -425,26 +425,26 @@ isolate(
         zipFile <- paste0(tempfile(),annotation(racipeVals$rsSRacipe()),".zip")
         files <- NULL;
         
-        fileName <- paste(annotation(racipeVals$rsSRacipe()),"_GE",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsSRacipe()),"_GE",".txt",
                           sep = "")
         write.table(assays(racipeVals$rsSRacipe()),fileName,sep = ' ', 
                     row.names = TRUE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
         
-        fileName <- paste(annotation(racipeVals$rsSRacipe()),"_IC",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsSRacipe()),"_IC",".txt",
                           sep = "")
         write.table(sracipeIC(racipeVals$rsSRacipe()),fileName,sep = ' ',
                     row.names = FALSE, col.names = TRUE)
         files <- c(fileName,files)
         
-        fileName <- paste(annotation(racipeVals$rsSRacipe()),"_network",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsSRacipe()),"_network",".txt",
                           sep = "")
         write.table(sracipeCircuit(racipeVals$rsSRacipe()),fileName,sep = ' ', 
                     row.names = FALSE, col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
         
-        fileName <- paste(annotation(racipeVals$rsSRacipe()),"_params",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsSRacipe()),"_params",".txt",
                           sep = "")
         write.table(sracipeParams(racipeVals$rsSRacipe()),fileName,sep = ' ', 
                     row.names = TRUE, col.names = TRUE, quote = FALSE)
@@ -541,26 +541,26 @@ if(input$sRacipeOption == "annealing")
         zipFile <- paste0(tempfile(),annotation(racipeVals$rsSRacipeAnneal()),".zip")
         files <- NULL;
         
-        fileName <- paste(annotation(racipeVals$rsSRacipeAnneal()),"_GE",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsSRacipeAnneal()),"_GE",".txt",
                           sep = "")
         write.table(assays(racipeVals$rsSRacipeAnneal()),fileName,sep = ' ', 
                     row.names = TRUE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
         
-        fileName <- paste(annotation(racipeVals$rsSRacipeAnneal()),"_IC",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsSRacipeAnneal()),"_IC",".txt",
                           sep = "")
         write.table(sracipeIC(racipeVals$rsSRacipeAnneal()),fileName,sep = ' ',
                     row.names = FALSE, col.names = TRUE)
         files <- c(fileName,files)
         
-        fileName <- paste(annotation(racipeVals$rsSRacipeAnneal()),"_network",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsSRacipeAnneal()),"_network",".txt",
                           sep = "")
         write.table(sracipeCircuit(racipeVals$rsSRacipeAnneal()),fileName,sep = ' ', 
                     row.names = FALSE, col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
         
-        fileName <- paste(annotation(racipeVals$rsSRacipeAnneal()),"_params",".txt",
+        fileName <- paste(tempdir(),"/",annotation(racipeVals$rsSRacipeAnneal()),"_params",".txt",
                           sep = "")
         write.table(sracipeParams(racipeVals$rsSRacipeAnneal()),fileName,sep = ' ', 
                     row.names = TRUE, col.names = TRUE, quote = FALSE)
@@ -652,22 +652,22 @@ if(input$sRacipeOption == "annealing")
         {
           # print("Here") 
           tmpRSet <- racipeVals$rsSRacipe()}
-        fileName <- paste(annotation(tmpRSet),"_GE",".txt",sep = "")
+        fileName <- paste(tempdir(),"/",annotation(tmpRSet),"_GE",".txt",sep = "")
         write.table(assays(tmpRSet),fileName,sep = ' ', row.names = TRUE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(tmpRSet),"_IC",".txt",sep = "")
+        fileName <- paste(tempdir(),"/",annotation(tmpRSet),"_IC",".txt",sep = "")
         write.table(sracipeIC(tmpRSet),fileName,sep = ' ', row.names = FALSE,
                     col.names = TRUE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(tmpRSet),"_network",".txt",sep = "")
+        fileName <- paste(tempdir(),"/",annotation(tmpRSet),"_network",".txt",sep = "")
         write.table(sracipeCircuit(tmpRSet),fileName,sep = ' ', 
                     row.names = FALSE, col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
-        fileName <- paste(annotation(tmpRSet),"_params",".txt",sep = "")
+        fileName <- paste(tempdir(),"/",annotation(tmpRSet),"_params",".txt",sep = "")
         write.table(sracipeParams(tmpRSet),fileName,sep = ' ', 
                     row.names = TRUE, col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)

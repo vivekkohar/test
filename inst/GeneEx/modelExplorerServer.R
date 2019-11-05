@@ -115,19 +115,19 @@ observeEvent(input$simulateGv, {
   if(input$emailGv){
     zipFile <- paste0(tempfile(),annotation(gvVals$rSet()),".zip")
     files <- NULL;
-    fileName <- paste(annotation(gvVals$rSet()),"_GE",".txt",sep = "")
+    fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_GE",".txt",sep = "")
     write.table(metadata(gvVals$rSet())$timeSeries,fileName,sep = ' ', 
                 row.names = TRUE, 
                 col.names = TRUE, quote = FALSE)
     files <- c(fileName,files)
 
-    fileName <- paste(annotation(gvVals$rSet()),"_network",".txt",sep = "")
+    fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_network",".txt",sep = "")
     write.table(sracipeCircuit(gvVals$rSet()),fileName,sep = ' ', 
                 row.names = FALSE, 
                 col.names = TRUE, quote = FALSE)
     files <- c(fileName,files)
     
-    fileName <- paste(annotation(gvVals$rSet()),"_params",".txt",sep = "")
+    fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_params",".txt",sep = "")
     write.table(sracipeParams(gvVals$rSet()),fileName,sep = ' ', 
                 row.names = TRUE, 
                 col.names = TRUE, quote = FALSE)
