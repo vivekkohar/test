@@ -112,6 +112,43 @@ observeEvent(input$simulateGv, {
                        nNoise = isolate(gvVals$nNoise()) 
                        )
   gvVals$rSet <- reactive(rs)
+  if(input$emailGv){
+    zipFile <- paste0(tempfile(),annotation(gvVals$rSet()),".zip")
+    files <- NULL;
+    fileName <- paste(annotation(gvVals$rSet()),"_GE",".txt",sep = "")
+    write.table(metadata(gvVals$rSet())$timeSeries,fileName,sep = ' ', 
+                row.names = TRUE, 
+                col.names = TRUE, quote = FALSE)
+    files <- c(fileName,files)
+
+    fileName <- paste(annotation(gvVals$rSet()),"_network",".txt",sep = "")
+    write.table(sracipeCircuit(gvVals$rSet()),fileName,sep = ' ', 
+                row.names = FALSE, 
+                col.names = TRUE, quote = FALSE)
+    files <- c(fileName,files)
+    
+    fileName <- paste(annotation(gvVals$rSet()),"_params",".txt",sep = "")
+    write.table(sracipeParams(gvVals$rSet()),fileName,sep = ' ', 
+                row.names = TRUE, 
+                col.names = TRUE, quote = FALSE)
+    files <- c(fileName,files)
+    
+    #create the zip file
+    zip(zipFile,files)
+    googledrive::drive_upload(zipFile,path = "download",
+                              name = annotation(gvVals$rSet()), overwrite = TRUE)
+    googledrive::drive_share(annotation(gvVals$rSet()),role = "reader",type = "anyone")
+    fileLink <- googledrive::drive_link(annotation(gvVals$rSet()))
+    email <-
+      gm_mime() %>%
+      gm_to(input$userEmail) %>%
+      gm_from("geneex.maintainer@gmail.com") %>%
+      gm_subject("Your GeneEx Simulation Results are available") %>%
+      gm_text_body(fileLink)
+    
+    gm_send_message(email)
+    
+  }
 #})
   output$GvTS <- renderPlot({
 
@@ -129,8 +166,8 @@ observeEvent(input$simulateGv, {
   output$downloadMEData <- downloadHandler(
       filename = function(){
         if(input$downloadMEDataType == "txt"){
-        return(paste0(Sys.time(),"_",annotation(gvVals$rSet()),".zip"))}
-        else return(paste0(Sys.time(),"_",annotation(gvVals$rSet()),".RDS"))
+        return(paste0(annotation(gvVals$rSet()),".zip"))}
+        else return(paste0(annotation(gvVals$rSet()),".RDS"))
       },
 
       content = function(file){
@@ -163,6 +200,9 @@ observeEvent(input$simulateGv, {
 
         #create the zip file
         zip(file,files)
+
+        
+        
         }
         else{
             saveRDS(gvVals$rSet(), file)
@@ -182,6 +222,7 @@ observeEvent(input$simulateGv, {
   })
 
   observeEvent(input$uploadMEData,{
+    withBusyIndicatorServer("uploadMEData",{
     rSet <- gvVals$rSet()
     tmp <- MIAME()
     tmp@name <- input$uploadToDatabaseUI_name_Explorer
@@ -192,17 +233,22 @@ observeEvent(input$simulateGv, {
     tmp@url <- input$uploadToDatabaseUI_url_Explorer
     tmp@pubMedIds <- input$uploadToDatabaseUI_pubMedIds_Explorer
     metadata(rSet)$experimentData <- tmp
-    saveRDS(rSet, file = paste0("usrDatabase/",Sys.time(),"_",annotation(rSet),"_TS.RDS"))
+    #saveRDS(rSet, file = paste0("usrDatabase/",Sys.time(),"_",annotation(rSet),"_TS.RDS"))
+    filename <- paste(tempdir(),"/",annotation(rSet),".RDS", sep = "")
+    saveRDS(rSet, file = filename)
+    googledrive::drive_upload(filename,path = "upload",name = annotation(rSet), overwrite = TRUE)
+    })
     output$fileSaveDatabase1 <- renderText(HTML("File uploaded to Database"))
     shinyjs::show("fileSaveDatabase1")
-    hide("uploadMEData")
-    hide("uploadToDatabaseUI_name_Explorer")
-    hide("uploadToDatabaseUI_lab_Explorer")
-    hide("uploadToDatabaseUI_contact_Explorer")
-    hide("uploadToDatabaseUI_title_Explorer")
-    hide("uploadToDatabaseUI_abstract_Explorer")
-    hide("uploadToDatabaseUI_url_Explorer")
-    hide("uploadToDatabaseUI_pubMedIds_Explorer")
+    shinyjs::hide("uploadMEData")
+    shinyjs::hide("uploadToDatabaseUI_name_Explorer")
+    shinyjs::hide("uploadToDatabaseUI_lab_Explorer")
+    shinyjs::hide("uploadToDatabaseUI_contact_Explorer")
+    shinyjs::hide("uploadToDatabaseUI_title_Explorer")
+    shinyjs::hide("uploadToDatabaseUI_abstract_Explorer")
+    shinyjs::hide("uploadToDatabaseUI_url_Explorer")
+    shinyjs::hide("uploadToDatabaseUI_pubMedIds_Explorer")
+    
   })
 
   ##################### Bifurcation Diagram #######################

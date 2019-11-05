@@ -27,6 +27,8 @@ racipe <-
              column(9, offset=1,
            ( numericInput(inputId = "stepSizeRacipe", "Integration Time Step",
                           min = 0.001, max = 0.9, value = 0.05)),
+           checkboxInput("emailRacipe", "Email data download link",
+                         value = FALSE),
            withBusyIndicatorUI(actionButton("simulateRacipe", "Simulate", 
                                                class = 'btn-primary',
     style="color: #fff; background-color: #32CD32; border-color: #2e6da4",
@@ -65,8 +67,9 @@ fluidRow(
                                inline = TRUE)))),
 
   column(3, offset=0,
-         hidden(actionButton("saveRacipeData", "Upload Options", 
-style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))
+         hidden(actionButton("saveRacipeData", "Upload Options"
+# style="color: #fff;background-color: #337ab7; border-color: #2e6da4"
+)))
 
 
 ),
@@ -98,8 +101,9 @@ fluidRow(
 
 fluidRow(
   column(1, offset=1,
-         shinyjs::hidden(actionButton("uploadRacipeData", "Upload",
-style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
+         withBusyIndicatorUI(shinyjs::hidden(actionButton("uploadRacipeData", 
+                                                          "Upload",
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))),
   column(3, offset=0,
          shinyjs::hidden(htmlOutput("fileRacipeData")))
 ),
@@ -161,6 +165,7 @@ fluidRow(
 
   column(5, offset=0,
          br(),
+         shinyjs::hidden(checkboxInput("emailSRacipe", "Email data download link", value = FALSE)),
          withBusyIndicatorUI(     shinyjs::hidden(  actionButton("simulateSRacipe", 
       "Perform Stochastic Simulations",  class = 'btn-primary',
                                style="color: #fff; background-color: #32CD32; 
@@ -193,8 +198,9 @@ fluidRow(
                                inline = TRUE)))),
 
   column(3, offset=0,
-         shinyjs::hidden(actionButton("saveSRacipeData", "Upload Options",
-style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))
+         shinyjs::hidden(actionButton("saveSRacipeData", "Upload Options"
+# style="color: #fff;background-color: #337ab7; border-color: #2e6da4"
+)))
 
 ),
 
@@ -225,8 +231,9 @@ fluidRow(
 
 fluidRow(
   column(1, offset=1,
-         shinyjs::hidden(actionButton("uploadSRacipeData", "Upload",
-style="color: #fff;background-color: #337ab7; border-color: #2e6da4"))),
+         withBusyIndicatorUI(
+           shinyjs::hidden(actionButton("uploadSRacipeData", "Upload",
+style="color: #fff;background-color: #337ab7; border-color: #2e6da4")))),
   column(3, offset=0,
          shinyjs::hidden(htmlOutput("fileSRacipeData")))
 ),

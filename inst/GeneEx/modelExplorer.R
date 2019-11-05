@@ -46,6 +46,8 @@ expect longer transient dynamics."),
    "Noise",step = 0.1,  min = 0, max = 100, value = 0),
                                        
                                       br(),
+  checkboxInput("emailGv", "Email data download link", value = FALSE),
+  
   withBusyIndicatorUI(
 
                                     actionButton("simulateGv", "Simulate",
@@ -99,7 +101,8 @@ fluidRow(
 
 fluidRow(
   column(1, offset=1,
-         hidden(actionButton("uploadMEData", "Upload"))),
+         withBusyIndicatorUI( hidden(actionButton("uploadMEData", "Upload",
+                                                  class = 'btn-primary')))),
   column(3, offset=0,
          hidden(htmlOutput("fileSaveDatabase1")))
 ),

@@ -13,6 +13,9 @@ suppressMessages(library(shinyjs))
 suppressMessages(library(sRACIPE))
 suppressMessages(library(data.table))
 suppressMessages(library(shinyBS))
+suppressMessages(library(googledrive))
+suppressMessages(library(gmailr))
+
 # suppressMessages(library(sendmailR))
 
 # library(htmlwidgets)

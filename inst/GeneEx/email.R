@@ -22,8 +22,8 @@ gm_send_message(test_email)
 gm_auth_configure(path = "~/Downloads/credentials.json")
 
 Client ID
-6866803080-iiestcu1e89kiv24foc9tp6l97ouhjmm.apps.googleusercontent.com
-0wYqiYPH5XsMG-iLECEcyjeG
+gm_auth_configure("6866803080-iiestcu1e89kiv24foc9tp6l97ouhjmm.apps.googleusercontent.com",
+"0wYqiYPH5XsMG-iLECEcyjeG")
 Steps to host Gmailr in Shiny Apps:
   
   1) set your options locally to be:

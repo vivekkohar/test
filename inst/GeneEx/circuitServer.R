@@ -127,7 +127,7 @@ observeEvent(input$updateCircuit,{
     rSet <-  RacipeSE()
     
     sracipeCircuit(rSet) <- circuitVariables$circuit
-    annotation(rSet) <- isolate(input$circuitName)
+    annotation(rSet) <- paste(input$circuitName, Sys.Date(),basename(tempfile()), sep = "_")
     circuitVariables$rSet <- rSet
     racipeVals$rSet <- rSet
     gvVals$rSet <- reactive(sracipeSimulate(rSet,integrate = FALSE,

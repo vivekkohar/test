@@ -49,9 +49,9 @@ observeEvent(input$simulateRacipe, {
 
   #      rs <- shinyModelExplorer()
  # withProgress(message = 'Simulating', value = 0.25, {
-    shinyBS::createAlert(session, anchorId = "racipeAlert",
-                         alertId =  "racipeProcessing", title = "Processing",
-                         content = "Please wait...", append = FALSE)
+    # shinyBS::createAlert(session, anchorId = "racipeAlert",
+    #                      alertId =  "racipeProcessing", title = "Processing",
+    #                      content = "Please wait...", append = FALSE)
   rsRacipe <- sracipeSimulate(rsRacipe, plots = FALSE,genIC = TRUE, 
                               genParams = TRUE, integrate = TRUE, 
                               numModels = isolate(input$numModels),
@@ -61,7 +61,52 @@ observeEvent(input$simulateRacipe, {
                               )
   rsRacipe <- sracipeNormalize(rsRacipe)
   racipeVals$rsRacipe <- reactive(rsRacipe)
-  shinyBS::closeAlert(session, alertId = "racipeProcessing")
+  if(input$emailRacipe){
+    zipFile <- paste0(tempfile(),annotation(racipeVals$rsRacipe()),".zip")
+    files <- NULL;
+    
+    fileName <- paste(annotation(racipeVals$rsRacipe()),"_GE",".txt",
+                      sep = "")
+    write.table(assay(racipeVals$rsRacipe()),fileName,sep = ' ', 
+                row.names = TRUE, 
+                col.names = TRUE, quote = FALSE)
+    files <- c(fileName,files)
+    
+    fileName <- paste(annotation(racipeVals$rsRacipe()),"_IC",".txt",
+                      sep = "")
+    write.table(sracipeIC(racipeVals$rsRacipe()),fileName,sep = ' ',
+                row.names = FALSE, col.names = TRUE)
+    files <- c(fileName,files)
+    
+    fileName <- paste(annotation(racipeVals$rsRacipe()),"_network",".txt",
+                      sep = "")
+    write.table(sracipeCircuit(racipeVals$rsRacipe()),fileName,sep = ' ', 
+                row.names = FALSE, col.names = TRUE, quote = FALSE)
+    files <- c(fileName,files)
+    
+    fileName <- paste(annotation(racipeVals$rsRacipe()),"_params",".txt",
+                      sep = "")
+    write.table(sracipeParams(racipeVals$rsRacipe()),fileName,sep = ' ', 
+                row.names = TRUE, col.names = TRUE, quote = FALSE)
+    files <- c(fileName,files)
+    
+    #create the zip file
+    zip(zipFile,files)
+    fileName <- paste0(annotation(racipeVals$rsRacipe()),"_Racipe")
+    googledrive::drive_upload(zipFile,path = "download",name =fileName, overwrite = TRUE )
+    googledrive::drive_share(fileName,role = "reader",type = "anyone")
+    fileLink <- googledrive::drive_link(fileName)
+    email <-
+      gm_mime() %>%
+      gm_to(input$userEmail) %>%
+      gm_from("geneex.maintainer@gmail.com") %>%
+      gm_subject("Your GeneEx Simulation Results are available") %>%
+      gm_text_body(fileLink)
+    
+    gm_send_message(email)
+    
+  }
+#  shinyBS::closeAlert(session, alertId = "racipeProcessing")
  # })
 
   output$racipeDeterministicText <- renderUI({HTML(
@@ -277,6 +322,8 @@ observeEvent(input$simulateRacipe, {
   })
 
   observeEvent(input$uploadRacipeData,{
+    withBusyIndicatorServer("uploadRacipeData",{
+      
     tmp <- MIAME()
     tmp@name <- input$uploadToDatabaseUI_name_Racipe
     tmp@lab <- input$uploadToDatabaseUI_lab_Racipe
@@ -287,10 +334,25 @@ observeEvent(input$simulateRacipe, {
     tmp@pubMedIds <- input$uploadToDatabaseUI_pubMedIds_Racipe
 
     metadata(rsRacipe)$meta <- tmp
-    saveRDS(rsRacipe, file = paste0("usrDatabase/",
-                                    Sys.time(),"_",annotation(rsRacipe),"_RACIPE.RDS"))
+  #  saveRDS(rsRacipe, file = paste0("usrDatabase/",
+  #                                  Sys.time(),"_",annotation(rsRacipe),"_RACIPE.RDS"))
+    filename <- paste(tempdir(),"/",annotation(racipeVals$rsRacipe()),"_Racipe.RDS", sep = "")
+    saveRDS(rsRacipe, file = filename)
+    googledrive::drive_upload(
+      filename,path = "upload",overwrite = TRUE,
+      name = paste(annotation(racipeVals$rsRacipe()),"_Racipe.RDS", sep = ""))
+    
     output$fileRacipeData <- renderText(HTML("File uploaded to Database"))
     shinyjs::show("fileRacipeData")
+    })
+    shinyjs::hide("uploadRacipeData")
+    shinyjs::hide("uploadToDatabaseUI_name_Racipe")
+    shinyjs::hide("uploadToDatabaseUI_lab_Racipe")
+    shinyjs::hide("uploadToDatabaseUI_contact_Racipe")
+    shinyjs::hide("uploadToDatabaseUI_title_Racipe")
+    shinyjs::hide("uploadToDatabaseUI_abstract_Racipe")
+    shinyjs::hide("uploadToDatabaseUI_url_Racipe")
+    shinyjs::hide("uploadToDatabaseUI_pubMedIds_Racipe")
   })
 }) 
 ###########################################
@@ -301,6 +363,7 @@ observeEvent(input$stochasticRacipe, {
   shinyjs::show("sRacipeOption")
   shinyjs::show("sRacipeNoise")
   shinyjs::show("simulateSRacipe")
+  shinyjs::show("emailSRacipe")
   shinyjs::show("sRacipeHeatmap")
   shinyjs::show("sRacipeHeatmapDet")
   shinyjs::show("sRacipePca")
@@ -358,7 +421,51 @@ isolate(
       rsSRacipe <- sracipeNormalize(rsSRacipe)
       
       racipeVals$rsSRacipe <- reactive(rsSRacipe)
-      
+      if(input$emailSRacipe){
+        zipFile <- paste0(tempfile(),annotation(racipeVals$rsSRacipe()),".zip")
+        files <- NULL;
+        
+        fileName <- paste(annotation(racipeVals$rsSRacipe()),"_GE",".txt",
+                          sep = "")
+        write.table(assays(racipeVals$rsSRacipe()),fileName,sep = ' ', 
+                    row.names = TRUE, 
+                    col.names = TRUE, quote = FALSE)
+        files <- c(fileName,files)
+        
+        fileName <- paste(annotation(racipeVals$rsSRacipe()),"_IC",".txt",
+                          sep = "")
+        write.table(sracipeIC(racipeVals$rsSRacipe()),fileName,sep = ' ',
+                    row.names = FALSE, col.names = TRUE)
+        files <- c(fileName,files)
+        
+        fileName <- paste(annotation(racipeVals$rsSRacipe()),"_network",".txt",
+                          sep = "")
+        write.table(sracipeCircuit(racipeVals$rsSRacipe()),fileName,sep = ' ', 
+                    row.names = FALSE, col.names = TRUE, quote = FALSE)
+        files <- c(fileName,files)
+        
+        fileName <- paste(annotation(racipeVals$rsSRacipe()),"_params",".txt",
+                          sep = "")
+        write.table(sracipeParams(racipeVals$rsSRacipe()),fileName,sep = ' ', 
+                    row.names = TRUE, col.names = TRUE, quote = FALSE)
+        files <- c(fileName,files)
+        
+        #create the zip file
+        zip(zipFile,files)
+        fileName <- paste0(annotation(racipeVals$rsRacipe()),"_CN")
+        googledrive::drive_upload(zipFile,path = "download",name =fileName, overwrite = TRUE )
+        googledrive::drive_share(fileName,role = "reader",type = "anyone")
+        fileLink <- googledrive::drive_link(fileName)
+        email <-
+          gm_mime() %>%
+          gm_to(input$userEmail) %>%
+          gm_from("geneex.maintainer@gmail.com") %>%
+          gm_subject("Your GeneEx Simulation Results are available") %>%
+          gm_text_body(fileLink)
+        
+        gm_send_message(email)
+        
+      }
 })
 #      withProgress(message = 'Plotting', value = 0.25, {
 
@@ -411,7 +518,7 @@ if(input$sRacipeOption == "annealing")
       if(!racipeVals$annealFlag){
         rsSRacipeAnneal <- racipeVals$rsRacipe()
         detParam <- FALSE
-        if(is.null(sracipeParams(rsSRacipe))) detParam <- TRUE
+        if(is.null(sracipeParams(rsSRacipeAnneal))) detParam <- TRUE
         withProgress(message = 'Simulating', value = 0.25, {
           shinyBS::createAlert(
             session, anchorId = "racipeAlert",
@@ -430,6 +537,52 @@ if(input$sRacipeOption == "annealing")
           
       racipeVals$annealFlag <- TRUE
       racipeVals$rsSRacipeAnneal <- reactive(rsSRacipeAnneal)
+      if(input$emailSRacipe){
+        zipFile <- paste0(tempfile(),annotation(racipeVals$rsSRacipeAnneal()),".zip")
+        files <- NULL;
+        
+        fileName <- paste(annotation(racipeVals$rsSRacipeAnneal()),"_GE",".txt",
+                          sep = "")
+        write.table(assays(racipeVals$rsSRacipeAnneal()),fileName,sep = ' ', 
+                    row.names = TRUE, 
+                    col.names = TRUE, quote = FALSE)
+        files <- c(fileName,files)
+        
+        fileName <- paste(annotation(racipeVals$rsSRacipeAnneal()),"_IC",".txt",
+                          sep = "")
+        write.table(sracipeIC(racipeVals$rsSRacipeAnneal()),fileName,sep = ' ',
+                    row.names = FALSE, col.names = TRUE)
+        files <- c(fileName,files)
+        
+        fileName <- paste(annotation(racipeVals$rsSRacipeAnneal()),"_network",".txt",
+                          sep = "")
+        write.table(sracipeCircuit(racipeVals$rsSRacipeAnneal()),fileName,sep = ' ', 
+                    row.names = FALSE, col.names = TRUE, quote = FALSE)
+        files <- c(fileName,files)
+        
+        fileName <- paste(annotation(racipeVals$rsSRacipeAnneal()),"_params",".txt",
+                          sep = "")
+        write.table(sracipeParams(racipeVals$rsSRacipeAnneal()),fileName,sep = ' ', 
+                    row.names = TRUE, col.names = TRUE, quote = FALSE)
+        files <- c(fileName,files)
+        
+        #create the zip file
+        zip(zipFile,files)
+        fileName <- paste0(annotation(racipeVals$rsRacipe()),"_Anneal")
+        googledrive::drive_upload(zipFile,path = "download",name =fileName, 
+                                  overwrite = TRUE )
+        googledrive::drive_share(fileName,role = "reader",type = "anyone")
+        fileLink <- googledrive::drive_link(fileName)
+        email <-
+          gm_mime() %>%
+          gm_to(input$userEmail) %>%
+          gm_from("geneex.maintainer@gmail.com") %>%
+          gm_subject("Your GeneEx Simulation Results are available") %>%
+          gm_text_body(fileLink)
+        
+        gm_send_message(email)
+        
+      }
       shinyBS::closeAlert(session, alertId = "racipeProcessing")
         })
       }
@@ -491,15 +644,16 @@ if(input$sRacipeOption == "annealing")
         on.exit(setwd(owd))
         files <- NULL
 #        tmpRSet <- NULL
-        print("Here1") 
+        # print("Here1") 
         tmpRSet <- RacipeSE()
         if(input$sRacipeOption == "annealing")
           tmpRSet <- racipeVals$rsSRacipeAnneal()
         if(input$sRacipeOption == "constantNoise")
-        {print("Here") 
+        {
+          # print("Here") 
           tmpRSet <- racipeVals$rsSRacipe()}
         fileName <- paste(annotation(tmpRSet),"_GE",".txt",sep = "")
-        write.table(assay(tmpRSet),fileName,sep = ' ', row.names = TRUE, 
+        write.table(assays(tmpRSet),fileName,sep = ' ', row.names = TRUE, 
                     col.names = TRUE, quote = FALSE)
         files <- c(fileName,files)
 
@@ -548,6 +702,7 @@ if(input$sRacipeOption == "annealing")
   })
 
   observeEvent(input$uploadSRacipeData,{
+    withBusyIndicatorServer("uploadSRacipeData",{
     tmp <- MIAME()
     tmp@name <- input$uploadToDatabaseUI_name_sRacipe
     tmp@lab <- input$uploadToDatabaseUI_lab_sRacipe
@@ -562,10 +717,25 @@ if(input$sRacipeOption == "annealing")
     if(input$sRacipeOption == "constantNoise")
       tmpRSet <- racipeVals$rsSRacipe()
     metadata(tmpRSet)$meta <- tmp
-    saveRDS(tmpRSet, file = paste0("usrDatabase/",
-                                   Sys.time(),"_",annotation(tmpRSet),"_sRACIPE.RDS"))
+    #saveRDS(tmpRSet, file = paste0("usrDatabase/",
+    #                               Sys.time(),"_",annotation(tmpRSet),"_sRACIPE.RDS"))
+    filename <- paste(tempdir(),"/",annotation(tmpRSet),"_Racipe.RDS", sep = "")
+    saveRDS(tmpRSet, file = filename)
+    googledrive::drive_upload(
+      filename,path = "upload",overwrite = TRUE,
+      name = paste(annotation(tmpRSet),"_SRacipe.RDS", sep = ""))
+    
     output$fileSRacipeData <- renderText(HTML("File uploaded to Database"))
     shinyjs::show("fileSRacipeData")
+    })
+    shinyjs::hide("uploadSRacipeData")
+    shinyjs::hide("uploadToDatabaseUI_name_sRacipe")
+    shinyjs::hide("uploadToDatabaseUI_lab_sRacipe")
+    shinyjs::hide("uploadToDatabaseUI_contact_sRacipe")
+    shinyjs::hide("uploadToDatabaseUI_title_sRacipe")
+    shinyjs::hide("uploadToDatabaseUI_abstract_sRacipe")
+    shinyjs::hide("uploadToDatabaseUI_url_sRacipe")
+    shinyjs::hide("uploadToDatabaseUI_pubMedIds_sRacipe")
   })
 
 
