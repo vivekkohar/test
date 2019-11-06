@@ -46,7 +46,7 @@ expect longer transient dynamics."),
    "Noise",step = 0.1,  min = 0, max = 100, value = 0),
                                        
                                       br(),
-  checkboxInput("emailGv", "Email data download link", value = FALSE),
+#  checkboxInput("emailGv", "Email data download link", value = FALSE),
   
   withBusyIndicatorUI(
 

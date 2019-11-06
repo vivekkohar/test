@@ -6,6 +6,10 @@
 #
 
 
+#options(gargle_oauth_cache = ".secrets");
+#gargle::gargle_oauth_cache();
+# gm_auth(email = "geneex.maintainer@gmail.com", path = "credentials/credentials.json")
+# gmailr::gm_auth()
 
 geneExServer <- shinyServer(function(input, output, session) {
   source('circuitServer.R', local = TRUE)

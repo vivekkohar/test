@@ -112,43 +112,43 @@ observeEvent(input$simulateGv, {
                        nNoise = isolate(gvVals$nNoise()) 
                        )
   gvVals$rSet <- reactive(rs)
-  if(input$emailGv){
-    zipFile <- paste0(tempfile(),annotation(gvVals$rSet()),".zip")
-    files <- NULL;
-    fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_GE",".txt",sep = "")
-    write.table(metadata(gvVals$rSet())$timeSeries,fileName,sep = ' ', 
-                row.names = TRUE, 
-                col.names = TRUE, quote = FALSE)
-    files <- c(fileName,files)
-
-    fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_network",".txt",sep = "")
-    write.table(sracipeCircuit(gvVals$rSet()),fileName,sep = ' ', 
-                row.names = FALSE, 
-                col.names = TRUE, quote = FALSE)
-    files <- c(fileName,files)
-    
-    fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_params",".txt",sep = "")
-    write.table(sracipeParams(gvVals$rSet()),fileName,sep = ' ', 
-                row.names = TRUE, 
-                col.names = TRUE, quote = FALSE)
-    files <- c(fileName,files)
-    
-    #create the zip file
-    zip(zipFile,files)
-    googledrive::drive_upload(zipFile,path = "download",
-                              name = annotation(gvVals$rSet()), overwrite = TRUE)
-    googledrive::drive_share(annotation(gvVals$rSet()),role = "reader",type = "anyone")
-    fileLink <- googledrive::drive_link(annotation(gvVals$rSet()))
-    email <-
-      gm_mime() %>%
-      gm_to(input$userEmail) %>%
-      gm_from("geneex.maintainer@gmail.com") %>%
-      gm_subject("Your GeneEx Simulation Results are available") %>%
-      gm_text_body(fileLink)
-    
-    gm_send_message(email)
-    
-  }
+  # if(input$emailGv){
+  #   zipFile <- paste0(tempfile(),annotation(gvVals$rSet()),".zip")
+  #   files <- NULL;
+  #   fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_GE",".txt",sep = "")
+  #   write.table(metadata(gvVals$rSet())$timeSeries,fileName,sep = ' ', 
+  #               row.names = TRUE, 
+  #               col.names = TRUE, quote = FALSE)
+  #   files <- c(fileName,files)
+  # 
+  #   fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_network",".txt",sep = "")
+  #   write.table(sracipeCircuit(gvVals$rSet()),fileName,sep = ' ', 
+  #               row.names = FALSE, 
+  #               col.names = TRUE, quote = FALSE)
+  #   files <- c(fileName,files)
+  #   
+  #   fileName <- paste(tempdir(),"/",annotation(gvVals$rSet()),"_params",".txt",sep = "")
+  #   write.table(sracipeParams(gvVals$rSet()),fileName,sep = ' ', 
+  #               row.names = TRUE, 
+  #               col.names = TRUE, quote = FALSE)
+  #   files <- c(fileName,files)
+  #   
+  #   #create the zip file
+  #   zip(zipFile,files)
+  #   googledrive::drive_upload(zipFile,path = "download",
+  #                             name = annotation(gvVals$rSet()), overwrite = TRUE)
+  #   googledrive::drive_share(annotation(gvVals$rSet()),role = "reader",type = "anyone")
+  #   fileLink <- googledrive::drive_link(annotation(gvVals$rSet()))
+  #   email <-
+  #     gm_mime() %>%
+  #     gm_to(input$userEmail) %>%
+  #     gm_from("geneex.maintainer@gmail.com") %>%
+  #     gm_subject("Your GeneEx Simulation Results are available") %>%
+  #     gm_text_body(fileLink)
+  #   
+  #   gm_send_message(email)
+  #   
+  # }
 #})
   output$GvTS <- renderPlot({
 

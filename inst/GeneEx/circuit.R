@@ -20,11 +20,11 @@ provide a specific name to your circuit.
     column(5,offset = 1,
            fluidRow(
              textInput("circuitName", "Circuit Name (optional)", value = "Circuit1"),
-             shinyBS::tipify(textInput("userEmail", "Your Email (optional)", 
-                               value = "iamuser@example.com"),
-                     "This email can be used to send the link to download
-                     the simulated results if desired."),
-             br(),
+             # shinyBS::tipify(textInput("userEmail", "Your Email (optional)", 
+             #                   value = "iamuser@example.com"),
+             #         "This email can be used to send the link to download
+             #         the simulated results if desired."),
+             # br(),
 
              fileInput(("circuitFile"), #label = "Choose Circuit File",
                        div("Choose Circuit File (optional)",

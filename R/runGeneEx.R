@@ -1,5 +1,5 @@
 #' @export
-#' @import shinyBS shiny googledrive gmailr
+#' @import shinyBS shiny googledrive 
 #' @importFrom shinyjs hidden 
 #' @title Run GeneEx - webapp for sRACIPE
 #' @description GeneEx enables interactive simulations, visualization, and data

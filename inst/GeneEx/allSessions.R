@@ -14,7 +14,7 @@ suppressMessages(library(sRACIPE))
 suppressMessages(library(data.table))
 suppressMessages(library(shinyBS))
 suppressMessages(library(googledrive))
-suppressMessages(library(gmailr))
+# suppressMessages(library(gmailr))
 
 # suppressMessages(library(sendmailR))
 

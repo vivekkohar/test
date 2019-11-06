@@ -27,8 +27,8 @@ racipe <-
              column(9, offset=1,
            ( numericInput(inputId = "stepSizeRacipe", "Integration Time Step",
                           min = 0.001, max = 0.9, value = 0.05)),
-           checkboxInput("emailRacipe", "Email data download link",
-                         value = FALSE),
+     #      checkboxInput("emailRacipe", "Email data download link",
+       #                  value = FALSE),
            withBusyIndicatorUI(actionButton("simulateRacipe", "Simulate", 
                                                class = 'btn-primary',
     style="color: #fff; background-color: #32CD32; border-color: #2e6da4",
@@ -165,7 +165,7 @@ fluidRow(
 
   column(5, offset=0,
          br(),
-         shinyjs::hidden(checkboxInput("emailSRacipe", "Email data download link", value = FALSE)),
+     #    shinyjs::hidden(checkboxInput("emailSRacipe", "Email data download link", value = FALSE)),
          withBusyIndicatorUI(     shinyjs::hidden(  actionButton("simulateSRacipe", 
       "Perform Stochastic Simulations",  class = 'btn-primary',
                                style="color: #fff; background-color: #32CD32; 
