@@ -20,7 +20,7 @@ source('geneExUI.R', local = TRUE)
 #path = "client_secret_517184753467-66jbtn033775257lirarcaemt1vk198j.apps.googleusercontent.com.json")
 
 options(
-  gargle_oauth_cache = ".secrets",
+  gargle_oauth_cache = "secrets",
   gargle_oauth_email = TRUE
 )
 
