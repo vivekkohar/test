@@ -14,5 +14,5 @@ biocViews: ResearchField, SystemsBiology, MathematicalBiology, GeneExpression, G
 Depends: R (>= 3.5.0),SummarizedExperiment, methods, Rcpp, shiny 
 Imports: shinyBS, ggplot2, reshape2, MASS, RColorBrewer, gridExtra,visNetwork, gplots, umap, htmlwidgets, S4Vectors, BiocGenerics, grDevices, stats, utils, graphics, shinyjs,  googledrive 
 RoxygenNote: 6.1.1
-URL: https://github.com/vivekkohar/sRACIPE
+URL: https://github.com/vivekkohar/sRACIPE, https://geneex.jax.org/
 BugReport: https://github.com/vivekkohar/sRACIPE/issues
