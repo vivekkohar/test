@@ -62,6 +62,8 @@
 #' specific noise. If nNoise > 0, simulations will be carried out at nNoise
 #' levels as well as for zero noise. "EM" stepper will be used for simulations
 #' and any argument for stepper will be ignoired.
+#' @param simDet (optional) logical. Default TRUE.
+#' Whether to simulate at zero noise as well also when using nNoise > 0.
 #' @param initialNoise (optional) numeric.
 #' Default 50/sqrt(number of genes in the circuit). The initial value of noise
 #' for simulations. The noise value will decrease by a factor
@@ -143,7 +145,7 @@ sracipeSimulate <- function( circuit="inputs/test.tpo", config = config,
                       prodRateMin=1.,prodRateMax=100, degRateMin=0.1,
                       degRateMax=1.,foldChangeMin=1,foldChangeMax=100,
                       hillCoeffMin=1L,hillCoeffMax=6L,integrateStepSize=0.02,
-                      simulationTime=50.0,nIC=1L,nNoise=0L,
+                      simulationTime=50.0,nIC=1L,nNoise=0L,simDet = TRUE,
                       initialNoise=50.0,noiseScalingFactor=0.5,shotNoise=0,
                       scaledNoise=FALSE,outputPrecision=12L,
                       printStart = 50.0,
@@ -239,6 +241,11 @@ if(!missing(config)){
   if(!missing(simulationTime)){
     configuration$simParams["simulationTime"] <- simulationTime
   }
+ if(!missing(simDet)){
+   configuration$options["simDet"] <- simDet
+ } else {
+   configuration$options["simDet"] <- TRUE
+ }
   if(!missing(nIC)){
     configuration$simParams["nIC"] <- nIC
   }
@@ -383,8 +390,10 @@ if(!missing(config)){
 if(missing(nNoise)){
   if(!missing(initialNoise) & !anneal )
   {
-    if(timeSeries) {configuration$stochParams["nNoise"] <- 1}
-    else {configuration$stochParams["nNoise"] <- 2}
+    if(timeSeries)
+    # if(timeSeries) 
+      {configuration$stochParams["nNoise"] <- 1}
+    else {if(simDet) configuration$stochParams["nNoise"] <- 2}
   }
   
 }
@@ -430,16 +439,17 @@ if(missing(nNoise)){
   # print(configuration$stochParams["nNoise"])
   Time_evolution_test<- simulateGRCCpp(geneInteraction, configuration,outFileGE,
                                        outFileParams,outFileIC, stepperInt)
-
     if(configuration$options["integrate"]){
+
+      
       if(timeSeries){
+
         timeStamps <- c(seq(
           configuration$simParams["printStart"] +
             configuration$simParams["printInterval"], 
           configuration$simParams["simulationTime"],
           configuration$simParams["printInterval"]),
           configuration$simParams["simulationTime"])
-        
         geneExpression <- utils::read.table(outFileGE, header = FALSE)
         # print(dim(geneExpression))
         geneExpression <- matrix(geneExpression, ncol = nGenes, byrow = TRUE)
@@ -487,7 +497,45 @@ if(missing(nNoise)){
         return(rSet)
       }
     geneExpression <- utils::read.table(outFileGE, header = FALSE)
-    if(configuration$stochParams["nNoise"] == 0){
+
+    if(
+      (configuration$simParams["printStart"] + 
+       configuration$simParams["printInterval"]) < 
+       configuration$simParams["simulationTime"]){
+
+      timeStamps <- seq(
+        configuration$simParams["printStart"] +
+          configuration$simParams["printInterval"], 
+        configuration$simParams["simulationTime"],
+        configuration$simParams["printInterval"])
+
+      tsSimulations <- as.list(timeStamps)
+      names(timeStamps) <- timeStamps
+      
+      for(i in seq_along(timeStamps)){
+        tsSimulations[[i]] <- geneExpression[
+          , (1+(i-1)*(nGenes)):(i*nGenes)]
+        colnames(tsSimulations[[i]]) <- geneNames
+      }
+      
+      geneExpression <- geneExpression[
+        ,(1+(length(timeStamps)*nGenes)):
+          ((length(timeStamps)+1)*nGenes)]
+      
+      tsSimulations <- lapply(tsSimulations,t)
+      
+      geneExpression <- t(geneExpression)
+      rownames(geneExpression) <- geneNames
+      assayDataTmp <- c(list(deterministic = geneExpression),
+                        tsSimulations)
+      metadataTmp$tsSimulations <- timeStamps
+      
+      
+    }
+    if((configuration$stochParams["nNoise"] == 0) &  
+       (configuration$simParams["printStart"] + 
+        configuration$simParams["printInterval"] > 
+       configuration$simParams["simulationTime"])){
       geneExpression <- t(geneExpression)
       rownames(geneExpression) <- geneNames
     assayDataTmp <- list(deterministic = geneExpression)}
@@ -503,17 +551,21 @@ if(missing(nNoise)){
           , (1+(i-1)*(nGenes)):(i*nGenes)]
         colnames(stochasticSimulations[[i]]) <- geneNames
       }
-
+      stochasticSimulations <- lapply(stochasticSimulations,t)
+      if(simDet){
       geneExpression <- geneExpression[
         ,(1+(configuration$stochParams["nNoise"]*nGenes)):
           ((configuration$stochParams["nNoise"]+1)*nGenes)]
 
-      stochasticSimulations <- lapply(stochasticSimulations,t)
+
 
       geneExpression <- t(geneExpression)
       rownames(geneExpression) <- geneNames
       assayDataTmp <- c(list(deterministic = geneExpression),
                         stochasticSimulations)
+      } else {
+        assayDataTmp <- stochasticSimulations
+      }
       metadataTmp$stochasticSimulations <- noiseLevels
 
 
@@ -527,7 +579,6 @@ if(missing(nNoise)){
     # icFile <- paste0("tmp/",outFile,"_IC.txt")
     ic <- utils::read.table(outFileIC, header = FALSE)
     colnames(ic) <- geneNames
-
     metadataTmp$normalized <- FALSE
 
     ## Knockouts
