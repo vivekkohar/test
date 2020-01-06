@@ -381,7 +381,7 @@ if(!missing(config)){
               as genIC is FALSE")
       return(rSet)
     } else {
-      ic <- as.data.frame(sracipeIC(rSet))
+      ic <- as.data.frame(t(sracipeIC(rSet)))
       utils::write.table(ic, file = outFileIC,
                   sep = "\t", quote = FALSE, row.names = FALSE,
                   col.names = FALSE)

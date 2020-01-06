@@ -136,8 +136,8 @@ setMethod(f="sracipeIC",
           signature="RacipeSE",
           definition=function(.object)
           {
-            return(as.data.frame(colData(.object)[,(2*length(names(.object)) +
-              3*metadata(.object)$nInteractions+1):(dim(colData(.object))[2])]))
+            return(t(as.data.frame(colData(.object)[,(2*length(names(.object)) +
+              3*metadata(.object)$nInteractions+1):(dim(colData(.object))[2])])))
           }
 )
 #' @rdname sracipeIC-set
@@ -146,6 +146,7 @@ setMethod(f="sracipeIC<-",
           signature="RacipeSE",
           definition=function(.object, value)
           {
+            value <- t(value)
             colData(.object)[,(2*length(names(.object)) +
         3*metadata(.object)$nInteractions +1):
             (dim(colData(.object))[2])] <- S4Vectors::DataFrame(value)
