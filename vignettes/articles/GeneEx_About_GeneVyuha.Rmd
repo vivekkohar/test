@@ -1,0 +1,81 @@
+---
+title: "GeneVyuha"
+output: html_document
+---
+<style type="text/css">
+
+h1.title {
+
+text-align: center;
+color: DarkBlue;
+font-size: 38px;
+
+}
+
+p{
+
+font-size: 18pt;
+font-family: times, serif;
+}
+
+p1{
+
+font-size: 14pt;
+font-family: times, serif;
+}
+
+</style>
+
+<p>
+In the ODE-based mathematical modeling approach GeneEx uses (detailed in the “Theory” section of the tutorial), there are two parameters for each gene (the production and degradation rates of the gene) and three parameters for each interaction (the threshold, fold change and Hill coefficient of regulation). Thus, for a circuit with $N_g$ genes and $N_{reg}$ regulations, the total number of parameters is $2N_g+3N_{reg}$.
+</p>
+
+<p>
+Varying the values of these parameters generates different time trajectories and steady state gene expression values. In the “GeneVyuha” tab (Vyuha - a sanskrit origin word meaning pattern/formation), users can simulate the trajectory/time series of a loaded circuit for a given set of parameters as well as interactively modify any parameter value to observe its effect on the time trajectory of gene expression values. 
+</p>
+
+<p>
+Initially, a random parameter set is generated for the circuit. Users can change the value of any parameter once it is selected using the `Parameter` dropdown menu. Other options that control simulation criteria like simulation time, step size, and noise level can also be changed.
+</p>
+
+
+<center>
+
+<div style="width:400px; height:300px">
+![](images/vyuha_1.png)
+</div>
+
+</center>
+
+<br> </br>
+<br> </br>
+<br> </br>
+<br> </br>
+<br> </br>
+
+<p>
+The label before the first underscore in each parameter name refers to the parameter itself. The label after the first underscore refers to the specific gene name or interaction (formatted as source gene and target gene, separated by another underscore). The order of parameters in the dropdown menu is as follows: Production rate (`G_`), degradation rate (`K_`), threshold (`TH_`), Hill coefficient (`N_`), and fold change (`FC_`). Once all the parameter values of interest are chosen, clicking `Simulate` will generate and display the time trajectories of the gene expression values for each gene. 
+</p>
+
+
+<center>
+
+![](images/vyuha_2.png)
+
+</center>
+
+<br> </br>
+
+<p>
+Furthermore, a `Parameter Perturbation` feature is made available after the initial simulation which plots the expression change of each gene against a user selected parameter. The range of values for the selected parameter can be modified by the user. For this feature, GeneEx generates a large number of models with the parameters used in the previous simulation, whose values are sampled from $(0.9P - 1.1P)$, where $P$ denotes the value of the parameter in the previous simulation. Any observed bifurcation suggests that a bistable state exists for the bifurcated range of parameter values. In other words, for a specific parameter set, the initial conditions are what will determine which state the model will settle into.    
+
+
+</p>
+
+<center>
+
+
+![](images/vyuha_3.png)
+
+
+</center>

@@ -1,0 +1,115 @@
+---
+title: "RACIPE"
+output: html_document
+---
+<style type="text/css">
+
+h1.title {
+
+text-align: center;
+color: DarkBlue;
+font-size: 38px;
+
+}
+
+p{
+
+font-size: 18pt;
+font-family: times, serif;
+}
+
+p1{
+
+font-size: 14pt;
+font-family: times, serif;
+}
+
+</style>
+
+<p>
+The RACIPE (RAndom CIrcuit PErturbation) tab uses an ODE-based mathematical modeling approach (detailed in the “Theory” section of the tutorial) to generate an ensemble of models with random parameters that correspond to the loaded circuit topology. RACIPE then utilizes a variety of statistical tools on the final gene expressions, obtained for each model, to identify some generic properties of the circuit. Unlike the “GeneVyuha” tab, which attempts to mimic a validation experiment by simulating a circuit using a single set of kinetic parameters specified by the user, RACIPE attempts to describe the behavior of an entire cell population by simulating a large number of models with random parameters. 
+</p>
+
+<p>
+In RACIPE, the random values for each parameter are sampled uniformly from specific ranges: Production rate (1-100), degradation rate (0.1-1), fold change (1-100), Hill coefficient of regulation (1-6). The sampling ranges of the thresholds for each interaction are calculated from the particular circuit topology. The initial conditions for the numerical approximation are randomly sampled on a logarithimic scale. WHATS THE SCALE. The motivations behind these specific ranges will be covered in a future blog post. For further details, please refer to the original [publication](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005456).
+</p>
+
+<p>
+The RACIPE analysis begins with the user specifying simulation criteria: the number of models, parameter ranges, simulation time, integration time step, and the expected number of clusters. *Note of caution:* The simulation may take an extremely long to complete if the simulation time is too high, the integration time step too small, the number of models too large, or a combination of all three. </p>
+
+
+<center>
+
+<div style="width:400px; height:300px">
+![](images/racipe_1.png)
+</div>
+
+</center>
+
+<br> </br>
+<br> </br>
+<br> </br>
+<br> </br>
+
+<p>
+Clicking `Simulate` button will display the hierarchical clustering and principal components plots of the simulated gene expressions from each model. Note that the gene expressions are normalized and log transformed for downstream analysis, including the clustering analysis.
+</p>
+
+<center>
+
+
+![](images/racipe_3.png)
+
+
+</center>
+
+<center>
+
+
+![](images/racipe_4.png)
+
+</center>
+
+<br> </br>
+
+<p>
+The computational expression data is processed by a standard normalization method before clustering analysis was performed. The gene expression levels from the models are normalized first by log transformation, and then by conversion to z-scores:  
+</p>
+
+<p>
+$$ x_i \rightarrow \frac{\log_2(x_i)- \overline{\log_2(x_i)}}{\sigma(\log_2(x_i))}$$
+</p>
+
+
+---
+
+<p>
+Once the initial simulation is complete, a couple buttons labeled `Parametric Analysis` and `Stochastic RACIPE` will become available.
+</p>
+
+<p>
+The parametric analysis section enables the user to study how a change in the parameter ranges will affect the gene expression clusters and patterns. The expanded area will contain a few sliders that will filter out any models whose specified parameter values are out-of-bounds of the slider percent range. For example, if the slider positions are at `10` and `50` for a parameter whose values were selected from a range (`1-100`), the filtered data will contain only the models for which the value of selected parameter is in the range (`10-50`). A maximum of three such filters can be applied simultaneously. The hierarchical clustering and principal components plots are redrawn for the filtered data each time any of the sliders are moved. *Note of caution:* If the slider percent intervals are too small, there will be a loss in statistical power since most of the models would have been filtered out. Parametric analysis is powerful feature because it can be used to test a variety of novel hypotheses. For example, limiting the production rate of a gene is analogous to a knockdown or knockout of that particular gene. 
+</p>
+
+<center>
+
+
+![](images/racipe_5.png)
+
+</center>
+
+
+<p>
+The Stochastic RACIPE section uses the sRACIPE algorithm (stochastic random circuit perturbation) to incorporate stochastic effects into the RACIPE approach to more accurately model a cell population. The statistics are calculated at multiple noise levels using two simulation schemes: (a) constant noise-based method which estimates the basin of attraction of various phenotypic states and (b) annealing based method which provides an estimate of the relative stability of the different phenotypic states. For further details please see Citation and a future blog post.
+</p>
+
+<p>
+Clicking the `Stochastic RACIPE` button shows the inputs for stochastic simulations. `Stochastic Simulation Type` is a two-option button with options `Constant Noise` and `Annealing`. With `Constant Noise`, simulations are carried out by incorporating stochastic effects whose strength is proportional to the value selected in the `Noise Level` slider. With `Annealing`, the ensemble of models is simulated for a large (∼20) number of noise levels differing by a small amount. *Note of caution:* Due to the large number of simulations performed for annealing, the results can take a long time to be generated. Clicking `Perform Stochastic Simulations` will simulate the circuit and display the hierarchical clustering and principle components.
+</p>
+
+<center>
+
+
+![](images/racipe_6.png)
+
+</center>
