@@ -32,6 +32,16 @@ setMethod("sracipeCircuit<-", "RacipeSE",
               }
             }
             if(is(value, "data.frame")){
+              if(dim(value)[2]!=3) 
+              {
+                message("Incorrect number of columns in circuit")
+                return()
+                }
+              storage.mode(value[,3]) <- "integer"
+              if(sum(!(value[,3] %in% c(1,2)))>0){
+                message("Incorrect interactions (only 1,2 allowed)")
+                return()
+              } 
               circuitTable <- value
               colnames(circuitTable) <- c("Source","Target","Type")
               filename <- deparse(substitute(value))}
