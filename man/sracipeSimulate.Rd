@@ -4,18 +4,44 @@
 \alias{sracipeSimulate}
 \title{Simulate a gene regulatory circuit}
 \usage{
-sracipeSimulate(circuit = "inputs/test.tpo", config = config,
-  anneal = FALSE, knockOut = NA_character_, numModels = 2000,
-  paramRange = 100, prodRateMin = 1, prodRateMax = 100,
-  degRateMin = 0.1, degRateMax = 1, foldChangeMin = 1,
-  foldChangeMax = 100, hillCoeffMin = 1L, hillCoeffMax = 6L,
-  integrateStepSize = 0.02, simulationTime = 50, nIC = 1L,
-  nNoise = 0L, initialNoise = 50, noiseScalingFactor = 0.5,
-  shotNoise = 0, scaledNoise = FALSE, outputPrecision = 12L,
-  printStart = 50, printInterval = 10, stepper = "RK4",
-  thresholdModels = 5000, plots = FALSE, plotToFile = FALSE,
-  genIC = TRUE, genParams = TRUE, integrate = TRUE,
-  rkTolerance = 0.01, timeSeries = FALSE, ...)
+sracipeSimulate(
+  circuit = "inputs/test.tpo",
+  config = config,
+  anneal = FALSE,
+  knockOut = NA_character_,
+  numModels = 2000,
+  paramRange = 100,
+  prodRateMin = 1,
+  prodRateMax = 100,
+  degRateMin = 0.1,
+  degRateMax = 1,
+  foldChangeMin = 1,
+  foldChangeMax = 100,
+  hillCoeffMin = 1L,
+  hillCoeffMax = 6L,
+  integrateStepSize = 0.02,
+  simulationTime = 50,
+  nIC = 1L,
+  nNoise = 0L,
+  simDet = TRUE,
+  initialNoise = 50,
+  noiseScalingFactor = 0.5,
+  shotNoise = 0,
+  scaledNoise = FALSE,
+  outputPrecision = 12L,
+  printStart = 50,
+  printInterval = 10,
+  stepper = "RK4",
+  thresholdModels = 5000,
+  plots = FALSE,
+  plotToFile = FALSE,
+  genIC = TRUE,
+  genParams = TRUE,
+  integrate = TRUE,
+  rkTolerance = 0.01,
+  timeSeries = FALSE,
+  ...
+)
 }
 \arguments{
 \item{circuit}{data.frame or character. The file containing the circuit or}
@@ -92,6 +118,9 @@ are to be done. Use nNoise = 1 if simulations are to be carried out at a
 specific noise. If nNoise > 0, simulations will be carried out at nNoise
 levels as well as for zero noise. "EM" stepper will be used for simulations
 and any argument for stepper will be ignoired.}
+
+\item{simDet}{(optional) logical. Default TRUE.
+Whether to simulate at zero noise as well also when using nNoise > 0.}
 
 \item{initialNoise}{(optional) numeric.
 Default 50/sqrt(number of genes in the circuit). The initial value of noise

@@ -3,3 +3,5 @@
 ^\.httr-oauth$
 ^\.secret$
 ^\.secrets$
+.travis.yml
+^\.travis\.yml$

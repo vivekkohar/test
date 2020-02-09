@@ -2,12 +2,7 @@ pandoc: 2.7.3
 pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
-  GeneEx_About_Circuit: articles/GeneEx_About_Circuit.html
-  GeneEx_About_Database: articles/GeneEx_About_Database.html
-  GeneEx_About_GeneVyuha: articles/GeneEx_About_GeneVyuha.html
-  GeneEx_About_Overview: articles/GeneEx_About_Overview.html
-  GeneEx_About_RACIPE: articles/GeneEx_About_RACIPE.html
-  GeneEx_About_Theory: articles/GeneEx_About_Theory.html
-  GeneEx_About_Validate: articles/GeneEx_About_Validate.html
+  simulating trajectories: articles/simulating trajectories.html
+  underTheHood: articles/underTheHood.html
   sRACIPE: sRACIPE.html
 

@@ -72,7 +72,7 @@ range and on a subset of models with high production rate of a specific gene
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sRACIPE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.3</span>
       </span>
     </div>
 
@@ -98,25 +98,10 @@ range and on a subset of models with high production rate of a specific gene
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/articles/GeneEx_About_Circuit.html">Circuit</a>
+      <a href="../articles/articles/simulating trajectories.html">Simulating trajectories</a>
     </li>
     <li>
-      <a href="../articles/articles/GeneEx_About_Database.html">Database</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_GeneVyuha.html">GeneVyuha</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_Overview.html">Overview</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_RACIPE.html">RACIPE</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_Theory.html">Theory</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_Validate.html">Validate</a>
+      <a href="../articles/articles/underTheHood.html">Under the hood</a>
     </li>
   </ul>
 </li>
@@ -153,15 +138,30 @@ range and on a subset of models with high production rate of a specific gene
  representing the over expression of the specific gene.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>sracipeOverExp</span>(<span class='no'>.object</span>, <span class='kw'>overProduction</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>nClusters</span> <span class='kw'>=</span> <span class='fl'>2</span>,
-  <span class='kw'>clusterOfInterest</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>plotFilename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>plotHeatmap</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>plotBarPlot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>clusterCut</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>plotToFile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>sracipeOverExp</span>(
+  <span class='no'>.object</span>,
+  <span class='kw'>overProduction</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>nClusters</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>clusterOfInterest</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>plotFilename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>plotHeatmap</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>plotBarPlot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>clusterCut</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>plotToFile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)
 
 <span class='co'># S4 method for RacipeSE</span>
-<span class='fu'>sracipeOverExp</span>(<span class='no'>.object</span>, <span class='kw'>overProduction</span> <span class='kw'>=</span> <span class='fl'>10</span>,
-  <span class='kw'>nClusters</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>clusterOfInterest</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>plotFilename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>plotHeatmap</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>plotBarPlot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>clusterCut</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>plotToFile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>sracipeOverExp</span>(
+  <span class='no'>.object</span>,
+  <span class='kw'>overProduction</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>nClusters</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>clusterOfInterest</span> <span class='kw'>=</span> <span class='fl'>2</span>,
+  <span class='kw'>plotFilename</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>plotHeatmap</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>plotBarPlot</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>clusterCut</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>plotToFile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">

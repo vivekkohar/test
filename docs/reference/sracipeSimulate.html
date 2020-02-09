@@ -70,7 +70,7 @@ only input. It will generate an ensemble of random models." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">sRACIPE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.3</span>
       </span>
     </div>
 
@@ -96,25 +96,10 @@ only input. It will generate an ensemble of random models." />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/articles/GeneEx_About_Circuit.html">Circuit</a>
+      <a href="../articles/articles/simulating trajectories.html">Simulating trajectories</a>
     </li>
     <li>
-      <a href="../articles/articles/GeneEx_About_Database.html">Database</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_GeneVyuha.html">GeneVyuha</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_Overview.html">Overview</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_RACIPE.html">RACIPE</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_Theory.html">Theory</a>
-    </li>
-    <li>
-      <a href="../articles/articles/GeneEx_About_Validate.html">Validate</a>
+      <a href="../articles/articles/underTheHood.html">Under the hood</a>
     </li>
   </ul>
 </li>
@@ -149,18 +134,44 @@ only input. It will generate an ensemble of random models." />
 only input. It will generate an ensemble of random models.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>sracipeSimulate</span>(<span class='kw'>circuit</span> <span class='kw'>=</span> <span class='st'>"inputs/test.tpo"</span>, <span class='kw'>config</span> <span class='kw'>=</span> <span class='no'>config</span>,
-  <span class='kw'>anneal</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>knockOut</span> <span class='kw'>=</span> <span class='fl'>NA_character_</span>, <span class='kw'>numModels</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
-  <span class='kw'>paramRange</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>prodRateMin</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>prodRateMax</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-  <span class='kw'>degRateMin</span> <span class='kw'>=</span> <span class='fl'>0.1</span>, <span class='kw'>degRateMax</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>foldChangeMin</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>foldChangeMax</span> <span class='kw'>=</span> <span class='fl'>100</span>, <span class='kw'>hillCoeffMin</span> <span class='kw'>=</span> <span class='fl'>1L</span>, <span class='kw'>hillCoeffMax</span> <span class='kw'>=</span> <span class='fl'>6L</span>,
-  <span class='kw'>integrateStepSize</span> <span class='kw'>=</span> <span class='fl'>0.02</span>, <span class='kw'>simulationTime</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>nIC</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
-  <span class='kw'>nNoise</span> <span class='kw'>=</span> <span class='fl'>0L</span>, <span class='kw'>initialNoise</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>noiseScalingFactor</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
-  <span class='kw'>shotNoise</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>scaledNoise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>outputPrecision</span> <span class='kw'>=</span> <span class='fl'>12L</span>,
-  <span class='kw'>printStart</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>printInterval</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>stepper</span> <span class='kw'>=</span> <span class='st'>"RK4"</span>,
-  <span class='kw'>thresholdModels</span> <span class='kw'>=</span> <span class='fl'>5000</span>, <span class='kw'>plots</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>plotToFile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>genIC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>genParams</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>integrate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>rkTolerance</span> <span class='kw'>=</span> <span class='fl'>0.01</span>, <span class='kw'>timeSeries</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>sracipeSimulate</span>(
+  <span class='kw'>circuit</span> <span class='kw'>=</span> <span class='st'>"inputs/test.tpo"</span>,
+  <span class='kw'>config</span> <span class='kw'>=</span> <span class='no'>config</span>,
+  <span class='kw'>anneal</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>knockOut</span> <span class='kw'>=</span> <span class='fl'>NA_character_</span>,
+  <span class='kw'>numModels</span> <span class='kw'>=</span> <span class='fl'>2000</span>,
+  <span class='kw'>paramRange</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>prodRateMin</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>prodRateMax</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>degRateMin</span> <span class='kw'>=</span> <span class='fl'>0.1</span>,
+  <span class='kw'>degRateMax</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>foldChangeMin</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>foldChangeMax</span> <span class='kw'>=</span> <span class='fl'>100</span>,
+  <span class='kw'>hillCoeffMin</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
+  <span class='kw'>hillCoeffMax</span> <span class='kw'>=</span> <span class='fl'>6L</span>,
+  <span class='kw'>integrateStepSize</span> <span class='kw'>=</span> <span class='fl'>0.02</span>,
+  <span class='kw'>simulationTime</span> <span class='kw'>=</span> <span class='fl'>50</span>,
+  <span class='kw'>nIC</span> <span class='kw'>=</span> <span class='fl'>1L</span>,
+  <span class='kw'>nNoise</span> <span class='kw'>=</span> <span class='fl'>0L</span>,
+  <span class='kw'>simDet</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>initialNoise</span> <span class='kw'>=</span> <span class='fl'>50</span>,
+  <span class='kw'>noiseScalingFactor</span> <span class='kw'>=</span> <span class='fl'>0.5</span>,
+  <span class='kw'>shotNoise</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>scaledNoise</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>outputPrecision</span> <span class='kw'>=</span> <span class='fl'>12L</span>,
+  <span class='kw'>printStart</span> <span class='kw'>=</span> <span class='fl'>50</span>,
+  <span class='kw'>printInterval</span> <span class='kw'>=</span> <span class='fl'>10</span>,
+  <span class='kw'>stepper</span> <span class='kw'>=</span> <span class='st'>"RK4"</span>,
+  <span class='kw'>thresholdModels</span> <span class='kw'>=</span> <span class='fl'>5000</span>,
+  <span class='kw'>plots</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>plotToFile</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>genIC</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>genParams</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>integrate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>rkTolerance</span> <span class='kw'>=</span> <span class='fl'>0.01</span>,
+  <span class='kw'>timeSeries</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='no'>...</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -275,6 +286,11 @@ are to be done. Use nNoise = 1 if simulations are to be carried out at a
 specific noise. If nNoise &gt; 0, simulations will be carried out at nNoise
 levels as well as for zero noise. "EM" stepper will be used for simulations
 and any argument for stepper will be ignoired.</p></td>
+    </tr>
+    <tr>
+      <th>simDet</th>
+      <td><p>(optional) logical. Default TRUE.
+Whether to simulate at zero noise as well also when using nNoise &gt; 0.</p></td>
     </tr>
     <tr>
       <th>initialNoise</th>

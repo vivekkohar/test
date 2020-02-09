@@ -4,8 +4,15 @@
 \alias{.ModelPvalue}
 \title{Returns the variance array after permutations.}
 \usage{
-.ModelPvalue(dataSimulation, dataReference, clusterCut, permutations,
-  refClusterVar, corMethod, simulatedClusterVar)
+.ModelPvalue(
+  dataSimulation,
+  dataReference,
+  clusterCut,
+  permutations,
+  refClusterVar,
+  corMethod,
+  simulatedClusterVar
+)
 }
 \arguments{
 \item{dataSimulation}{Simulation data to be compared.}

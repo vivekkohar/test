@@ -4,11 +4,21 @@
 \alias{sracipeHeatmapSimilarity}
 \title{Calculates the similarity between two gene expression data.}
 \usage{
-sracipeHeatmapSimilarity(dataReference, dataSimulation,
-  clusterCut = NULL, nClusters = 3, pValue = 0.05, permutedVar,
-  permutations = 1000, corMethod = "spearman",
-  clusterMethod = "ward.D2", method = "pvalue", buffer = 0.001,
-  permutMethod = "simulation", returnData = FALSE)
+sracipeHeatmapSimilarity(
+  dataReference,
+  dataSimulation,
+  clusterCut = NULL,
+  nClusters = 3,
+  pValue = 0.05,
+  permutedVar,
+  permutations = 1000,
+  corMethod = "spearman",
+  clusterMethod = "ward.D2",
+  method = "pvalue",
+  buffer = 0.001,
+  permutMethod = "simulation",
+  returnData = FALSE
+)
 }
 \arguments{
 \item{dataReference}{Matrix. The reference data matrix, for example, 
