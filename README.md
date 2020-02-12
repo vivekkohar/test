@@ -1,10 +1,4 @@
 # sRACIPE 
-- [![Bioconductor Release](https://bioconductor.org/shields/build/release/bioc/sRACIPE.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/sRACIPE/) – Bioconductor Release
-- [![Bioconductor devel](https://bioconductor.org/shields/build/devel/bioc/sRACIPE.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/sRACIPE/) – Bioconductor devel
-<!-- badges: start -->
-[![Travis build status](https://travis-ci.org/vivekkohar/test.svg?branch=master)](https://travis-ci.org/vivekkohar/test)
-<!-- badges: end -->
-
 
 *Stochastic analysis for Random Circuit Perturbation*
 
@@ -27,3 +21,13 @@ install_github(“vivekkohar/sRACIPE”)
 ```
 ## Tutorials ##
 More tutorials and applications are available [here](https://vivekkohar.github.io/sRACIPE/) 
+
+
+## Webserver ##
+
+For quick exploration of circuits, one can simulate and visualize them in the browser using our webserver [GeneEx](https://geneex.jax.org/).
+
+## Build Reports ##
+- [![Bioconductor Release](https://bioconductor.org/shields/build/release/bioc/sRACIPE.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/sRACIPE/) – Bioconductor Release
+- [![Bioconductor devel](https://bioconductor.org/shields/build/devel/bioc/sRACIPE.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/sRACIPE/) – Bioconductor devel
+

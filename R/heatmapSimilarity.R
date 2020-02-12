@@ -208,7 +208,8 @@ sracipeHeatmapSimilarity = function(
   
   similarity <- list()
   similarity$simClusters <- sort(simulated.cluster)
-  similarity$simClusters <- c(similarity$simClusters[similarity$simClusters>0],similarity$simClusters[similarity$simClusters==0])
+  similarity$simClusters <- c(similarity$simClusters[similarity$simClusters>0],
+                              similarity$simClusters[similarity$simClusters==0])
   cluster.names <- unique(clusterCut)
   #print(c("Original Clusters", cluster.names))
   cluster.names <- c(0, cluster.names) #test
@@ -277,7 +278,8 @@ sracipeHeatmapSimilarity = function(
     previous.cluster.size.ref <- 0
   #  print(colnames(similarity$dataSimulation))
     # print(clusterCut)
-    for(i in seq_len((nClusters+1) ))#(length(unique(colnames(similarity$dataSimulation)))))
+    for(i in seq_len((nClusters+1) ))
+      #(length(unique(colnames(similarity$dataSimulation)))))
     {
    #   print(i)
       temp.ref <- similarity$dataReference[,which(

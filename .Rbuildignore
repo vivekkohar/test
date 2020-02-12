@@ -5,3 +5,4 @@
 ^\.secrets$
 .travis.yml
 ^\.travis\.yml$
+pkgdown/

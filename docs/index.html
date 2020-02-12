@@ -6,6 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Systems biology tool to simulate gene regulatory circuits  • sRACIPE</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
@@ -31,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">sRACIPE</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.3.4</span>
       </span>
     </div>
 
@@ -57,10 +63,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/articles/simulating%20trajectories.html">Simulating trajectories</a>
+      <a href="articles/articles/simulatingTrajectories.html">Simulating trajectories</a>
     </li>
     <li>
-      <a href="articles/articles/underTheHood.html">Under the hood</a>
+      <a href="articles/articles/singleModelSimulations.html">Single Model Simulations</a>
+    </li>
+    <li>
+      <a href="articles/articles/underTheHood.html">Under the hood - design and implementation</a>
     </li>
   </ul>
 </li>
@@ -90,13 +99,26 @@
 <p><em>Stochastic analysis for Random Circuit Perturbation</em></p>
 <p>sRACIPE implements a randomization-based method for gene circuit modeling. It allows us to study the effect of both the gene expression noise and the parametric variation on any gene regulatory circuit (GRC) using only its topology, and simulates an ensemble of models with random kinetic parameters at multiple noise levels. Statistical analysis of the generated gene expressions reveals the basin of attraction and stability of various phenotypic states and their changes associated with intrinsic and extrinsic noises. sRACIPE provides a holistic picture to evaluate the effects of both the stochastic nature of cellular processes and the parametric variation.</p>
 <p>If you use sRACIPE, please consider citing our paper <a href="https://www.nature.com/articles/s41540-018-0076-x">Role of noise and parametric variation in the dynamics of gene regulatory circuits</a> published in <a href="https://www.nature.com/npjsba/articles">npj Systems Biology and Applications</a>.</p>
-<p><em>Installation</em></p>
-<p>if (!requireNamespace(“BiocManager”, quietly = TRUE))</p>
-<p>install.packages(“BiocManager”)</p>
-<p>BiocManager::install(“sRACIPE”)</p>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<pre><code>if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("sRACIPE")</code></pre>
 <p>Or install the development version of the package from Github.</p>
-<p>library(devtools)</p>
-<p>install_github(“vivekkohar/sRACIPE”)</p>
+<pre><code>library(devtools)
+install_github(“vivekkohar/sRACIPE”)</code></pre>
+</div>
+<div id="tutorials" class="section level2">
+<h2 class="hasAnchor">
+<a href="#tutorials" class="anchor"></a>Tutorials</h2>
+<p>More tutorials and applications are available <a href="https://vivekkohar.github.io/sRACIPE/">here</a></p>
+</div>
+<div id="webserver" class="section level2">
+<h2 class="hasAnchor">
+<a href="#webserver" class="anchor"></a>Webserver</h2>
+<p>For quick exploration of circuits, one can simulate and visualize them in the browser using our webserver <a href="https://geneex.jax.org/">GeneEx</a>.</p>
+</div>
 <div id="build-reports" class="section level2">
 <h2 class="hasAnchor">
 <a href="#build-reports" class="anchor"></a>Build Reports</h2>
@@ -137,7 +159,10 @@
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Vivek Kohar <br><small class="roles"> Maintainer </small>  </li>
+<li>
+<a href="https://vivekkohar.github.io/">Vivek Kohar</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-1813-1597" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" alt="ORCID"></a> </li>
+<li>
+<a href="http://lusystemsbio.com/">Mingyang Lu</a> <br><small class="roles"> Author </small>  </li>
 </ul>
 </div>
 
@@ -146,7 +171,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Vivek Kohar.</p>
+  <p>Developed by <a href="https://vivekkohar.github.io/">Vivek Kohar</a>, <a href="http://lusystemsbio.com/">Mingyang Lu</a>.</p>
 </div>
 
 <div class="pkgdown">

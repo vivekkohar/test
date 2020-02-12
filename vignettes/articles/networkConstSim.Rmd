@@ -1,0 +1,271 @@
+---
+title: "Network Construction and Simulation"
+output:
+  html_document:
+    toc: true
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+
+## Loading Tf-target database
+Many times a context specific network is needed to explain the experimental 
+data. One can start with a known literature based network interactions or 
+regulons obtained from other data or methods. A regulon is typically a TF and 
+its targets possibly with a weight metric. Such regulons may obtained from
+activity calculation methods like SCENIC etc. or from other datasets like
+ChIP seq or ATAC seq.
+
+```{r regulons}
+# Laoding data from a known database.
+# network <- readRDS("database.rds") 
+# Here network is Source,Target two column dataframe.
+
+# If the network is in form of a list
+listNetwork <- readRDS("database.rds") # like hDB_v2
+
+network <- data.frame(Source = rep(names(lapply(listNetwork, function(x)names(x))), times = unlist(lapply(listNetwork, function(x)length(x)))),
+                      Target = unlist(hDB_v2))
+
+# From SCENIC results
+# regs <- read_json("regulon.json", simplify = T)
+# network <- data.frame(Source = character(), Target = character())
+# for(src in seq_along(regs)){
+#   targets <- unlist(regs[src])
+#   networkTmp <- data.frame(Source = rep(names(regs)[src],length(targets)), Target = targets)
+#   network <- rbind(network, networkTmp)
+# }
+
+```
+
+## Filter the network based on core transcription factors
+```{r}
+
+# Core transcription factors around which to built the network. Only the
+# TFs which are regulator or target of these coreTfs in the database
+# will be included in the network.
+
+coreTf <- readRDS(("coreTf.rds"))
+
+network <- network[union(which(network$Source %in% coreTf),
+                                 which(network$Source %in% coreTf)),]
+  
+```
+## Add correlation to the network
+
+```{r}
+      expData <- readRDS("expData.rds")
+      networkGenes <- union(network$Source,network$Target)
+      expData <- t(expData[networkGenes,])
+      actCor <- cor(expData, method = "s")
+      type <- integer(length = length(network$Source))
+      for(int in seq_along(network$Source)){
+        type[int] <- actCor[as.character(network$Source[int]), as.character(network$Target[int])]
+      }
+      # Correlation
+      network$Cor <- type
+      # Assign interaction sign based on correlation
+      type[type>0] <- 1
+      type[type<=0] <- 2
+      network$Type <- type
+```
+
+## Add mutual information to the network.
+
+Function to calculate mutual information.
+```{r}
+
+library(infotheo)
+#' @param data expression matrix. Genes in rows and samples/cells in columns
+#' @param nbins number of bins
+#' @value A mutual information matrix
+calculateMI <- function(data = actMat, nbins=16){
+  data <- t(data)
+  nGenes <- dim(data)[2]
+  miMat <- matrix(0,nrow = nGenes,ncol = nGenes)
+  geneNames <- colnames(data)
+  rownames(miMat) <- geneNames
+  colnames(miMat) <- geneNames
+  data <- infotheo::discretize(data)
+  #i=1
+  for(i in 1:(nGenes-1))
+  {
+    for(j in (i+1):(nGenes))
+    {
+      gene1 <- geneNames[i]
+      gene2 <- geneNames[j]
+      miMat[gene1, gene2] <- infotheo::mutinformation(data[,gene1], data[,gene2], method = "mm")
+      miMat[gene2, gene1] <- miMat[gene1, gene2]
+    }
+  }
+  return(miMat)
+}
+
+```
+
+Add mutual information to the network. This method is efficient for dense
+networks. If the network is sparse, one should calcualte MI for individual 
+interactions instead of all pairs.
+```{r}
+actMi <- calculateMI(data = expData, nbins=8)
+      mi <- integer(length = length(network$Source))
+      for(int in seq_along(network$Source)){
+        mi[int] <- actMi[as.character(network$Source[int]), as.character(network$Target[int])]
+      }
+      network$Mi <- mi
+
+```
+
+
+## Helper functions
+
+```{r}
+# function to remove two nodes connected to each other only
+removeNodePairs <- function(tmpNetwork){
+  srcGenes <- unique(tmpNetwork$Source)
+  for(i in seq_along(srcGenes)){
+    src <- tmpNetwork$Source[which(tmpNetwork$Source == srcGenes[i])]
+    tgtGenes <- tmpNetwork$Target[which(tmpNetwork$Target == srcGenes[i])]
+    if((length(tgtGenes)==1) & (length(src)==1) ){
+      if((tgtGenes==src)){
+        print(tgtGenes)
+      tmpNetwork <- tmpNetwork[-(which(tmpNetwork$Source == tgtGenes)),]
+      tmpNetwork <- tmpNetwork[-(which(tmpNetwork$Target == tgtGenes)),]
+      }
+}
+  }
+  return(tmpNetwork)
+}
+```
+
+## Function to generate the networks
+
+```{r pressure, echo=TRUE}
+library(sRACIPE)
+library(stringr)
+library(roxygen2)
+
+
+#' @param tmpNetwork A network containing the TF, target and the metric.
+#' The metric can be mutual information. It should also have a metric to 
+#' identify the sign of the interaction, for example, correlation.
+#' In this case the network can have same interaction with different
+#' mutual information and/or sign metric as the interaction can come from
+#' different sources.
+#' @param coreTf List of factors whose nearest neighbors are to be included in 
+#' the network. Use all tfs as coreTfs if no core tf is to be used.
+#' @param posMi Cutoff for positive mutual information
+#' @param negMi Cutoff for negative mutual information
+#' @param name generic name for dataset
+#' @param simulate whether to simulate the networks using sRACIPE
+#' @param allowAllSameSign wether to simulate networks with interactions of
+#' one type only
+#' @param minCoreTFs minimum number of coreTFs that should be in the network
+#' for it to be included in simulations
+#' @param minPosInt minimum number of excitatory interactions that should be in the network
+#' for it to be included in simulations.
+#' @param minNegInt minimum number of inhibitory interactions that should be in the network
+#' for it to be included in simulations.
+#'
+#' 
+createNetworkMiValue <- function(tmpNetwork=network,coreTf = coreTf, 
+                                 posMi = posMi,
+                                 negMi = negMi, name = "A549", 
+                                 simulate = FALSE, allowAllSameSign = FALSE,
+                                 minCoreTFs = 0, minPosInt=0,minNegInt=0){
+  tmpNetwork <- tmpNetwork[union(which(tmpNetwork$Source %in% coreTf),
+                                 which(tmpNetwork$Source %in% coreTf)),]
+  
+  tmpNetwork <- tmpNetwork[(tmpNetwork$Source ),]
+  # sort the network based on mutual information
+  tmpNetwork <- tmpNetwork[order(tmpNetwork$Mi, decreasing = TRUE),]
+  # remove any duplicate interactions
+  tmpNetwork <- tmpNetwork[!duplicated(tmpNetwork[c("Source","Target","Type")]),]
+  # Select the positive network
+  posNetwork <- tmpNetwork[tmpNetwork$Cor >0,]
+  posNetwork <- posNetwork[which(posNetwork$Mi > posMi),]
+  # Select the negative network
+  negNetwork <- tmpNetwork[tmpNetwork$Cor < 0,]
+  negNetwork <- negNetwork[which(negNetwork$Mi > negMi),]
+  
+  # Exit if there are either no positive or negative interaction.
+  # Can be removed if all positive or all negative networks are ok
+  if(!allowAllSameSign){
+  if(dim(posNetwork)[1] == 0 | dim(negNetwork)[1] == 0) return()
+    }
+# Combine the network
+  tmpNetwork <- rbind(posNetwork,negNetwork)
+  print("check if there are any duplicate interactions with same or conflicting sign")
+  print(sum(duplicated(tmpNetwork[,c("Source","Target")])))
+  print(" check if there are any duplicate interactions with same sign")
+  print(sum(duplicated(tmpNetwork[,c("Source","Target","Type")])))
+  # Remove duplicate interactions
+  tmpNetwork <- tmpNetwork[!duplicated(tmpNetwork[,c("Source","Target","Type")]),]
+  print("Check if any conflicting interaction is there")
+  print(tmpNetwork[duplicated(tmpNetwork[,c("Source","Target")]),])
+  print(tmpNetwork[duplicated(tmpNetwork[,c("Source","Target")], fromLast = TRUE),])
+# Remove conflicting interactions
+  delRows <- anyDuplicated(tmpNetwork[,c("Source","Target")])
+  delRows <- c(delRows, anyDuplicated(tmpNetwork[,c("Source","Target")], fromLast = TRUE))
+  delRows <- delRows[delRows>0]
+  if(length(delRows>0)){ tmpNetwork <- tmpNetwork[-delRows,]}
+
+  # Remove signaling interactions
+  # Uncomment for iterative removal
+  # interactionRemoved = length(tmpNetwork$Source)
+  # while(interactionRemoved>0)
+  {
+    tmpVar = length(tmpNetwork$Source)
+    tmpNetwork <- tmpNetwork[(which(tmpNetwork$Source %in% tmpNetwork$Target )),]
+    # if targets only nodes are also to be removed.
+    # tmpNetwork <- tmpNetwork[which(tmpNetwork$Target %in% tmpNetwork$Source),]
+    # interactionRemoved = tmpVar - length(tmpNetwork$Source)
+  }
+
+  tmpNetwork <- tmpNetwork[!duplicated(tmpNetwork),]
+  tmpNetwork <- removeNodePairs(tmpNetwork)
+  print("Number of interactions")
+  print(length(tmpNetwork$Source))
+  networkTfs <- union(tmpNetwork$Source,tmpNetwork$Target)
+  print("Core Tfs included in the network")
+  print(networkTfs[which(networkTfs %in% coreTfGenes)])
+
+  if(length(networkTfs) < minCoreTFs) simulate = FALSE
+
+  if(length(which(tmpNetwork$Type ==2)) <minNegInt) simulate = FALSE
+  if(length(which(tmpNetwork$Type ==1)) <minNegInt) simulate = FALSE
+  require(igraph)
+  circuit <-  tmpNetwork[,c("Source", "Target", "Type")]
+  g <- graph_from_data_frame(circuit, directed = TRUE, vertices = NULL)
+  if(!igraph::is_connected(g)) simulate = FALSE 
+
+
+  if(simulate){
+    require(sRACIPE)
+    tmp <- sracipeSimulate(circuit = tmpNetwork[,c("Source", "Target", "Type")], plotToFile = TRUE,
+                           numModels = 2000, plots = FALSE, stepper = "RK4", integrateStepSize = 0.05)
+    annotation(tmp) <- paste0(name,"_",as.character(posMi), "_",as.character(negMi),"Interactions")
+    # tmp <- sracipePlotData(tmp, plotToFile = T)
+    saveRDS(tmp, file = paste0("simAll/",name,"_",as.character(posMi), "_",as.character(negMi),".rds"))
+  }
+  # return(tmpNetwork)
+}
+
+```
+
+## Construct and simulate networks
+
+```{r}
+for(posMi in seq(1,0.05,-0.05)){
+  for(negMi in seq(0.5,0.05,-0.05)){
+
+    print(paste0("network_",as.character(posMi),"_",as.character(negMi)))
+    createNetworkMiValue(tmpNetwork = network,posMi=posMi,negMi = negMi,
+                                         name="net", simulate = T)
+  }
+}
+
+```
