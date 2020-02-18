@@ -171,27 +171,46 @@ library(roxygen2)
 #' for it to be included in simulations.
 #'
 #' 
-createNetworkMiValue <- function(tmpNetwork=network,coreTf = coreTf, 
-                                 posMi = posMi,
-                                 negMi = negMi, name = "A549", 
-                                 simulate = FALSE, allowAllSameSign = FALSE,
-                                 minCoreTFs = 0, minPosInt=0,minNegInt=0){
+createNetworkMiValue <- function(tmpNetwork=network,coreTf = NULL, 
+                                  name = "A549", 
+                                 simulate = TRUE, allowAllSameSign = TRUE,
+                                 minCoreTFs = 0, minPosInt=2,minNegInt=1,
+                                 addIntPos = 10, addIntNeg = 10){
+  
   networkList <- list()
   networkNames <- c()
+  if(is.null(coreTf)) coreTf <- union(tmpNetwork$Source,tmpNetwork$Target)
   tmpNetwork <- tmpNetwork[union(which(tmpNetwork$Source %in% coreTf),
                                  which(tmpNetwork$Source %in% coreTf)),]
-  {
+  posInt <- minPosInt
+  tmpNetworkPos <- tmpNetwork[order(tmpNetwork$Mi, decreasing = TRUE),]
+  tmpNetworkPos <- tmpNetworkPos[tmpNetworkPos$Cor>=0,]
+  tmpNetworkNeg <- tmpNetwork[order(tmpNetwork$Mi, decreasing = TRUE),]
+  tmpNetworkNeg <- tmpNetworkNeg[tmpNetworkNeg$Cor < 0,]
+
+    tmpNetwork2 <- tmpNetwork
+  while(posInt<length(tmpNetworkPos$Mi)){
+      posMi <- tmpNetworkPos$Mi[posInt]
+ #     print(posMi)
+      negInt <- minNegInt
+    while(negInt<length(tmpNetworkNeg$Mi)){
+validNetwork <- TRUE
+  negMi <- tmpNetworkNeg$Mi[negInt]  
+#  print(negMi)
+
+  tmpNetwork <- tmpNetwork2
   # sort the network based on mutual information
   tmpNetwork <- tmpNetwork[order(tmpNetwork$Mi, decreasing = TRUE),]
   # remove any duplicate interactions
   tmpNetwork <- tmpNetwork[!duplicated(tmpNetwork[c("Source","Target","Type")]),]
   # Select the positive network
   posNetwork <- tmpNetwork[tmpNetwork$Cor >0,]
-  posNetwork <- posNetwork[which(posNetwork$Mi > posMi),]
+  posNetwork <- posNetwork[which(posNetwork$Mi >= posMi),]
+ # print(dim(posNetwork))
   # Select the negative network
   negNetwork <- tmpNetwork[tmpNetwork$Cor < 0,]
-  negNetwork <- negNetwork[which(negNetwork$Mi > negMi),]
-  
+  negNetwork <- negNetwork[which(negNetwork$Mi >= negMi),]
+ # print(dim(negNetwork))
   # Exit if there are either no positive or negative interaction.
   # Can be removed if all positive or all negative networks are ok
   if(!allowAllSameSign){
@@ -199,15 +218,15 @@ createNetworkMiValue <- function(tmpNetwork=network,coreTf = coreTf,
     }
 # Combine the network
   tmpNetwork <- rbind(posNetwork,negNetwork)
-  print("check if there are any duplicate interactions with same or conflicting sign")
-  print(sum(duplicated(tmpNetwork[,c("Source","Target")])))
-  print(" check if there are any duplicate interactions with same sign")
-  print(sum(duplicated(tmpNetwork[,c("Source","Target","Type")])))
+#  print("check if there are any duplicate interactions with same or conflicting sign")
+#  print(sum(duplicated(tmpNetwork[,c("Source","Target")])))
+#  print(" check if there are any duplicate interactions with same sign")
+#  print(sum(duplicated(tmpNetwork[,c("Source","Target","Type")])))
   # Remove duplicate interactions
   tmpNetwork <- tmpNetwork[!duplicated(tmpNetwork[,c("Source","Target","Type")]),]
-  print("Check if any conflicting interaction is there")
-  print(tmpNetwork[duplicated(tmpNetwork[,c("Source","Target")]),])
-  print(tmpNetwork[duplicated(tmpNetwork[,c("Source","Target")], fromLast = TRUE),])
+#  print("Check if any conflicting interaction is there")
+#  print(tmpNetwork[duplicated(tmpNetwork[,c("Source","Target")]),])
+#  print(tmpNetwork[duplicated(tmpNetwork[,c("Source","Target")], fromLast = TRUE),])
 # Remove conflicting interactions
   delRows <- anyDuplicated(tmpNetwork[,c("Source","Target")])
   delRows <- c(delRows, anyDuplicated(tmpNetwork[,c("Source","Target")], fromLast = TRUE))
@@ -221,33 +240,48 @@ createNetworkMiValue <- function(tmpNetwork=network,coreTf = coreTf,
   {
     tmpVar = length(tmpNetwork$Source)
     tmpNetwork <- tmpNetwork[(which(tmpNetwork$Source %in% tmpNetwork$Target )),]
+ #   print(dim(tmpNetwork))
     # if targets only nodes are also to be removed.
     # tmpNetwork <- tmpNetwork[which(tmpNetwork$Target %in% tmpNetwork$Source),]
     # interactionRemoved = tmpVar - length(tmpNetwork$Source)
   }
 
   tmpNetwork <- tmpNetwork[!duplicated(tmpNetwork),]
-  tmpNetwork <- removeNodePairs(tmpNetwork)
-  print("Number of interactions")
-  print(length(tmpNetwork$Source))
+#  print(dim(tmpNetwork))
+#  tmpNetwork <- removeNodePairs(tmpNetwork)
+#  print("Number of interactions")
+#  print(length(tmpNetwork$Source))
   networkTfs <- union(tmpNetwork$Source,tmpNetwork$Target)
-  print("Core Tfs included in the network")
-  print(networkTfs[which(networkTfs %in% coreTfGenes)])
+#  print("Core Tfs included in the network")
+#  print(networkTfs[which(networkTfs %in% coreTfGenes)])
 
-  if(length(networkTfs) < minCoreTFs) simulate = FALSE
-
-  if(length(which(tmpNetwork$Type ==2)) <minNegInt) simulate = FALSE
-  if(length(which(tmpNetwork$Type ==1)) <minNegInt) simulate = FALSE
+  if(length(networkTfs) < minCoreTFs) validNetwork = FALSE
+# print(dim(tmpNetwork))
+  if(length(which(tmpNetwork$Type ==2)) <minNegInt) validNetwork = FALSE
+  if(length(which(tmpNetwork$Type ==1)) <minPosInt) validNetwork = FALSE
   require(igraph)
   circuit <-  tmpNetwork[,c("Source", "Target", "Type")]
   g <- graph_from_data_frame(circuit, directed = TRUE, vertices = NULL)
-  if(!igraph::is_connected(g)) simulate = FALSE 
-  if(simulate){  
+  if(!igraph::is_connected(g)) validNetwork = FALSE 
+  print(validNetwork)
+  if(validNetwork){  
+    netName <- paste0(name,"_",posMi,"_",negMi)
+    print(netName)
+  #  print(circuit)
     networkList[[netName]] <- circuit
-    simulate = TRUE
+
   }
-}
+      validNetwork = TRUE
+  
+    negInt <- negInt+addIntNeg 
+#    print("negInt")
+#    print(negInt)
+    }
+    posInt <- posInt+addIntPos 
+#    print(posInt)
+    }
   return(networkList)
+  
 }
 
 ```
@@ -255,17 +289,22 @@ createNetworkMiValue <- function(tmpNetwork=network,coreTf = coreTf,
 ## Construct and simulate networks
 
 ```{r}
-    print(paste0("network_",as.character(posMi),"_",as.character(negMi)))
-    networkList <- createNetworkMiValue(tmpNetwork = network,posMi=posMi,negMi = negMi,
-                                         name="net", simulate = T)
-     
+# Example
+# Create a demo tmpNetwok
+tmpNetwork <- data.frame(Source = sample(LETTERS, 100, replace = TRUE), Target = sample(LETTERS, 100, replace = TRUE),
+Mi = runif(100), Cor = runif(100,-1,1))
+tmpNetwork$Type <- 1
+tmpNetwork$Type[tmpNetwork$Cor <0] <- 2
+
+
+networkList <- createNetworkMiValue(tmpNetwork = tmpNetwork,
+                                         name="net")
     simulatedNetwork <- networkList
-    simulatedNetwork <- lapply(networkList, function(x) {
+    simulatedNetwork <- lapply(tmp, function(x) {
           require(sRACIPE)
           return(sracipeSimulate(circuit = tmpNetwork[,c("Source", "Target", "Type")], plotToFile = TRUE,
-                           numModels = 2000, plots = FALSE, stepper = "RK4", integrateStepSize = 0.05))
+                           numModels = 20, plots = FALSE, stepper = "RK4", integrateStepSize = 0.05))
     })
     saveRDS(simulatedNetwork, "simulatedNetworks.RDS")
-
 
 ```
