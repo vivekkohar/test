@@ -13,6 +13,48 @@ knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 Once the network simulations are done, one can compare the simulations to the
 expression data.
 
+## Comparing data
+
+```{r}
+fileNames <- list.files("simAll/")
+nClusters <- 2
+networkMetrics <- data.frame(Nodes=integer(),Interactions=integer(),PosInt = integer(),ClusterA = integer(), ClusterB = integer(),Connected = logical(), ModelCount = integer(), transitivity = numeric(), MeanDistance = numeric(), Accuracy = numeric(), Filename = character(), MiPos = numeric(), MiNeg = numeric())
+
+for(fileCounter in seq_along(fileNames)){
+
+  fileNameTmp <- fileNames[fileCounter]
+  print(fileNameTmp)
+
+posMi <- as.numeric(gsub("^(?:[^_]+_){1}([^_]+).*", "\\1", fileNameTmp))
+negMi <- gsub("^(?:[^_]+_){2}([^_]+).*", "\\1", fileNameTmp)
+negMi <- as.numeric(substr(negMi,0,nchar(negMi)-4))
+
+racipe <- readRDS(paste0("simAll/",fileNameTmp))
+racipe <- sracipeNormalize(racipe)
+expData <- assay(racipe,1)
+
+dataRef <- # your exp data
+dataSim <- expData
+hS <- sracipeHeatmapSimilarity(dataReference = tmp1,dataSimulation = tmp2,nClusters = nClusters)
+ClusterA <- hS$simulated.cluster.freq[2]
+ClusterB <- hS$simulated.cluster.freq[3]
+circuit <-  as.data.frame(sracipeCircuit(racipe))
+g <- graph_from_data_frame(circuit, directed = TRUE, vertices = NULL)
+expDataTmp <- as.matrix(expData)
+storage.mode(expDataTmp) <- "logical"
+networkMetricsTmp <- data.frame(Nodes= length(union(circuit$Source,circuit$Target)),Interactions=length(circuit$Source),PosInt = length(which(circuit$Type ==1)),ClusterA = ClusterA, ClusterB = ClusterB,Connected = igraph::is_connected(g), ModelCount = sracipeConfig(racipe)$simParams["numModels"], Transitivity = igraph::transitivity(g),MeanDistance = igraph::mean_distance(g, directed = TRUE, unconnected = FALSE), Filename=fileNameTmp, MiPos = posMi, MiNeg = negMi)
+
+networkMetricsTmp$Accuracy <- (networkMetricsTmp$ClusterA + networkMetricsTmp$ClusterB)
+networkMetricsTmp$Accuracy2 <- hS$KL
+networkMetricsTmp$ClusterA2 <- hS$cluster.similarity[2]
+networkMetricsTmp$ClusterB2 <- hS$cluster.similarity[3]
+networkMetrics <- rbind(networkMetrics, networkMetricsTmp)
+}
+saveRDS(networkMetrics, file = "networkMetrics.rds")
+
+
+```
+
 ## Comparing binarized data
 
 ```{r}

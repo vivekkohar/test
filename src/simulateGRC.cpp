@@ -128,7 +128,7 @@ void selectParameters(Rcpp::IntegerMatrix geneInteraction,
         nGene[geneCount1][geneCount2]=0;
       } else {
         nGene[geneCount1][geneCount2] =
-          int((nMax-nMin)*u_distribution(u_generator))+nMin;}
+          int((nMax-nMin+1)*u_distribution(u_generator))+nMin;}
     }
   }
 
