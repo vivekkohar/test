@@ -351,7 +351,7 @@ setMethod(f="sracipePlotCircuit",
 #' @aliases sracipePlotData
 setMethod(f="sracipePlotData",
           signature="RacipeSE",
-          definition=function(.object, plotToFile = TRUE, nClusters = 2,
+          definition=function(.object, plotToFile = FALSE, nClusters = 2,
                               heatmapPlot = TRUE,
                               pcaPlot = TRUE, umapPlot = TRUE,
                               networkPlot = TRUE,

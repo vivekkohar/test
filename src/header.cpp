@@ -4,13 +4,13 @@
 using namespace Rcpp;
 
 
-unsigned u_seed = 123;// std::chrono::system_clock::now().time_since_epoch().count();
+unsigned u_seed = INT_MAX*(R::runif(0,1)); // std::chrono::system_clock::now().time_since_epoch().count();
 std::mt19937_64 u_generator (u_seed);
 
 //uniformly distributed random number generator in (0,1) range
 std::uniform_real_distribution<double> u_distribution(0.0,1.0);
 
-unsigned g_seed = 123456; //
+unsigned g_seed = INT_MAX*(R::runif(0,1)); //
 std::mt19937_64 g_generator (g_seed);
 std::normal_distribution<double> g_distribution(0.0,1.0);
 
