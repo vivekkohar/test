@@ -677,7 +677,7 @@ if(missing(nNoise)){
 
         for(ko in seq_along(knockOut)){
           koGene <- knockOut[[ko]]
-          knockOut_number <- which(koGene==geneNames)
+          knockOut_number <- which(koGene%in%geneNames)
           if(length(knockOut_number)==0){
             message("knockOut gene not found in the circuit")
             return(rSet)
