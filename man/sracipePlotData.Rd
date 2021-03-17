@@ -23,7 +23,7 @@ sracipePlotData(
 
 \S4method{sracipePlotData}{RacipeSE}(
   .object,
-  plotToFile = TRUE,
+  plotToFile = FALSE,
   nClusters = 2,
   heatmapPlot = TRUE,
   pcaPlot = TRUE,

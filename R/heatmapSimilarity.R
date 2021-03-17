@@ -207,6 +207,7 @@ sracipeHeatmapSimilarity = function(
   }
   
   similarity <- list()
+  similarity$simClustersUnsorted <- simulated.cluster
   similarity$simClusters <- sort(simulated.cluster)
   similarity$simClusters <- c(similarity$simClusters[similarity$simClusters>0],
                               similarity$simClusters[similarity$simClusters==0])

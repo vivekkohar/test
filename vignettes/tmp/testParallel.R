@@ -22,7 +22,7 @@ Sys.time() -t
 
 data("EMT2")
 t <- Sys.time()
-tmp2 <- sracipeSimulate(EMT2, numModels = 1000, nCores = 6)
+tmp2 <- sracipeSimulate(EMT2, numModels = 1000, nCores = 8)
 Sys.time() -t
 
 t <- Sys.time()

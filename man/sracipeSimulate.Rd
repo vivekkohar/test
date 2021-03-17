@@ -40,6 +40,7 @@ sracipeSimulate(
   integrate = TRUE,
   rkTolerance = 0.01,
   timeSeries = FALSE,
+  nCores = 1L,
   ...
 )
 }
@@ -196,6 +197,10 @@ for adaptive integration method.}
 \item{timeSeries}{(optional) logical. Default \code{FALSE}. 
 Whether to generate time series for a single model instead of performing
 RACIPE simulations.}
+
+\item{nCores}{(optional) integer. Default \code{1}
+Number of cores to be used for computation. Utilizes \code{multiprocess} from 
+\code{doFuture} pacakge. Will not work in Rstudio.}
 
 \item{...}{Other arguments}
 }
